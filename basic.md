@@ -12,13 +12,14 @@ func main(){
   println("Hello World")
 }
 ```  
-## Package
+## Fundamental
+### Package
 - Setiap program GO terdiri paket-paket. 
 - Program muali berjalan dari paket utama (main package). 
 - Dalam satu project hanya boleh ada satu package main
 - Selain paket main, nama paket harus sama dengan nama folder.
 
-## Type
+### Type
 - Go is a statically typed programming language
 - Setiap variabel, konstanta dan lain-lain memiliki type
 - tipe dasar :
@@ -41,7 +42,7 @@ complex64 complex128
 ``` 
 - Ada tipe turunan seperti array, slice, map, interface, struct, dan function
 
-## Constanta
+### Constanta
 ```
 const pi float64 = 22/7
 const (
@@ -50,7 +51,7 @@ const (
 )
 ```
 
-## Variable
+### Variable
 ```
 package repositories
 // contoh variabel yang siklus hidupnya ada dalam satu paket. Seluruh kode dalam paket repositories, biarpun berbeda file bisa mengakses variabel ini
@@ -77,7 +78,7 @@ func Satu() {
 }
 ```
 
-## Function
+### Function
 - fungsi juga merupakan sebuah tipe
 ```
 type Handler func(http.ResponseWriter, *http.Request)
@@ -105,7 +106,8 @@ func main() {
   var closure string
   closure = GetClosure()
   println(closure)
-
+```
+```
   // Callback
   println(square(func(i int) int {
 	return i * i
@@ -130,4 +132,224 @@ func square(f func(int) int, x int) int {
 func Hitung(o operasi, x int, y int) int {
 	return o(x, y)
 } 
+```
+## Flow Control
+### if
+```
+if err != nil {
+	return err
+}
+
+if err := run(); err != nil {
+	return err
+}
+
+if b := 1; b < 10 {
+	println("blok if", b)	
+} else {
+	println("blok else", b)
+}
+```
+
+### switch
+```
+func main() {
+	fmt.Print("Go berjalan pada ")
+	switch os := runtime.GOOS; os {
+	case "darwin":
+		fmt.Println("OS X.")
+	case "linux":
+		fmt.Println("Linux.")
+	default:
+		// freebsd, openbsd,
+		// plan9, windows...
+		fmt.Printf("%s.\n", os)
+	}
+
+	t := time.Now()
+	switch {
+	case t.Hour() < 12:
+		fmt.Println("Selamat pagi!")
+	case t.Hour() < 17:
+		fmt.Println("Selamat sore.")
+	default:
+		fmt.Println("Selamat malam.")
+	}
+}
+```
+
+### for 
+```
+func main() {
+	// standard for
+	for i:=0; i<=10; i++ {
+		println(i)
+	}
+
+	// while
+	i := 0
+	for i<=10 {
+		println(i)
+		i++
+	}
+
+	// infinite loop
+	i = 0
+	for {
+		println(i)
+		if i == 10 {
+			break
+		}
+		i++
+	}
+
+	// foreach
+	array := []uint{0,1,2,3,4,5,6,7,8,9,10}
+	for index, value := range array {
+		println(index, value)
+	}
+}
+```
+### defer
+- Perintah defer menunda eksekusi dari sebuah fungsi sampai fungsi yang melingkupinya selesai.
+- Argumen untuk pemanggilan defer dievaluasi langsung, tapi pemanggilan fungsi tidak dieksekusi sampai fungsi yang melingkupinya selesai.
+```
+func main() {
+	defer println("datang")
+	println("selamat")
+}
+```
+- Jika ada tumpukan perintah defer, maka akan dieksekusi secara LIFO (last In First Out)
+```
+func main() {
+	defer println("pertama")
+	for i:=0; i<= 10; i++ {
+		defer println(i)
+	}
+	defer println("terakhir")
+	println("normal")
+}
+```
+
+## Array dan Struct
+### Pointer
+```
+func main() {
+	i := 10
+	p := &i         // menunjuk ke i
+	println(*p) 	// baca i lewat pointer
+	*p = 20         // set i lewat pointer
+	println(i)  	// lihat nilai terbaru dari i
+}
+
+```
+### Array
+```
+var salam [2]string
+salam[0] = "selamat"
+salam[1] = "pagi"
+fmt.Println(salam)
+
+greeting := []string{"Good", "Morning"}
+fmt.Println(greeting)
+```
+### Slice
+- Merupakan potongan dari sebuah array
+```
+var musim [3]string
+musim[0] = "panas"
+musim[1] = "panas-sekali"
+musim[2] = "super-duper-panas"
+fmt.Println(musim)
+slice := musim[1:2]
+fmt.Println(slice)
+slice = musim[:2]
+fmt.Println(slice)
+slice = musim[1:]
+fmt.Println(slice)
+```
+### Map
+- kalau di PHP ini seperti assosiatif array.
+- index otomatis disort secara alpabet
+```
+hari := map[string]int{"Senin":1, "Selasa":2, "Rabu":3}
+fmt.Println(hari)
+``` 
+### Common Operation
+- array tidak dideklarasikan dengan kapasitasnya
+- untuk menambahkan anggota dengan menggunakan fungsi append  
+```
+var salam []string
+salam = append(salam, "selamat")
+salam = append(salam, "pagi")
+fmt.Println(salam)
+```
+```
+func main() {
+	buah := []string{"rambutan", "durian", "salak"}
+	exist, index := InArray("duku", buah)
+	println(exist, index)
+
+	buah = Remove("durian", buah)
+	fmt.Println(buah)
+	buah = append(buah, "mangga")
+	fmt.Println(buah)
+	exist, index = InArray("salak", buah)
+	if exist {
+		buah = RemoveByIndex(index, buah)
+	}
+	fmt.Println(buah)	
+}
+
+func InArray(val string, array []string) (bool, int) {
+	for i, s := range array {
+		if s == val {
+			return true, i	
+		}
+	}
+
+	return false, -1
+}
+
+func Remove(val string, array []string) []string {
+	isExist, index := InArray(val, array)
+	if isExist {
+		if index == 0 {
+			array = array[1:]
+		} else {
+			array = append(array[:index], array[(index+1):]...)
+		}
+	}
+
+	return array
+}
+
+func RemoveByIndex(index int, array []string) []string {
+	if index == 0 {
+		return array[1:]
+	} else {
+		return append(array[:index], array[(index+1):]...)
+	}
+}
+```
+### struct
+- sebuah tipe data abstract
+- berisi dari kumpulan dari berbagai type
+```
+type User struct {
+	ID uint64
+	Name string	
+}
+
+func main() {
+	var user User
+	user.ID = 1
+	user.Name = "Jacky"
+	fmt.Printf("%v\n", user)
+	println(user.Name)
+
+	user2 := User{ID: 2, Name: "JetLee"}
+	fmt.Printf("%v\n", user2)
+	println(user2.Name)
+}
 ```
