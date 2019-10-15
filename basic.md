@@ -90,6 +90,7 @@ func Jumlah (a int, b int) int {
 }
 ```
 ```
+type operasi func(a int, b int) int
 func main() {
   // Lambda
   println(func() string {
@@ -126,7 +127,7 @@ func square(f func(int) int, x int) int {
 	return f(x * x)
 }
 
-func Hitung(operasi func(a int, b int) int, x int, y int) int {
-	return operasi(x, y)
+func Hitung(o operasi, x int, y int) int {
+	return o(x, y)
 } 
 ```
