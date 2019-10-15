@@ -106,16 +106,20 @@ func main() {
   println(closure)
 
   // Callback
+  println(square(func(i int) int {
+	return i * i
+  }, 2))
+	
   // Callback
-	var Jumlah = func(a int, b int) int {
-		return a + b
-	}
-	var Kurang = func(a int, b int) int {
-		return a - b
-	}
+  var Jumlah = func(a int, b int) int {
+	return a + b
+  }
+  var Kurang = func(a int, b int) int {
+	return a - b
+  }
 
-	println("Operasi Jumlah : ", Hitung(Jumlah, 5, 3))
-	println("Operasi Kurang : ", Hitung(Kurang, 5, 3))
+  println("Operasi Jumlah : ", Hitung(Jumlah, 5, 3))
+  println("Operasi Kurang : ", Hitung(Kurang, 5, 3))
 }
 
 func square(f func(int) int, x int) int {
