@@ -1,7 +1,7 @@
 # Golang Essensials
 Mempelajari pemrograman golang untuk pemula. Runag lingkup pembelajaran meliputi :
 
-## Basic
+## [Basic](https://github.com/jacky-htg/basic-golang/blob/master/basic.md)
 - Install golang
 - Hello world
 - Package, type, constanta, variable, function
