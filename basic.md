@@ -54,7 +54,8 @@ const (
 ### Variable
 ```
 package repositories
-// contoh variabel yang siklus hidupnya ada dalam satu paket. Seluruh kode dalam paket repositories, biarpun berbeda file bisa mengakses variabel ini
+// contoh variabel yang siklus hidupnya ada dalam satu paket. 
+// Seluruh kode dalam paket repositories, biarpun berbeda file bisa mengakses variabel ini
 var err error
 
 func Satu() {
@@ -66,10 +67,12 @@ func Satu() {
   // variable yang telah dideklarasikan bisa diisi dengan nilai yang sesuai
   a = 1
 
-  // variabel bisa dideklarasikan secara implisit dan sekaligus langsung diberi nilai. tipe akan disematkan secara implisit pada variabel ini
+  // variabel bisa dideklarasikan secara implisit dan sekaligus langsung diberi nilai. 
+  // tipe akan disematkan secara implisit pada variabel ini
   b := 2 
 
-  // siklus hidup variabel bisa hanya dalam blok yang membatasi. blok bisa berupa blok if, for, fungsi atau bahkan hanya notasi blok saja. 
+  // siklus hidup variabel bisa hanya dalam blok yang membatasi. 
+  // blok bisa berupa blok if, for, fungsi atau bahkan hanya notasi blok saja. 
   {
     var c string
     c = "variabel di dalam blok"
