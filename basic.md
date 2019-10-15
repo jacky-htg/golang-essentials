@@ -15,7 +15,7 @@ func main(){
 ## Fundamental
 ### Package
 - Setiap program GO terdiri paket-paket. 
-- Program muali berjalan dari paket utama (main package). 
+- Program mulai berjalan dari paket utama (main package). 
 - Dalam satu project hanya boleh ada satu package main
 - Selain paket main, nama paket harus sama dengan nama folder.
 
