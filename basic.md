@@ -89,3 +89,40 @@ func Jumlah (a int, b int) int {
   return a+b
 }
 ```
+```
+func main() {
+  // Lambda
+  println(func() string {
+      return "lambda"
+    }())
+
+  // Closure
+  var GetClosure = func() string {
+    return "closure"
+  }
+
+  var closure string
+  closure = GetClosure()
+  println(closure)
+
+  // Callback
+  // Callback
+	var Jumlah = func(a int, b int) int {
+		return a + b
+	}
+	var Kurang = func(a int, b int) int {
+		return a - b
+	}
+
+	println("Operasi Jumlah : ", Hitung(Jumlah, 5, 3))
+	println("Operasi Kurang : ", Hitung(Kurang, 5, 3))
+}
+
+func square(f func(int) int, x int) int {
+	return f(x * x)
+}
+
+func Hitung(operasi func(a int, b int) int, x int, y int) int {
+	return operasi(x, y)
+} 
+```
