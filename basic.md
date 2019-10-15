@@ -1,6 +1,6 @@
 # Basic Golang
 ## Install
-Anda dapat membaca dokumentasi instalasi golang
+Anda dapat membaca [dokumentasi instalasi golang](https://golang.org/doc/install)
 
 ## Hello world
 - Buat folder baru untuk memulai project
