@@ -424,6 +424,10 @@ func main() {
 	hewan.Nama = "Sembarang hewan"
 	hewan.Nyata = false
 
+	naga := new(Naga)
+	naga.Nama = "Naga"
+	naga.Nyata = false
+	
 	uni := new(Unicorn)
 	uni.Nama = "Unicorn"
 	uni.Nyata = false
@@ -436,12 +440,14 @@ func main() {
 	p2 := NewPterodactyl(8)
 
 	hewan.Cetak()
+	naga.Cetak()
 	uni.Cetak()
 	p1.Cetak()
 	p2.Cetak()
 
 	animals := []*Hewan{
 		hewan,
+		&naga,
 		&uni.Hewan,
 		&p1.Hewan,
 		&p2.Hewan,
