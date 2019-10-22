@@ -4,7 +4,7 @@ Pada bab sebelumnya, kita sudah membahas [dasar-dasar pemrograman golang](https:
 Golang bukan merupakan bahasa pemrograman yang berorientasi objek. Tapi golang memiliki fitur seperti type, struct, method, reference dan interface yang memungkinkan untuk melakukan pemrograman yang mirip dengan OOP.
 
 ## Method
-- Kita bisa mendefiniskan suatu method apada sebuah type.
+- Kita bisa mendefiniskan suatu method pada sebuah type.
 - Method adalah fungsi yang mempunyai argumen khusus receiver berupa type.
 ```
 package main
@@ -67,7 +67,7 @@ type i interface{
 ```
 
 - Type lain akan mengimplementasikan method dalam interface
-- Tidak ada perintah implement, suatu interface akan dipenuhi secara emplisit begitu ada yang mengimplementasikannya 
+- Tidak ada perintah implement, suatu interface akan dipenuhi secara implisit begitu ada yang mengimplementasikannya 
 ```
 package main
 
@@ -88,7 +88,7 @@ func main() {
 	i.method()
 }
 ```
-- Jika suatu inetrface diinisiasi tapi tidak ada yang mengimplementasikannya akan terjadi error nil pointer dereference
+- Jika suatu interface diinisiasi tapi tidak ada yang mengimplementasikannya akan terjadi error nil pointer dereference
 ```
 package main
 
@@ -120,7 +120,7 @@ func main() {
 	str := myStr("Hello")
 	i = &str
 	i.method()
-    describe(i)
+    	describe(i)
 }
 
 func describe(i I) {
@@ -223,8 +223,8 @@ type becak struct {
 }
 
 type gerobak struct {
-    roda int
-    warna string
+    	roda int
+    	warna string
 } 
 
 func (o *becak) caraJalan() string {
@@ -239,16 +239,16 @@ func main() {
 	becak := new(becak)
 	println("becak", "cara jalan:", becak.caraJalan())
 
-    gerobak := new(gerobak)
-    println("gerobak", "cara jalan:", gerobak.caraJalan())
+    	gerobak := new(gerobak)
+    	println("gerobak", "cara jalan:", gerobak.caraJalan())
 }
 ``` 
 
 ### Encapsulation
 - Encapsulasi terjadi di level paket.
-- Kita bisa memilih informasi (type, variabel, fungsi dll) yang hendak diexport ke luar paket dan mana yang hanya bisa diakses dalam paket yang sama.
-- Penamaan informasi yang bersifat publik diawali dengan huruf besar.
-- Penamaan informasi yang bersifat privat diawali dengan huruf kecil.
+- Kita bisa memilih kode (type, variabel, fungsi dll) yang hendak diexport ke luar paket dan mana yang hanya bisa diakses dalam paket yang sama.
+- Penamaan kode yang bersifat publik diawali dengan huruf besar.
+- Penamaan kode yang bersifat privat diawali dengan huruf kecil.
 ```
 // file APP/latihan/kendaraan.go
 package latihan
