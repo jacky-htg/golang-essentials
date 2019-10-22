@@ -76,7 +76,7 @@ package main
 import "golang-essentials/latihan"
 
 func main() {
-    str := latihan.MyStr("Selamat Pagi")
+    	str := latihan.MyStr("Selamat Pagi")
 	println(str)
 
 	latihan.Salam(latihan.MyStr("Selamat Sore"))
@@ -117,7 +117,7 @@ func main() {
 ```
 
 ## Pengoptimalan penggunaan memory dalam siklus hidup variabel 
-- Jika inginmembuat variabel global dalam satu paket, sebaiknya pertimbangkan kembali, karena siklus hidupnya ada di seluruh kode dalam paket tersebut
+- Jika ingin membuat variabel global dalam satu paket, sebaiknya pertimbangkan kembali, karena siklus hidupnya ada di seluruh kode dalam paket tersebut
 - Untuk menghemat memori, deklarasikan variabel sesuai dengan kebutuhan siklus hidupnya
 ```
 package main
