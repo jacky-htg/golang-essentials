@@ -447,7 +447,7 @@ func main() {
 
 	animals := []*Hewan{
 		hewan,
-		&naga,
+		&naga.Hewan,
 		&uni.Hewan,
 		&p1.Hewan,
 		&p2.Hewan,
