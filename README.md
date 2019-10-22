@@ -8,8 +8,9 @@ Mempelajari pemrograman golang untuk pemula. Materi akan dibahas step by step da
 - Flow controll : if, else, switch, for, defer
 - Array : array, slice, map
 - Struct
+- [Review dasar-dasar pemrograman golang](https://github.com/jacky-htg/golang-essentials/blob/master/review_basic.md)
 
-## Psuedo OOP
+## [Psuedo OOP](https://github.com/jacky-htg/golang-essentials/blob/master/pseudo_oop.md)
 - Method
 - Interface
 - Encapsulation, inheritance and polymorphism

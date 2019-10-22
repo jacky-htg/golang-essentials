@@ -1,4 +1,6 @@
 # Basic Golang
+Bab ini membahas dasar-dasar pemrograman golang
+ 
 ## Install
 Anda dapat membaca [dokumentasi instalasi golang](https://golang.org/doc/install)
 
@@ -356,3 +358,6 @@ func main() {
 	println(user2.Name)
 }
 ```
+
+## [Review](https://github.com/jacky-htg/golang-essentials/blob/master/review_basic.md)
+Untuk mempertajam materi, dan membahas hal-hal penting yang terlewat, telah dibuat materi tambahan untuk [mereview dasar-dasar pemrograman golang](https://github.com/jacky-htg/golang-essentials/blob/master/review_basic.md).
