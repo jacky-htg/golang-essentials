@@ -1,5 +1,5 @@
 # Review Basic Golang
-Di materi sebelumnya kita sudah membahas [dasar-dasar pemrograman golang](https://github.com/jacky-htg/golang-essentials/blob/master/basic.md). Namun ada beberapa poin penting yang terlewat dari pembahasan. Karena itulah, ditulislah bab ini untuk mereview sekaligus membahas hal-hal yang telah terlewatkan.  
+Di materi sebelumnya kita sudah membahas [dasar-dasar pemrograman golang](https://github.com/jacky-htg/golang-essentials/blob/master/basic.md). Namun ada beberapa poin penting yang terlewat dari pembahasan. Karena itu, ditulislah bab ini untuk mereview sekaligus membahas hal-hal yang telah terlewatkan.  
 
 ## Membuat Project
 - go mod init golang-essentials
