@@ -56,7 +56,8 @@ func Salam (m MyStr) {
 func cetaknama () {
     println(nama)
 }
-
+```
+```
 // file APP/latihan/dua.go
 package latihan
 
@@ -67,7 +68,8 @@ var nama string = "Jacky"
 func Nama() {
     println(nama)
 }
-
+```
+```
 // file APP/main.go
 package main
 
@@ -87,64 +89,71 @@ func main() {
 ## Type Casting
 - lebih jauh tentang strconv bisa melihat langsung ke paket [strconv](https://golang.org/pkg/strconv)
 ```
-var myInt int
-myInt = 1
+package main
 
-var myUint uint
-myUint = uint(myInt)
-println(myUint)
+func main() {
+	var myInt int
+	myInt = 1
 
-myUint32 := uint32(1)
-myUint64 := uint64(myUint32)
-println(myUint64)
+	var myUint uint
+	myUint = uint(myInt)
+	println(myUint)
 
-str := string("1")
-myInt, err := strconv.Atoi(str)
-if err != nil {
-	panic(err)
+	myUint32 := uint32(1)
+	myUint64 := uint64(myUint32)
+	println(myUint64)
+
+	str := string("1")
+	myInt, err := strconv.Atoi(str)
+	if err != nil {
+		panic(err)
+	}
+
+	println(myInt)
+
+	str = strconv.Itoa(myInt)
+	println(str)
 }
-
-println(myInt)
-
-str = strconv.Itoa(myInt)
-println(str)
 ```
 
 ## Pengoptimalan penggunaan memory dalam siklus hidup variabel 
 - Jika inginmembuat variabel global dalam satu paket, sebaiknya pertimbangkan kembali, karena siklus hidupnya ada di seluruh kode dalam paket tersebut
 - Untuk menghemat memori, deklarasikan variabel sesuai dengan kebutuhan siklus hidupnya
 ```
-// variabel i akan tetap hidup walaupun looping for sudah selesai
-i := 0
-for i < 10 {
-	println(i)
-	i++
+package main
+
+func main() {
+	// variabel i akan tetap hidup walaupun looping for sudah selesai
+	i := 0
+	for i < 10 {
+		println(i)
+		i++
+	}
+
+	// variabel i hanya hidup dalam blok for
+	for i := 0; i < 10; i++ {
+		println(i)
+	}
+
+	myMap := map[string]string{"Satu": "Ahad", "Dua": "Senin", "Tiga": "Selasa"}
+
+	// variabel value dan ok tetap hidup walaupun blok if / if else sudah berakhir
+	value, ok := myMap["Satu"]
+	if ok {
+		println(value)
+	}
+
+	// variabel value dan ok hanya hidup dalam blok if / if else
+	if value, ok := myMap["Dua"]; ok {
+		println(value)
+	}
+
+	myName := string("Jet Lee")
+	{
+		name := string("Jacky")
+		println(name)
+	}
+
+	println(myName)
 }
-
-// variabel i hanya hidup dalam blok for
-for i := 0; i < 10; i++ {
-	println(i)
-}
-
-myMap := map[string]string{"Satu": "Ahad", "Dua": "Senin", "Tiga": "Selasa"}
-
-// variabel value dan ok tetap hidup walaupun blok if / if else sudah berakhir
-value, ok := myMap["Satu"]
-if ok {
-	println(value)
-}
-
-// variabel value dan ok hanya hidup dalam blok if / if else
-if value, ok := myMap["Dua"]; ok {
-	println(value)
-}
-
-myName := string("Jet Lee")
-{
-	name := string("Jacky")
-	println(name)
-}
-
-println(myName)
-
 ```
