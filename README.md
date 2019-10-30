@@ -15,7 +15,7 @@ Mempelajari pemrograman golang untuk pemula. Materi akan dibahas step by step da
 - Interface
 - Encapsulation, inheritance and polymorphism
 
-## Konkurensi
+## [Konkurensi](https://github.com/jacky-htg/golang-essentials/blob/master/konkurensi.md)
 - Go routine
 - Channel
 
