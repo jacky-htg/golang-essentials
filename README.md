@@ -26,12 +26,17 @@ Mempelajari pemrograman golang untuk pemula. Materi akan dibahas step by step da
 - Concurrency pattern
 
 ## Build API Framework
+Bab pembuatan Framework API akan dipecah menjadi 3 bagian.
+
+### [Part 1](https://github.com/jacky-htg/golang-essentials/blob/master/api_framework_part_1.md)
 - Start up
 - Shutdown
 - Json
 - Database
 - Clean architecture
 - Configuration
+
+### Part 2
 - Fatal
 - Logging
 - Routing
@@ -40,6 +45,8 @@ Mempelajari pemrograman golang untuk pemula. Materi akan dibahas step by step da
 - Error handler
 - Unit testing
 - API testing
+
+### Part 3
 - Context
 - Validation
 - Middleware
