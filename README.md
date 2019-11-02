@@ -26,27 +26,21 @@ Mempelajari pemrograman golang untuk pemula. Materi akan dibahas step by step da
 - Concurrency pattern
 
 ## Build API Framework
-Bab pembuatan Framework API akan dipecah menjadi 3 bagian.
-
-### [Part 1](https://github.com/jacky-htg/golang-essentials/blob/master/api_framework_part_1.md)
-- Start up
-- Shutdown
-- Json
-- Database
-- Clean architecture
-- Configuration
-
-### Part 2
-- Fatal
-- Logging
-- Routing
-- CRUD
-- Request-Response helper
-- Error handler
-- Unit testing
-- API testing
-
-### Part 3
+Di materi sebelumnya, kita telah membuat project melalui perintah `go mod init essentials`. Jadi dalam project pembuatan framework API ini, kita memakai 'essentials' sebagai nama project.
+- [Start up](https://github.com/jacky-htg/golang-essentials/blob/master/start-up.md)
+- [Shutdown](https://github.com/jacky-htg/golang-essentials/blob/master/shutdown.md)
+- [Json](https://github.com/jacky-htg/golang-essentials/blob/master/json.md)
+- [Database](https://github.com/jacky-htg/golang-essentials/blob/master/database.md)
+- [Clean architecture](https://github.com/jacky-htg/golang-essentials/blob/master/clean-architecture.md)
+- [Configuration](https://github.com/jacky-htg/golang-essentials/blob/master/configuration.md)
+- [Fatal](https://github.com/jacky-htg/golang-essentials/blob/master/fatal.md)
+- [Logging](https://github.com/jacky-htg/golang-essentials/blob/master/logging.md)
+- [Routing](https://github.com/jacky-htg/golang-essentials/blob/master/routing.md)
+- [CRUD](https://github.com/jacky-htg/golang-essentials/blob/master/crud.md)
+- [Request-Response helper](https://github.com/jacky-htg/golang-essentials/blob/master/request-response-helper.md)
+- [Error handler](https://github.com/jacky-htg/golang-essentials/blob/master/error-handler.md)
+- [Unit testing](https://github.com/jacky-htg/golang-essentials/blob/master/unit-testing.md)
+- [API testing](https://github.com/jacky-htg/golang-essentials/blob/master/api-testing.md)
 - Context
 - Validation
 - Middleware
