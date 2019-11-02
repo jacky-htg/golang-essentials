@@ -2,7 +2,7 @@
 
 ![](./clean-architecture.jpg)
 
-- Terdiri dari 3 layer: presentaion layer, domain layer, dan data layer.
+- Terdiri dari 3 layer: presentation layer, domain layer, dan data layer.
 - Presentation layer meliputi : routing, payload request dan payload response.
 - Domain layer meliputi : use case yang berisi interaction dan logic
 - Data layer meliputi : entity / model 
