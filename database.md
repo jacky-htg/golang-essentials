@@ -393,7 +393,7 @@ type Users struct {
 ```
 //List : http handler for returning list of users
 func (u *Users) List(w http.ResponseWriter, r *http.Request) {
-	var list []*User
+	var list []User
 	const q = `SELECT id, username, password, email, is_active FROM users`
 
 	rows, err := u.Db.Query(q)
