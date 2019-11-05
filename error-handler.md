@@ -8,6 +8,8 @@ Tidak semua error adalah "internal server error". Kita harus menghandle berbagai
 }
 ```
 
+## Custome Error
+
 - Buat custome error yang mengimplementasikan error interface. Custome error yang dibuat mempunyai field :
 ```
 type Error struct {
@@ -145,6 +147,82 @@ func Decode(r *http.Request, val interface{}) error {
 	return nil
 }
 ```
+- Kemudian setiap error harus didefinisikan dengan jelas merupakan error custome apa. Ubah method Get pada file models/user.go agar mengembalikan ErrNotFound 
+```
+// Get user by id
+func (u *User) Get(db *sql.DB) error {
+	const q string = `SELECT id, username, password, email, is_active FROM users`
+	err := db.QueryRow(q+" WHERE id=?", u.ID).Scan(&u.ID, &u.Username, &u.Password, &u.Email, &u.IsActive)
+
+	if err == sql.ErrNoRows {
+		err = api.ErrNotFound(err, "")
+	}
+
+	return err
+}
+```
+
+- Ubah file usecases/user_usecase.go agar error password not match diganti menjadi ErrBadRequest
+```
+package usecases
+
+import (
+	"database/sql"
+	"errors"
+	"essentials/libraries/api"
+	"essentials/payloads/request"
+	"essentials/payloads/response"
+	"log"
+	"net/http"
+
+	"golang.org/x/crypto/bcrypt"
+)
+
+// UserUsecase struct
+type UserUsecase struct {
+	Log *log.Logger
+	Db  *sql.DB
+}
+
+// Create new user
+func (u *UserUsecase) Create(r *http.Request) (response.UserResponse, error) {
+	var userRequest request.NewUserRequest
+	var res response.UserResponse
+
+	err := api.Decode(r, &userRequest)
+	if err != nil {
+		u.Log.Printf("error decode user: %s", err)
+		return res, err
+	}
+
+	if userRequest.Password != userRequest.RePassword {
+		err = api.ErrBadRequest(errors.New("Password not match"), "")
+		u.Log.Printf("error : %s", err)
+		return res, err
+	}
+
+	pass, err := bcrypt.GenerateFromPassword([]byte(userRequest.Password), bcrypt.DefaultCost)
+	if err != nil {
+		u.Log.Printf("error generate password: %s", err)
+		return res, err
+	}
+
+	userRequest.Password = string(pass)
+
+	user := userRequest.Transform()
+
+	err = user.Create(u.Db)
+	if err != nil {
+		u.Log.Printf("error call create user: %s", err)
+		return res, err
+	}
+
+	res.Transform(user)
+	return res, nil
+}
+``` 
+
+## Response Format
 
 - Edit file libraries/api/response.go untuk mengubah format response mengikuti struct berikut :
 ```
@@ -353,78 +431,3 @@ func (u *Users) Delete(w http.ResponseWriter, r *http.Request) {
 }
 
 ```
-
-- Kemudian setiap error harus didefinisikan dengan jelas merupakan error custome apa. Ubah method Get pada file models/user.go
-```
-// Get user by id
-func (u *User) Get(db *sql.DB) error {
-	const q string = `SELECT id, username, password, email, is_active FROM users`
-	err := db.QueryRow(q+" WHERE id=?", u.ID).Scan(&u.ID, &u.Username, &u.Password, &u.Email, &u.IsActive)
-
-	if err == sql.ErrNoRows {
-		err = api.ErrNotFound(err, "")
-	}
-
-	return err
-}
-```
-
-- Ubah file usecases/user_usecase.go agar error password not match diganti menjadi ErrBadRequest
-```
-package usecases
-
-import (
-	"database/sql"
-	"errors"
-	"essentials/libraries/api"
-	"essentials/payloads/request"
-	"essentials/payloads/response"
-	"log"
-	"net/http"
-
-	"golang.org/x/crypto/bcrypt"
-)
-
-// UserUsecase struct
-type UserUsecase struct {
-	Log *log.Logger
-	Db  *sql.DB
-}
-
-// Create new user
-func (u *UserUsecase) Create(r *http.Request) (response.UserResponse, error) {
-	var userRequest request.NewUserRequest
-	var res response.UserResponse
-
-	err := api.Decode(r, &userRequest)
-	if err != nil {
-		u.Log.Printf("error decode user: %s", err)
-		return res, err
-	}
-
-	if userRequest.Password != userRequest.RePassword {
-		err = api.ErrBadRequest(errors.New("Password not match"), "")
-		u.Log.Printf("error : %s", err)
-		return res, err
-	}
-
-	pass, err := bcrypt.GenerateFromPassword([]byte(userRequest.Password), bcrypt.DefaultCost)
-	if err != nil {
-		u.Log.Printf("error generate password: %s", err)
-		return res, err
-	}
-
-	userRequest.Password = string(pass)
-
-	user := userRequest.Transform()
-
-	err = user.Create(u.Db)
-	if err != nil {
-		u.Log.Printf("error call create user: %s", err)
-		return res, err
-	}
-
-	res.Transform(user)
-	return res, nil
-}
-``` 
