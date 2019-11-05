@@ -116,18 +116,18 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
-// User struct for test users
-type User struct {
-	Db *sql.DB
-}
-
-func TestMain(t *testing.T) {
+func TestUser(t *testing.T) {
 	db, teardown := NewUnit(t)
 	defer teardown()
 
 	u := User{Db: db}
 	t.Run("CRUD", u.Crud)
 	t.Run("List", u.List)
+}
+
+// User struct for test users
+type User struct {
+	Db *sql.DB
 }
 
 //Crud : unit test  for create get and delete user function
@@ -216,4 +216,5 @@ func (u *User) List(t *testing.T) {
 		t.Fatalf("expected users list size %v, got %v", exp, got)
 	}
 }
+
 ```
