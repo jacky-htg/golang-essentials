@@ -218,3 +218,5 @@ func (u *User) List(t *testing.T) {
 }
 
 ```
+
+- `go test -v essentials/tests -run TestUser`
