@@ -41,8 +41,8 @@ Di materi sebelumnya, kita telah membuat project melalui perintah `go mod init e
 - [Error handler](https://github.com/jacky-htg/golang-essentials/blob/master/error-handler.md)
 - [Unit testing](https://github.com/jacky-htg/golang-essentials/blob/master/unit-testing.md)
 - [API testing](https://github.com/jacky-htg/golang-essentials/blob/master/api-testing.md)
-- Context
-- Validation
-- Middleware
-- Token
-- RBAC
+- [Context](https://github.com/jacky-htg/golang-essentials/blob/master/context.md)
+- [Validation](https://github.com/jacky-htg/golang-essentials/blob/master/validation.md)
+- [Middleware](https://github.com/jacky-htg/golang-essentials/blob/master/middleware.md)
+- [Token](https://github.com/jacky-htg/golang-essentials/blob/master/token.md)
+- [RBAC](https://github.com/jacky-htg/golang-essentials/blob/master/rbac.md)
