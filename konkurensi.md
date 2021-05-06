@@ -11,9 +11,9 @@ package main
 
 func Salam(s string) {
     for i := 0; i <= 10; i++ {
-		println(s)
-		time.Sleep(1000 * time.Millisecond)
-	}
+	println(s)
+	time.Sleep(1000 * time.Millisecond)
+    }
 }
 
 func main() {
@@ -27,9 +27,9 @@ package main
 
 func Salam(s string) {
     for i := 0; i <= 10; i++ {
-		println(s)
-		time.Sleep(1000 * time.Millisecond)
-	}
+	println(s)
+	time.Sleep(1000 * time.Millisecond)
+    }
 }
 
 func main() {
@@ -53,12 +53,12 @@ package main
 import "runtime"
 
 func main() {
-	var pesan = make(chan string)
-	println("kirim data", "Jacky")
-	pesan <- "Jacky"
+    var pesan = make(chan string)
+    println("kirim data", "Jacky")
+    pesan <- "Jacky"
 
     // akan error karena tidak ada go routine lain yang menangkap channel
-	println("terima data", <-pesan)	
+    println("terima data", <-pesan)	
 }
 ```
 
@@ -66,15 +66,15 @@ func main() {
 package main
 
 func main() {
-	var pesan = make(chan string)
+    var pesan = make(chan string)
 
-	println("kirim data", "Jacky")
-	pesan <- "Jacky"
+    println("kirim data", "Jacky")
+    pesan <- "Jacky"
 
+    // error karena go routine yang menangkap channel belum dieksekusi ketika exit program 
     go func() {
-		println("terima data", <-pesan)
-	}()
-
+	println("terima data", <-pesan)
+    }()
 	
 }
 ```
@@ -83,14 +83,14 @@ func main() {
 package main
 
 func main() {
-	var pesan = make(chan string)
+    var pesan = make(chan string)
 
-	go func() {
-		println("terima data", <-pesan)
-	}()
+    go func() {
+	println("terima data", <-pesan)
+    }()
 
-	println("kirim data", "Jacky")
-	pesan <- "Jacky"
+    println("kirim data", "Jacky")
+    pesan <- "Jacky"
 
 }
 ```
@@ -99,19 +99,19 @@ func main() {
 package main
 
 func main() {
-	a := []string{"Jacky", "Jet Lee", "Bruce Lee", "Samo Hung"}
+    a := []string{"Jacky", "Jet Lee", "Bruce Lee", "Samo Hung"}
     
     var pesan = make(chan string)
 	
     // error karena go routine yang melakukan penerimaan data hanya sekali, sementara pengiriman dilakukan 4 kali 
-	go func() {
-		println("terima data", <-pesan)
-	}()
+    go func() {
+	println("terima data", <-pesan)
+    }()
 
-	for _, s := range a {
-		println("kirim data", s)
-		pesan <- s
-	}
+    for _, s := range a {
+	println("kirim data", s)
+	pesan <- s
+    }
 }
 
 ```
@@ -125,15 +125,18 @@ func main() {
     var pesan = make(chan string)
 	
     go func() {
+	// catatan: looping tanpa henti termasuk boros cpu, 
+	// di materi selanjutnya ada cara tanpa menggunakan for{}
+	// baik melalui for range maupun for break 
         for {
-		    println("terima data", <-pesan)
+	    println("terima data", <-pesan)
         }
-	}()
+    }()
 
-	for _, s := range a {
-		println("kirim data", s)
-		pesan <- s
-	}
+    for _, s := range a {
+	println("kirim data", s)
+	pesan <- s
+    }
 }
 ```
 
@@ -146,20 +149,20 @@ func main() {
 package main
 
 func main() {
-	a := []string{"Jacky", "Jet Lee", "Bruce Lee", "Samo Hung"}
+    a := []string{"Jacky", "Jet Lee", "Bruce Lee", "Samo Hung"}
 
     var pesan = make(chan string, 3)
 	
-	go func() {
-		for {
-			println("terima data", <-pesan)
-		}
-	}()
-
-	for _, s := range a {
-		println("kirim data", s)
-		pesan <- s
+    go func() {
+	for {
+	    println("terima data", <-pesan)
 	}
+    }()
+
+    for _, s := range a {
+	println("kirim data", s)
+	pesan <- s
+    }
 }
 ```  
 
@@ -167,18 +170,18 @@ func main() {
 package main
 
 func main() {
-	a := []string{"Jacky", "Jet Lee", "Bruce Lee", "Samo Hung"}
+    a := []string{"Jacky", "Jet Lee", "Bruce Lee", "Samo Hung"}
 
-	var pesan = make(chan string, len(a))
+    var pesan = make(chan string, len(a))
 
-	go func() {
-		println("terima data", <-pesan)
-	}()
+    go func() {
+	println("terima data", <-pesan)
+    }()
 
-	for _, s := range a {
-		println("kirim data", s)
-		pesan <- s
-	}
+    for _, s := range a {
+	println("kirim data", s)
+	pesan <- s
+    }
 }
 
 ```
@@ -187,12 +190,12 @@ func main() {
 package main
 
 func main() {
-	a := []string{"Jacky", "Jet Lee", "Bruce Lee", "Samo Hung"}
-	var pesan = make(chan string, len(a))
-	for _, s := range a {
-		println("kirim data", s)
-		pesan <- s
-	}
+    a := []string{"Jacky", "Jet Lee", "Bruce Lee", "Samo Hung"}
+    var pesan = make(chan string, len(a))
+    for _, s := range a {
+	println("kirim data", s)
+	pesan <- s
+    }
 }
 ```
 
@@ -202,20 +205,20 @@ func main() {
 package main
 
 func main() {
-	a := []string{"Jacky", "Jet Lee", "Bruce Lee", "Samo Hung"}
+    a := []string{"Jacky", "Jet Lee", "Bruce Lee", "Samo Hung"}
 
-	var pesan = make(chan string, len(a)-1)
+    var pesan = make(chan string, len(a)-1)
 
-	go func() {
-		for i := range pesan {
-			println("terima data", i)
-		}
-	}()
-
-	for _, s := range a {
-		println("kirim data", s)
-		pesan <- s
+    go func() {
+	for i := range pesan {
+	    println("terima data", i)
 	}
+    }()
+
+    for _, s := range a {
+	println("kirim data", s)
+	pesan <- s
+    }
 
 }
 ```
@@ -227,81 +230,44 @@ func main() {
 package main
 
 func main() {
-	a := []string{"Jacky", "Jet Lee", "Bruce Lee", "Samo Hung"}
+    a := []string{"Jacky", "Jet Lee", "Bruce Lee", "Samo Hung"}
 
-	var pesan = make(chan string, len(a)-1)
+    var pesan = make(chan string, len(a)-1)
 
-	go func() {
-		for {
-			println("terima data", <-pesan)
-			close(pesan)
-		}
-	}()
-
-	for _, s := range a {
-		println("kirim data", s)
-		pesan <- s
-	}
-}
-
-```
-
-```
-package main
-
-func main() {
-	a := []string{"Jacky", "Jet Lee", "Bruce Lee", "Samo Hung"}
-
-	var pesan = make(chan string, len(a)-1)
-
-	go func() {
-		for {
-			println("terima data", <-pesan)
-		}
-	}()
-
-	for _, s := range a {
-		println("kirim data", s)
-		pesan <- s
-	}
-	close(pesan)
-}
-```
-
-```
-package main
-
-func main() {
-	a := []string{"Jacky", "Jet Lee", "Bruce Lee", "Samo Hung"}
-
-	var pesan = make(chan string, len(a))
-
-	for _, s := range a {
-		println("kirim data", s)
-		pesan <- s
-	}
-	close(pesan)
-}
-
-```
-
-```
-package main
-
-func main() {
-	a := []string{"Jacky", "Jet Lee", "Bruce Lee", "Samo Hung"}
-
-	var pesan = make(chan string, len(a))
-
-	for _, s := range a {
-		println("kirim data", s)
-		pesan <- s
-	}
-	close(pesan)
-
+    go func() {
 	for {
-		println("terima data", <-pesan)
+	    println("terima data", <-pesan)
+	    close(pesan)
 	}
+    }()
+
+    for _, s := range a {
+	println("kirim data", s)
+	pesan <- s
+    }
+}
+
+```
+
+```
+package main
+
+func main() {
+    a := []string{"Jacky", "Jet Lee", "Bruce Lee", "Samo Hung"}
+
+    var pesan = make(chan string, len(a)-1)
+
+    go func() {
+	for {
+	    println("terima data", <-pesan)
+	}
+    }()
+
+    for _, s := range a {
+	println("kirim data", s)
+	pesan <- s
+    }
+    close(pesan)
 }
 ```
 
@@ -309,24 +275,61 @@ func main() {
 package main
 
 func main() {
-	a := []string{"Jacky", "Jet Lee", "Bruce Lee", "Samo Hung"}
+    a := []string{"Jacky", "Jet Lee", "Bruce Lee", "Samo Hung"}
 
-	var pesan = make(chan string, len(a))
+    var pesan = make(chan string, len(a))
 
-	for _, s := range a {
-		println("kirim data", s)
-		pesan <- s
-	}
-	close(pesan)
+    for _, s := range a {
+	println("kirim data", s)
+	pesan <- s
+    }
+    close(pesan)
+}
 
-	for {
+```
+
+```
+package main
+
+func main() {
+    a := []string{"Jacky", "Jet Lee", "Bruce Lee", "Samo Hung"}
+
+    var pesan = make(chan string, len(a))
+
+    for _, s := range a {
+	println("kirim data", s)
+	pesan <- s
+    }
+    close(pesan)
+
+    for {
+	println("terima data", <-pesan)
+    }
+}
+```
+
+```
+package main
+
+func main() {
+    a := []string{"Jacky", "Jet Lee", "Bruce Lee", "Samo Hung"}
+
+    var pesan = make(chan string, len(a))
+
+    for _, s := range a {
+	println("kirim data", s)
+	pesan <- s
+    }
+    close(pesan)
+
+    for {
         // dilakukan pengecekan agar tidak looping forefer
-		if v, ok := <-pesan; ok {
-			println("terima data", v)
-		} else {
-			break
-		}
+	if v, ok := <-pesan; ok {
+	    println("terima data", v)
+	} else {
+	    break
 	}
+    }
 }
 
 ```
@@ -335,20 +338,20 @@ func main() {
 package main
 
 func main() {
-	a := []string{"Jacky", "Jet Lee", "Bruce Lee", "Samo Hung"}
+    a := []string{"Jacky", "Jet Lee", "Bruce Lee", "Samo Hung"}
 
-	var pesan = make(chan string, len(a))
+    var pesan = make(chan string, len(a))
 
     // menggunakan range jauh lebih simple
-	for _, s := range a {
-		println("kirim data", s)
-		pesan <- s
-	}
-	close(pesan)
+    for _, s := range a {
+	println("kirim data", s)
+	pesan <- s
+    }
+    close(pesan)
 
-	for i := range pesan {
-		println("terima data", i)
-	}
+    for i := range pesan {
+	println("terima data", i)
+    }
 }
 ```
 
@@ -360,25 +363,53 @@ func main() {
 package main
 
 func main() {
-	var pesan = make(chan string)
-	var c = make(chan int)
+    var pesan = make(chan string)
+    var c = make(chan int)
 
-	go func() {
-		for _, s := range []string{"Jacky", "Jet Lee", "Bruce Lee", "Samo Hung"} {
-			pesan <- s
-		}
-	}()
+    go func() {
+	for _, s := range []string{"Jacky", "Jet Lee", "Bruce Lee", "Samo Hung"} {
+	    pesan <- s
+	}
+    }()
 
-	go func() {
-		c <- 5
-	}()
+    go func() {
+	c <- 5
+    }()
 
+    select {
+    case i := <-c:
+	println("terima data", i)
+    case s := <-pesan:
+	println("terima data", s)
+    }
+}
+```
+
+```
+package main
+
+func main() {
+    var pesan = make(chan string)
+    var c = make(chan int)
+
+    go func() {
+	for _, s := range []string{"Jacky", "Jet Lee", "Bruce Lee", "Samo Hung"} {
+	    pesan <- s
+	}
+    }()
+
+    go func() {
+	c <- 5
+    }()
+
+    for a := 0; a <= 4; a++ {
 	select {
 	case i := <-c:
-		println("terima data", i)
+	    println("terima data", i)
 	case s := <-pesan:
-		println("terima data", s)
+	    println("terima data", s)
 	}
+    }
 }
 ```
 
@@ -386,55 +417,27 @@ func main() {
 package main
 
 func main() {
-	var pesan = make(chan string)
-	var c = make(chan int)
+    var pesan = make(chan string)
+    var c = make(chan int)
 
-	go func() {
-		for _, s := range []string{"Jacky", "Jet Lee", "Bruce Lee", "Samo Hung"} {
-			pesan <- s
-		}
-	}()
-
-	go func() {
-		c <- 5
-	}()
-
-	for a := 0; a <= 4; a++ {
-		select {
-		case i := <-c:
-			println("terima data", i)
-		case s := <-pesan:
-			println("terima data", s)
-		}
+    go func() {
+	for _, s := range []string{"Jacky", "Jet Lee", "Bruce Lee", "Samo Hung"} {
+	    pesan <- s
 	}
-}
-```
+    }()
 
-```
-package main
+    go func() {
+	c <- 5
+    }()
 
-func main() {
-	var pesan = make(chan string)
-	var c = make(chan int)
-
-	go func() {
-		for _, s := range []string{"Jacky", "Jet Lee", "Bruce Lee", "Samo Hung"} {
-			pesan <- s
-		}
-	}()
-
-	go func() {
-		c <- 5
-	}()
-
-	for a := 0; a <= 5; a++ {
-		select {
-		case i := <-c:
-			println("terima data", i)
-		case s := <-pesan:
-			println("terima data", s)
-		}
+    for a := 0; a <= 5; a++ {
+	select {
+	case i := <-c:
+	    println("terima data", i)
+	case s := <-pesan:
+	    println("terima data", s)
 	}
+    }
 }
 
 ```
@@ -444,29 +447,29 @@ func main() {
 package main
 
 func main() {
-	var pesan = make(chan string)
-	var c = make(chan int)
+    var pesan = make(chan string)
+    var c = make(chan int)
 
-	go func() {
-		for _, s := range []string{"Jacky", "Jet Lee", "Bruce Lee", "Samo Hung"} {
-			pesan <- s
-		}
-	}()
+    go func() {
+	for _, s := range []string{"Jacky", "Jet Lee", "Bruce Lee", "Samo Hung"} {
+	    pesan <- s
+	}
+    }()
 
-	go func() {
-		c <- 5
-	}()
+    go func() {
+	c <- 5
+    }()
 
-	for a := 0; a <= 5; a++ {
-		select {
-		case i := <-c:
-			println("terima data", i)
-		case s := <-pesan:
-			println("terima data", s)
+    for a := 0; a <= 5; a++ {
+	select {
+	case i := <-c:
+	    println("terima data", i)
+	case s := <-pesan:
+	    println("terima data", s)
         default :
             println("tidak ada penerimaan data")
-		}
 	}
+    }
 }
 
 ``` 
@@ -477,38 +480,118 @@ func main() {
 package main
 
 import (
-	"fmt"
-	"time"
+    "fmt"
+    "time"
 )
 
 func main() {
-	var pesan = make(chan string)
-	var c = make(chan int)
+    var pesan = make(chan string)
+    var c = make(chan int)
 
-	go func() {
-		for _, s := range []string{"Jacky", "Jet Lee", "Bruce Lee", "Samo Hung"} {
-			pesan <- s
-		}
-	}()
+    go func() {
+	for _, s := range []string{"Jacky", "Jet Lee", "Bruce Lee", "Samo Hung"} {
+	    pesan <- s
+	}
+    }()
 
-	go func() {
-		c <- 5
-	}()
+    go func() {
+	c <- 5
+    }()
 
 loop:
-	for {
-		select {
-		case i := <-c:
-			println("terima data", i)
-		case s := <-pesan:
-			println("terima data", s)
-		case <-time.After(time.Second * 5):
-			fmt.Println("timeout. tidak ada aktivitas selama 5 detik")
-			break loop
-		}
+    for {
+	select {
+	case i := <-c:
+	    println("terima data", i)
+	case s := <-pesan:
+	    println("terima data", s)
+	case <-time.After(time.Second * 5):
+	    fmt.Println("timeout. tidak ada aktivitas selama 5 detik")
+	    break loop
 	}
+    }
 }
 
+```
+Hati-hati jika ingin menggabungkan antara select timeout dengan default, karena bisa terjadi looping forever.
+```
+package main
+
+import (
+    "fmt"
+    "time"
+)
+
+func main() {
+    var pesan = make(chan string)
+    var c = make(chan int)
+
+    go func() {
+	for _, s := range []string{"Jacky", "Jet Lee", "Bruce Lee", "Samo Hung"} {
+	    pesan <- s
+	}
+    }()
+
+    go func() {
+	c <- 5
+    }()
+
+loop:
+    for {
+	select {
+	case i := <-c:
+	    println("terima data", i)
+	case s := <-pesan:
+	    println("terima data", s)
+	case <-time.After(time.Second * 5):
+	    fmt.Println("timeout. tidak ada aktivitas selama 5 detik")
+	    break loop
+	default:
+	    println("tidak ada data diterima")
+	}
+    }
+}
+```
+Ini disebabkan time.After(time.Second * 5) selalu dibuat setiap looping seleksi, untuk mengatasinya, buat variable untuk menampung timeout agar timeout dikenali disetiap looping.
+```
+package main
+
+import (
+    "fmt"
+    "time"
+)
+
+func main() {
+    var pesan = make(chan string)
+    var c = make(chan int)
+
+    go func() {
+	for _, s := range []string{"Jacky", "Jet Lee", "Bruce Lee", "Samo Hung"} {
+	    pesan <- s
+	}
+    }()
+
+    go func() {
+	c <- 5
+    }()
+    
+    timeout := time.After(time.Second * 5)
+
+loop:
+    for {
+	select {
+	case i := <-c:
+	    println("terima data", i)
+	case s := <-pesan:
+	    println("terima data", s)
+	case <-timeout:
+	    fmt.Println("timeout. tidak ada aktivitas selama 5 detik")
+	    break loop
+	default:
+	    println("tidak ada data diterima")
+	}
+    }
+}
 ```
 
 ## Sync Mutex
@@ -519,43 +602,43 @@ loop:
 package main
 
 import (
-	"fmt"
-	"sync"
-	"time"
+    "fmt"
+    "sync"
+    "time"
 )
 
 // SafeCounter aman digunakan secara konkuren.
 type SafeCounter struct {
-	v   map[string]int
-	mux sync.Mutex
+    v   map[string]int
+    mux sync.Mutex
 }
 
 // Inc meningkatkan nilai dari key.
 func (c *SafeCounter) Inc(key string) {
-	c.mux.Lock()
-	// Lock sehingga hanya satu goroutine pada satu waktu yang dapat
-	// mengakses map c.v.
-	c.v[key]++
-	c.mux.Unlock()
+    c.mux.Lock()
+    // Lock sehingga hanya satu goroutine pada satu waktu yang dapat
+    // mengakses map c.v.
+    c.v[key]++
+    c.mux.Unlock()
 }
 
 // Value mengembalikan nilai dari key.
 func (c *SafeCounter) Value(key string) int {
-	c.mux.Lock()
-	// Lock sehingga hanya satu gorouting pada satu waktu yang dapat
-	// mengakses map c.v.
-	defer c.mux.Unlock()
-	return c.v[key]
+    c.mux.Lock()
+    // Lock sehingga hanya satu gorouting pada satu waktu yang dapat
+    // mengakses map c.v.
+    defer c.mux.Unlock()
+    return c.v[key]
 }
 
 func main() {
-	c := SafeCounter{v: make(map[string]int)}
-	for i := 0; i < 1000; i++ {
-		go c.Inc("key")
-	}
+    c := SafeCounter{v: make(map[string]int)}
+    for i := 0; i < 1000; i++ {
+	go c.Inc("key")
+    }
 
-	time.Sleep(time.Second)
-	fmt.Println(c.Value("key"))
+    time.Sleep(time.Second)
+    fmt.Println(c.Value("key"))
 }
 
 ``` 
