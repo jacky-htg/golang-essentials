@@ -6,8 +6,49 @@ Konkurensi adalah komposisi / struktur dari berbagai proses yang berjalan secara
 - Aksi go routine bersifat asynchronous, jadi tidak saling menunggu dengan go routine yang lain.
 - Proses yang hendak dieksekusi sebagai go routine harus berupa fungsi tanpa return yang dipanggil dengan kata kunci go
 
+
 ```
 package main
+
+import "time"
+
+func Salam(s string) {
+    for i := 0; i <= 10; i++ {
+	println(s)
+	time.Sleep(1000 * time.Millisecond)
+    }
+}
+
+func main() {
+    // salam tidak pernah tercetak karena dijalankan secara konkuren. Sehingga tidak akan ditunggu oleh func main, dan langsung exit.  
+    go Salam("Selamat Pagi")
+}
+```
+
+```
+package main
+
+import "time"
+
+func Salam(s string) {
+    for i := 0; i <= 10; i++ {
+	println(s)
+	time.Sleep(1000 * time.Millisecond)
+    }
+}
+
+func main() {
+    // salam tidak pernah tercetak karena dijalankan secara konkuren. Sehingga tidak akan ditunggu oleh func main, dan langsung exit.
+    go Salam("Selamat Pagi")
+    println("Halo")
+}
+
+```
+
+```
+package main
+
+import "time"
 
 func Salam(s string) {
     for i := 0; i <= 10; i++ {
@@ -24,6 +65,8 @@ func main() {
 - Go routine jalan di multi core processor, dan bisa diset mau jalan di berapa core.
 ```
 package main
+
+import "time"
 
 func Salam(s string) {
     for i := 0; i <= 10; i++ {
