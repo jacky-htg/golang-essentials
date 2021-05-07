@@ -20,7 +20,8 @@ func Salam(s string) {
 }
 
 func main() {
-    // salam tidak pernah tercetak karena dijalankan secara konkuren. Sehingga tidak akan ditunggu oleh func main, dan langsung exit.  
+    // salam tidak pernah tercetak karena dijalankan secara konkuren. 
+    // Sehingga tidak akan ditunggu oleh func main, dan langsung exit.  
     go Salam("Selamat Pagi")
 }
 ```
@@ -38,7 +39,8 @@ func Salam(s string) {
 }
 
 func main() {
-    // salam tidak pernah tercetak karena dijalankan secara konkuren. Sehingga tidak akan ditunggu oleh func main, dan langsung exit.
+    // salam tidak pernah tercetak karena dijalankan secara konkuren. 
+    // Sehingga tidak akan ditunggu oleh func main, dan langsung exit.
     go Salam("Selamat Pagi")
     println("Halo")
 }
