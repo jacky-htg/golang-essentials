@@ -28,6 +28,7 @@ func main(){
 - Go is a statically typed programming language
 - Setiap variabel, konstanta dan lain-lain memiliki type
 - tipe dasar :
+
 ```
 bool
 
@@ -45,9 +46,11 @@ float32 float64
 
 complex64 complex128
 ``` 
+
 - Ada tipe turunan seperti array, slice, map, interface, struct, dan function
 
 ### Konstanta
+
 ```
 const pi float64 = 22/7
 const (
@@ -57,6 +60,7 @@ const (
 ```
 
 ### Variabel
+
 ```
 package repositories
 // contoh variabel yang siklus hidupnya ada dalam satu paket. 
@@ -87,6 +91,7 @@ func Satu() {
 ```
 
 ### Siklus hidup variabel
+
 ```
 package repositories
 // contoh variabel yang siklus hidupnya ada dalam satu paket. 
@@ -242,6 +247,7 @@ func main() {
 ```
 
 ### Pointer
+
 ```
 func main() {
 	i := 10
@@ -254,6 +260,7 @@ func main() {
 
 ### Function
 - fungsi juga merupakan sebuah tipe
+
 ```
 // contoh membuat type berupa fungsi 
 type Handler func(http.ResponseWriter, *http.Request)
@@ -261,6 +268,7 @@ type CustomeHandler func(http.ResponseWriter, *http.Request) error
 ```
 
 - Format fungsi : func NAMA (argument type) type_return
+
 ```
 // Contoh membuat suatu fungsi
 func Jumlah (a int, b int) int {
@@ -339,6 +347,7 @@ func main() {
 
 ## Flow Control
 ### if
+
 ```
 if err != nil {
 	return err
@@ -356,6 +365,7 @@ if b := 1; b < 10 {
 ```
 
 ### switch
+
 ```
 func main() {
 	fmt.Print("Go berjalan pada ")
@@ -383,6 +393,7 @@ func main() {
 ```
 
 ### for
+
 ```
 func main() {
 	// standard for
@@ -427,6 +438,7 @@ func main() {
 ```
 
 - Jika ada tumpukan perintah defer, maka akan dieksekusi secara LIFO (last In First Out)
+
 ```
 func main() {
 	defer println("pertama")
@@ -440,6 +452,7 @@ func main() {
 
 ## Array, Slice dan Map
 ### Array
+
 ```
 var salam [2]string
 salam[0] = "selamat"
@@ -452,6 +465,7 @@ fmt.Println(greeting)
 
 ### Slice
 - Merupakan potongan dari sebuah array
+
 ```
 var musim [3]string
 musim[0] = "panas"
@@ -469,6 +483,7 @@ fmt.Println(slice)
 ### Map
 - kalau di PHP ini seperti assosiatif array.
 - index otomatis disort secara alpabet
+
 ```
 hari := map[string]int{"Senin":1, "Selasa":2, "Rabu":3}
 fmt.Println(hari)
@@ -477,6 +492,7 @@ fmt.Println(hari)
 ### Common Operation
 - mengunakan potongan array (slice) sehingga tidak dideklarasikan kapasitasnya
 - untuk menambahkan anggota dengan menggunakan fungsi append
+
 ```
 var salam []string
 salam = append(salam, "selamat")

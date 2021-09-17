@@ -7,8 +7,6 @@ Mempelajari pemrograman golang untuk pemula. Materi akan dibahas step by step da
 - Package, type, constanta, variable, function
 - Flow controll : if, else, switch, for, defer
 - Array : array, slice, map
-- Struct
-- [Review dasar-dasar pemrograman golang](./review_basic.md)
 
 ## [Psuedo OOP](./pseudo_oop.md)
 - Method
