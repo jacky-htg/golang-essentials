@@ -1,12 +1,15 @@
 # Basic Golang
 Bab ini membahas dasar-dasar pemrograman golang
  
-## Install
+## Installasi
 Anda dapat membaca [dokumentasi instalasi golang](https://golang.org/doc/install)
 
-## Hello world
+## Membuat Projek Baru
 - Buat folder baru untuk memulai project
-- Buat file main.go yang berisi :
+- go mod init golang-latihan
+- Buat file main.go yang berisi kode berikut
+- Jalankan `go run main.go`
+
 ```
 package main
 
@@ -44,7 +47,7 @@ complex64 complex128
 ``` 
 - Ada tipe turunan seperti array, slice, map, interface, struct, dan function
 
-### Constanta
+### Konstanta
 ```
 const pi float64 = 22/7
 const (
@@ -53,7 +56,7 @@ const (
 )
 ```
 
-### Variable
+### Variabel
 ```
 package repositories
 // contoh variabel yang siklus hidupnya ada dalam satu paket. 
@@ -83,25 +86,195 @@ func Satu() {
 }
 ```
 
+### Siklus hidup variabel
+```
+package repositories
+// contoh variabel yang siklus hidupnya ada dalam satu paket. 
+// Seluruh kode dalam paket repositories, biarpun berbeda file bisa mengakses variabel ini
+var err error
+
+func Satu() {
+  // siklus hidup variabel-variable ini hanya berlaku dalam fungsi Satu
+
+  var a int
+  a = 1
+
+  b := 2 
+
+  // siklus hidup variabel bisa hanya dalam blok yang membatasi. 
+  // blok bisa berupa blok if, for, fungsi atau bahkan hanya notasi blok saja. 
+  {
+    var c string
+    c = "variabel di dalam blok"
+    println(c)
+  }
+}
+```
+
+### Pengoptimalan penggunaan memori dalam siklus hidup variabel
+- Jika ingin membuat variabel global dalam satu paket, sebaiknya pertimbangkan kembali, karena siklus hidupnya ada di seluruh kode dalam paket tersebut
+- Untuk menghemat memori, deklarasikan variabel sesuai dengan kebutuhan siklus hidupnya
+
+```
+package main
+
+func main() {
+	// variabel i akan tetap hidup walaupun looping for sudah selesai
+	i := 0
+	for i < 10 {
+		println(i)
+		i++
+	}
+
+	// variabel i hanya hidup dalam blok for
+	for i := 0; i < 10; i++ {
+		println(i)
+	}
+
+	myMap := map[string]string{"Satu": "Ahad", "Dua": "Senin", "Tiga": "Selasa"}
+
+	// variabel value dan ok tetap hidup walaupun blok if / if else sudah berakhir
+	value, ok := myMap["Satu"]
+	if ok {
+		println(value)
+	}
+
+	// variabel value dan ok hanya hidup dalam blok if / if else
+	if value, ok := myMap["Dua"]; ok {
+		println(value)
+	}
+
+	myName := string("Jet Lee")
+	{
+		name := string("Jacky")
+		println(name)
+	}
+
+	println(myName)
+}
+```
+
+### Package, Export dan Import
+- Semua type, var, const, func dalam suatu paket yang sama bisa dipanggil di manapun (meskipun berbeda file)
+- Untuk bisa dipanggil di paket lain, type, var, const, func harus diexport terlebih dahulu
+- Cara export dilakukan dengan memberi nama var, type, const, fungsi dll yang diawali dengan huruf besar
+- Jika suatu paket ingin menggunakan kode dari paket lainnya, harus mengimport terlebih dahulu
+
+```
+// file APP/latihan/satu.go
+package latihan
+
+// MyStr adalah type yang diexport
+type MyStr string
+
+// Salam adalah fungsi diexport
+func Salam (m MyStr) {
+    println(m)
+    cetaknama()
+}
+
+// cetaknama adalah fungsi privat yang tidak diexport
+func cetaknama () {
+    println(nama)
+}
+```
+
+```
+// file APP/latihan/dua.go
+package latihan
+
+// nama var tidak diexport, tapi bisa gunakan di seluruh program dalam paket latihan
+var nama string = "Jacky"
+
+// PrintNama merupakan fungsi yang diexport
+func PrintNama() {
+    println(nama)
+}
+```
+
+```
+// file APP/main.go
+package main
+
+import "golang-latihan/latihan"
+
+func main() {
+  str := latihan.MyStr("Selamat Pagi")
+	println(str)
+
+	latihan.Salam(latihan.MyStr("Selamat Sore"))
+
+	//latihan.cetaknama()
+	latihan.PrintNama()
+}
+```
+
+### Type Casting
+- Untuk mengubah suatu tipe menjadi tipe lain, bisa melalui fungsi bawaan golang maupun menggunakan paket strconv.
+- Lebih jauh tentang strconv bisa melihat langsung ke paket strconv
+
+```
+package main
+
+func main() {
+	var myInt int
+	myInt = 1
+
+	var myUint uint
+	myUint = uint(myInt)
+	println(myUint)
+
+	myUint32 := uint32(1)
+	myUint64 := uint64(myUint32)
+	println(myUint64)
+
+	str := string("1")
+	myInt, err := strconv.Atoi(str)
+	if err != nil {
+		panic(err)
+	}
+
+	println(myInt)
+
+	str = strconv.Itoa(myInt)
+	println(str)
+}
+```
+
+### Pointer
+```
+func main() {
+	i := 10
+	p := &i       // menunjuk ke i
+	println(*p) 	// baca i lewat pointer
+	*p = 20       // set i lewat pointer
+	println(i)  	// lihat nilai terbaru dari i
+}
+```
+
 ### Function
 - fungsi juga merupakan sebuah tipe
 ```
+// contoh membuat type berupa fungsi 
 type Handler func(http.ResponseWriter, *http.Request)
 type CustomeHandler func(http.ResponseWriter, *http.Request) error 
 ```
-- Format fungsi : func NAMA (argument type) type_return 
+
+- Format fungsi : func NAMA (argument type) type_return
 ```
+// Contoh membuat suatu fungsi
 func Jumlah (a int, b int) int {
   return a+b
 }
 ```
+
 ```
 type operasi func(a int, b int) int
 func main() {
   // Lambda
   println(func() string {
-      return "lambda"
-    }())
+    return "lambda"
+  }())
 
   // Closure
   var GetClosure = func() string {
@@ -111,19 +284,20 @@ func main() {
   var closure string
   closure = GetClosure()
   println(closure)
-```
-```
-  // Callback
+  
+  // Callback dengan lambda :: double square
   println(square(func(i int) int {
-	return i * i
+	  return i * i
   }, 2))
 	
-  // Callback
+  // Callback dengan closure, dengan tipe data implisit
   var Jumlah = func(a int, b int) int {
-	return a + b
+	  return a + b
   }
-  var Kurang = func(a int, b int) int {
-	return a - b
+  
+  // Callback dengan closure, dengan tipe data explisit
+  var Kurang operasi = func(a int, b int) int {
+	  return a - b
   }
 
   println("Operasi Jumlah : ", Hitung(Jumlah, 5, 3))
@@ -136,8 +310,33 @@ func square(f func(int) int, x int) int {
 
 func Hitung(o operasi, x int, y int) int {
 	return o(x, y)
-} 
+}
 ```
+
+### Variadic Function
+- Merupakan fungsi dengan jumlah argumen yang dinamis. 
+- Bisa dipanggil dengan cara biasa dengan argumen individual
+- Bisa dipanggil secara dinamis dengan melempar argumen slice...
+
+```
+func sum(nums ...int) {
+    total := 0
+    for _, num := range nums {
+        total += num
+    }
+    println(total)
+}
+
+func main() {
+    sum(1)
+    sum(1, 2)
+    sum(2, 3, 4)
+    
+    nums := []int{1, 2, 3, 4}
+    sum(nums...)
+}
+```
+
 ## Flow Control
 ### if
 ```
@@ -183,7 +382,7 @@ func main() {
 }
 ```
 
-### for 
+### for
 ```
 func main() {
 	// standard for
@@ -215,15 +414,18 @@ func main() {
 	}
 }
 ```
+
 ### defer
 - Perintah defer menunda eksekusi dari sebuah fungsi sampai fungsi yang melingkupinya selesai.
 - Argumen untuk pemanggilan defer dievaluasi langsung, tapi pemanggilan fungsi tidak dieksekusi sampai fungsi yang melingkupinya selesai.
+
 ```
 func main() {
 	defer println("datang")
 	println("selamat")
 }
 ```
+
 - Jika ada tumpukan perintah defer, maka akan dieksekusi secara LIFO (last In First Out)
 ```
 func main() {
@@ -236,18 +438,7 @@ func main() {
 }
 ```
 
-## Array dan Struct
-### Pointer
-```
-func main() {
-	i := 10
-	p := &i         // menunjuk ke i
-	println(*p) 	// baca i lewat pointer
-	*p = 20         // set i lewat pointer
-	println(i)  	// lihat nilai terbaru dari i
-}
-
-```
+## Array, Slice dan Map
 ### Array
 ```
 var salam [2]string
@@ -258,6 +449,7 @@ fmt.Println(salam)
 greeting := []string{"Good", "Morning"}
 fmt.Println(greeting)
 ```
+
 ### Slice
 - Merupakan potongan dari sebuah array
 ```
@@ -273,22 +465,25 @@ fmt.Println(slice)
 slice = musim[1:]
 fmt.Println(slice)
 ```
+
 ### Map
 - kalau di PHP ini seperti assosiatif array.
 - index otomatis disort secara alpabet
 ```
 hari := map[string]int{"Senin":1, "Selasa":2, "Rabu":3}
 fmt.Println(hari)
-``` 
+```
+
 ### Common Operation
-- array tidak dideklarasikan dengan kapasitasnya
-- untuk menambahkan anggota dengan menggunakan fungsi append  
+- mengunakan potongan array (slice) sehingga tidak dideklarasikan kapasitasnya
+- untuk menambahkan anggota dengan menggunakan fungsi append
 ```
 var salam []string
 salam = append(salam, "selamat")
 salam = append(salam, "pagi")
 fmt.Println(salam)
 ```
+
 ```
 func main() {
 	buah := []string{"rambutan", "durian", "salak"}
@@ -337,27 +532,3 @@ func RemoveByIndex(index int, array []string) []string {
 	}
 }
 ```
-### struct
-- sebuah tipe data abstract
-- berisi dari kumpulan dari berbagai type
-```
-type User struct {
-	ID uint64
-	Name string	
-}
-
-func main() {
-	var user User
-	user.ID = 1
-	user.Name = "Jacky"
-	fmt.Printf("%v\n", user)
-	println(user.Name)
-
-	user2 := User{ID: 2, Name: "JetLee"}
-	fmt.Printf("%v\n", user2)
-	println(user2.Name)
-}
-```
-
-## [Review](https://github.com/jacky-htg/golang-essentials/blob/master/review_basic.md)
-Untuk mempertajam materi, dan membahas hal-hal penting yang terlewat, telah dibuat materi tambahan untuk [mereview dasar-dasar pemrograman golang](https://github.com/jacky-htg/golang-essentials/blob/master/review_basic.md).
