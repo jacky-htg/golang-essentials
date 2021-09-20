@@ -64,7 +64,9 @@ func main() {
     Salam("Selamat Malam")
 }
 ```
+
 - Go routine jalan di multi core processor, dan bisa diset mau jalan di berapa core.
+
 ```
 package main
 
@@ -190,6 +192,7 @@ func main() {
 - Buffering menyebabkan pengiriman dan penerimaan data berlangsung secara asynchronous
 - Pengiriman ke kanal buffer akan ditahan bila buffer telah penuh. Penerimaan akan ditahan saat buffer kosong.
 - Jika pengiriman data melebihi panjang buffer, maka akan diperlakukan secara synchronous.
+
 ```
 package main
 
@@ -246,6 +249,7 @@ func main() {
 
 ## Range dan Close
 - Range merupakan perulangan dari sebuah channel
+
 ```
 package main
 
@@ -267,10 +271,12 @@ func main() {
 
 }
 ```
+
 - Pengirim bisa menutup sebuah channel untuk menandai sudah tidak ada data yang dikirim lagi.
 - Penutupan ini hanya optional. Artinya pengirim boleh melakukan close maupun tidak.
 - Yang melakukan close hanya pengirim. Karena jika yang melakukan close adalah penerima, dan ada routine yang melakukan pengrimana akan menyebabkan panic.
 - Penerima bisa menambahkan pengecekan, jika masih ada data yang dikirim maka akan diterima. 
+
 ```
 package main
 
@@ -404,6 +410,7 @@ func main() {
 - Channel diperlukan untuk pertukaran data antar go routine
 - Jika melibatkan lebih dari satu go routine, diperlukan fungsi kontrol melalui select
 - Select akan menerima secara acak mana data yang terlebih dahulu tersedia
+
 ```
 package main
 
@@ -488,6 +495,7 @@ func main() {
 ```
 ## Select Default
 - Jika saat select tidak ada channel yang siap diterima maka akan dijalankan baris kode default
+
 ```
 package main
 
@@ -521,6 +529,7 @@ func main() {
 
 ## Select Timeout
 - Teknik tambahan untuk mengakhiri select jika tidak ada penerimaan data
+
 ```
 package main
 
@@ -558,7 +567,9 @@ loop:
 }
 
 ```
+
 Hati-hati jika ingin menggabungkan antara select timeout dengan default, karena bisa terjadi looping forever.
+
 ```
 package main
 
@@ -597,7 +608,9 @@ loop:
     }
 }
 ```
+
 Ini disebabkan time.After(time.Second * 5) selalu dibuat setiap looping seleksi, untuk mengatasinya, buat variable untuk menampung timeout agar timeout dikenali disetiap looping.
+
 ```
 package main
 
@@ -643,6 +656,7 @@ loop:
 - Channel dipakai untuk komunikasi antar go routine
 - Jika tidak ingin berkomunikasi karena ngin memastikan hanya satu goroutine yang dapat mengakses suatu variabel pada satu waktu untuk menghindari konflik, digunakan sync mutex
 - mutex adalah mutual exclusion dengan fungsi `Lock` dan `Unlock`
+
 ```
 package main
 
