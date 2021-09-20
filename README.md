@@ -54,3 +54,18 @@ Di materi sebelumnya, kita telah membuat project melalui perintah `go mod init e
 - [RBAC](./rbac.md)
 
 ## Build gRPC API Framework
+- [Protocol Buffer](./grpc-protobuf.md)
+- [makefile](./makefile.md)
+- [grpc server](./grpc-server.md)
+- [Config](./grpc-config.md)
+- [Database](./grpc-database.md)
+- [Routing](./grpc-routing.md)
+- [Domain](./grpc-domain.md)
+- [Handler](./grpc-handler.md)
+- [Usecase](./grpc-usecase.md)
+- [Repository](./grpc-repo.md)
+- [Logger](./grpc-logger.md)
+- [gRPC Client](./grpc-client.md)
+- [Testing](./grpc-testing.md)
+- [Tracing](./grpc-tracing.md)
+- [Caching](./grpc-caching.md)
