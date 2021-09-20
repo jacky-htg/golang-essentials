@@ -687,3 +687,281 @@ func main() {
 }
 
 ``` 
+
+## Sync.WaitGroup
+- Kadang kita perlu menjalankan satu group routine yang terdiri dari beberapa go routine.
+- Kita ingin mengontrol group rutin tersebut dengan melakukan sinkronisasi (synchronous).
+- Fitur sync.WaitGroup memungkinkan kita untuk menunggu semua group routine selesai.
+- Untuk mencegah suatu routine berlangsung lama dibanding routine lainnya, dipasang context dengan deadline.
+- Jika ada satu error di salah satu routine, maka seluruh routine yang sedang jalan akan dicancel.
+
+### Group Routine
+
+```
+package main
+
+import "fmt"
+
+func main() {
+	for i := 0; i < 10; i++ {
+		go fmt.Printf("Routine ke: %d\n", i)
+	}
+}
+```
+
+- Jika dijalankan kemungkinan tidak ada hasil yang diprint, atau mungkin cuma ada 1x print.
+- Tidak ada garansi apakah suatu routine bisa selesai dieksekusi.
+- Go menjalankan fungsi main, dan ketika fungsi main berakhir, maka berakhir juga seluruh program.
+- Kode di atas menjalankan sekelompok goroutine dan kemudian keluar sebelum mereka punya waktu untuk eksekusi.
+
+### Wait Group
+- Solusi untuk kasus di atas adalah dengan menggunakan standar library sync.WaitGroup
+
+```
+package main
+
+import (
+    "fmt"
+    "sync"
+)
+
+func main() {
+    var wg sync.WaitGroup
+	for i := 0; i < 10; i++ {
+        wg.Add(1)
+		go func (id int) {
+            defer wg.Done()
+            fmt.Printf("Routine dengan id: %d\n", id)
+        }(i)
+	}
+    wg.Wait()
+}
+```
+
+- wg.Add() untuk counter berapa goroutine yang sudah ditambahkan. Setiap kali hendak menjalankan gouroutine, tambahkan counter dengan perintah wg,Add(1). 
+- wg.Done() untuk menandai suatu routine sudah selesai
+- wg.Wait() untuk menunggu seluruh counter routine sudah nol (semua goroutine telah selesai).
+- Perhatikan saya mengenalkan variabel local id sebagai id sebuah goroutine. Ini adalah mekanisme aman menggunakan variabel local. Karena jika menggunakan varibel luar i, akan terjadi konflik karena menjalankan potensi race condition.
+- Di bawah ini adalah contoh kode yang salah karena tidak menggunakan variabel local. 
+
+```
+package main
+
+import (
+	"fmt"
+	"sync"
+)
+
+func main() {
+	var wg sync.WaitGroup
+	for i := 0; i < 10; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			fmt.Printf("Routine dengan id: %d\n", i)
+		}()
+	}
+	wg.Wait()
+}
+```
+
+### Handling Error
+- Kode di atas sederhana dan optimis tidak terjadi error, padahal aplikasi riil pasti ada penanganan error.
+- Library golang.org/x/sync/errgroup digunakan untuk handling error.
+- Ingat untuk menggunakan variabel local sebagai id
+- Error yang ditangkap adalah error pertama yang dihasilkan oleh routine. 
+
+```
+package main
+
+import (
+	"fmt"
+
+	"golang.org/x/sync/errgroup"
+)
+
+func main() {
+	var eg errgroup.Group
+	for i := 0; i < 10; i++ {
+		id := i
+		eg.Go(func() error {
+			return routine(id)
+		})
+	}
+
+	if err := eg.Wait(); err != nil {
+		fmt.Println("terjadi error: ", err)
+		return
+	}
+
+	fmt.Println("sukses")
+}
+
+func routine(id int) error {
+	fmt.Printf("Routine dengan id: %d\n", id)
+
+	if id == 9 || id == 6 {
+		return fmt.Errorf("simulasi error %d", id)
+	}
+
+	return nil
+}
+
+```
+
+### Context
+- context berguna untuk menjaga agar context dari client bisa diiikuti.
+- context bisa digunakan untuk menyimpan variabel yang siklus hiduonya sesuai context.
+- context bisa digunakan untuk melakukan deadline maupun cancell ation suatu fungsi.
+- context bisa digunakan untuk melakukan cancellation kode saat context sdh berakhir.
+
+```
+package main
+
+import (
+	"context"
+	"fmt"
+
+	"golang.org/x/sync/errgroup"
+)
+
+func main() {
+	eg, ctx := errgroup.WithContext(context.Background())
+	for i := 0; i < 10; i++ {
+		id := i
+		eg.Go(func() error {
+			return routineContext(ctx, id)
+		})
+	}
+
+	if err := eg.Wait(); err != nil {
+		fmt.Println("terjadi error: ", err)
+		return
+	}
+
+	fmt.Println("sukses")
+}
+
+func routineContext(ctx context.Context, id int) error {
+	select {
+	case <-ctx.Done():
+		fmt.Printf("context cancelled job %v terminting\n", id)
+		return ctx.Err()
+	default:
+	}
+
+	fmt.Printf("Routine dengan id: %d\n", id)
+
+	if id == 9 || id == 6 {
+		return fmt.Errorf("simulasi error %d", id)
+	}
+
+	return nil
+}
+```
+
+Kita bisa menambahkan deadline suatu context
+
+```
+package main
+
+import (
+	"context"
+	"fmt"
+	"time"
+
+	"golang.org/x/sync/errgroup"
+)
+
+func main() {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Microsecond)
+	defer cancel()
+
+	eg, ctx := errgroup.WithContext(ctx)
+	for i := 0; i < 10; i++ {
+		id := i
+		eg.Go(func() error {
+			return routineContext(ctx, id)
+		})
+	}
+
+	if err := eg.Wait(); err != nil {
+		fmt.Println("terjadi error: ", err)
+		return
+	}
+
+	fmt.Println("sukses")
+}
+
+func routineContext(ctx context.Context, id int) error {
+	select {
+	case <-ctx.Done():
+		fmt.Printf("context cancelled job %v terminting\n", id)
+		return ctx.Err()
+	default:
+	}
+
+	fmt.Printf("Routine dengan id: %d\n", id)
+
+	if id == 9 || id == 6 {
+		return fmt.Errorf("simulasi error %d", id)
+	}
+
+	return nil
+}
+
+```
+
+Bandingkan jika kita tidak handle context, maka cancellation jadi tidak berfungsi.
+
+```
+package main
+
+import (
+	"context"
+	"fmt"
+	"time"
+
+	"golang.org/x/sync/errgroup"
+)
+
+func main() {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Microsecond)
+	defer cancel()
+
+	eg, ctx := errgroup.WithContext(ctx)
+	for i := 0; i < 10; i++ {
+		id := i
+		eg.Go(func() error {
+			return routineContext(ctx, id)
+		})
+	}
+
+	if err := eg.Wait(); err != nil {
+		fmt.Println("terjadi error: ", err)
+		return
+	}
+
+	fmt.Println("sukses")
+}
+
+func routineContext(ctx context.Context, id int) error {
+	/*select {
+	case <-ctx.Done():
+		fmt.Printf("context cancelled job %v terminting\n", id)
+		return ctx.Err()
+	default:
+	} */
+
+	fmt.Printf("Routine dengan id: %d\n", id)
+
+	if id == 9 || id == 6 {
+		return fmt.Errorf("simulasi error %d", id)
+	}
+
+	return nil
+}
+```
+
+
+

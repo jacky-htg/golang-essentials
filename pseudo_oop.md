@@ -1,11 +1,34 @@
 # Pseudo OOP
-Pada bab sebelumnya, kita sudah membahas [dasar-dasar pemrograman golang](https://github.com/jacky-htg/golang-essentials/blob/master/basic.md). Sebelum masuk ke pembahasan Pseudo OOP, ada baiknya kita melakukan [review dasar-dasar pemrograman golang](https://github.com/jacky-htg/golang-essentials/blob/master/review_basic.md) terlebih dahulu. 
-
 Golang bukan merupakan bahasa pemrograman yang berorientasi objek. Tapi golang memiliki fitur seperti type, struct, method, reference dan interface yang memungkinkan untuk melakukan pemrograman yang mirip dengan OOP.
+
+## struct
+- sebuah tipe data abstract
+- berisi dari kumpulan dari berbagai type
+- struct bisa digunakan dalam konsep class
+
+```
+type User struct {
+	ID uint64
+	Name string	
+}
+
+func main() {
+	var user User
+	user.ID = 1
+	user.Name = "Jacky"
+	fmt.Printf("%v\n", user)
+	println(user.Name)
+
+	user2 := User{ID: 2, Name: "JetLee"}
+	fmt.Printf("%v\n", user2)
+	println(user2.Name)
+}
+```
 
 ## Method
 - Kita bisa mendefiniskan suatu method pada sebuah type.
 - Method adalah fungsi yang mempunyai argumen khusus receiver berupa type.
+
 ```
 package main
 
@@ -21,7 +44,9 @@ func main() {
     str.Salam()
 }
 ```
+
 - Type yang bisa dibuatkan method adalah type local, yaitu type yang ada dalam paket yang sama dengan method yang dibuat. 
+
 ```
 package main
 
@@ -36,7 +61,9 @@ func main() {
     str.Salam()
 }
 ```
+
 - Receiver bisa berupa pointer
+
 ```
 package main
 
@@ -60,6 +87,7 @@ func main() {
 
 ## Interface
 - Interface berisi kumpulan yang berisi method yang abstract
+
 ```
 type i interface{
     method()
@@ -68,6 +96,7 @@ type i interface{
 
 - Type lain akan mengimplementasikan method dalam interface
 - Tidak ada perintah implement, suatu interface akan dipenuhi secara implisit begitu ada yang mengimplementasikannya 
+
 ```
 package main
 
@@ -88,7 +117,9 @@ func main() {
 	i.method()
 }
 ```
+
 - Jika suatu interface diinisiasi tapi tidak ada yang mengimplementasikannya akan terjadi error nil pointer dereference
+
 ```
 package main
 
@@ -101,7 +132,9 @@ func main() {
     i.method()
 }
 ```
+
 - Isi interface dapat dibayangkan sebagai sebuah pasangan nilai dan sebuah tipe: `(nilai, type)`
+
 ```
 package main
 
@@ -131,6 +164,7 @@ func describe(i I) {
 ## Interface Kosong
 - Interface kosong merupakan interface yang tidak memiliki method
 - Untuk mengklaim nilai interface harus dilakukan type asserting
+
 ```
 var a interface{}
 a = "string"
@@ -147,7 +181,9 @@ println(myMap["Satu"].(bool))
 println(myMap["Dua"].(string))
 println(myMap["Tiga"].(uint)) 
 ```
+
 - Penggunaan switch type dalam melakukan asserting
+
 ```
 package main
 
@@ -175,6 +211,7 @@ func main() {
 - variable class diganti dengan type struct
 - method class diganti dengan method dengan pointer reference
 - gunakan kata kunci new() untuk membuat object
+
 ```
 package main
 
@@ -210,6 +247,7 @@ func main() {
 
 ### Method Overloading
 - Method overloading dimungkinkan dengan reference yang berbeda
+
 ```
 package main
 
@@ -249,6 +287,7 @@ func main() {
 - Kita bisa memilih kode (type, variabel, fungsi dll) yang hendak diexport ke luar paket dan mana yang hanya bisa diakses dalam paket yang sama.
 - Penamaan kode yang bersifat publik diawali dengan huruf besar.
 - Penamaan kode yang bersifat privat diawali dengan huruf kecil.
+
 ```
 // file APP/latihan/kendaraan.go
 package latihan
@@ -307,6 +346,7 @@ func main() {
 
 ### Inheritance
 - Go memungkinkan inheritance melalui embedded berupa field anonim
+
 ```
 package main
 
@@ -338,10 +378,12 @@ func main () {
     fmt.Printf("%v", user)
 }
 ```
+
 - Tapi banyak programmer golang yang tidak menyarankan untuk melakukan inheritance. Melainkan melakukan pendekatan object composition.
 
 ### Object Composition
 - Daripada melakukan pseudo inheritance melalui embedded, disarankan untuk melakukan object composition
+
 ```
 package main
 
@@ -375,6 +417,7 @@ func main () {
 ```
 
 ### Polymorphism
+
 ```
 package main
 

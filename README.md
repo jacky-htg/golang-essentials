@@ -9,6 +9,7 @@ Mempelajari pemrograman golang untuk pemula. Materi akan dibahas step by step da
 - Array : array, slice, map
 
 ## [Psuedo OOP](./pseudo_oop.md)
+- struct
 - Method
 - Interface
 - Encapsulation, inheritance and polymorphism
@@ -16,6 +17,13 @@ Mempelajari pemrograman golang untuk pemula. Materi akan dibahas step by step da
 ## [Konkurensi](./konkurensi.md)
 - Go routine
 - Channel
+- Channel dengan buffer
+- Range dan close
+- Select
+- Select default
+- Select timeout
+- Sync Mutex
+- Handling sync group routine
 
 ## Design Pattern
 - Singleton
@@ -23,7 +31,7 @@ Mempelajari pemrograman golang untuk pemula. Materi akan dibahas step by step da
 - Dependency injection
 - Concurrency pattern
 
-## Build API Framework
+## Build Rest API Framework
 Di materi sebelumnya, kita telah membuat project melalui perintah `go mod init essentials`. Jadi dalam project pembuatan framework API ini, kita memakai 'essentials' sebagai nama project.
 - [Start up](./start-up.md)
 - [Shutdown](./shutdown.md)
@@ -44,3 +52,5 @@ Di materi sebelumnya, kita telah membuat project melalui perintah `go mod init e
 - [Middleware](./middleware.md)
 - [Token](./token.md)
 - [RBAC](./rbac.md)
+
+## Build gRPC API Framework

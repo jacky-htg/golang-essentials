@@ -54,8 +54,8 @@ complex64 complex128
 ```
 const pi float64 = 22/7
 const (
-  alamat string = "Pondok Indah, Jakarta Selatan"
-  email string = "emailku@rebelworks.co"
+  alamat string = "Gandaria City, Jakarta Selatan"
+  email string = "emailku@waresix.com"
 )
 ```
 
