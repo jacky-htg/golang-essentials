@@ -86,7 +86,6 @@ func main() {
     Salam("Selamat Malam")
 }
 ```
-
 ## Channel
 - Untuk mengsinkronkan satu go routine dengan go routine lainnya, diperlukan channel
 - Channel digunakan untuk menerima dan mengirim data antar go routine.
@@ -493,6 +492,7 @@ func main() {
 }
 
 ```
+
 ## Select Default
 - Jika saat select tidak ada channel yang siap diterima maka akan dijalankan baris kode default
 
@@ -976,6 +976,3 @@ func routineContext(ctx context.Context, id int) error {
 	return nil
 }
 ```
-
-
-
