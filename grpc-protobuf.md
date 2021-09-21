@@ -49,7 +49,7 @@ message Driver {
   string created = 8;
   string created_by = 9;
   string updated = 10;
-  string updated_at = 11;
+  string updated_by = 11;
 }
 
 message Drivers {

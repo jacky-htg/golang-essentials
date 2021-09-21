@@ -11,7 +11,7 @@ POSTGRES_PASSWORD = pass
 POSTGRES_DB = drivers
 ```
 
-- Buat file lib/datbase/postgres/postgres.go
+- Buat file lib/database/postgres/postgres.go
 
 ```
 package postgres
@@ -217,7 +217,7 @@ func run(log *log.Logger) error {
 ```
 
 - Buat database drivers
-- Jalankan go run cmd/cli.go migrate 
+- Jalankan `go run cmd/cli.go migrate` 
 - Update file server.go untuk membuat koneksi database
 
 ```
