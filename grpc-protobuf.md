@@ -94,7 +94,7 @@ import "generic/generic_message.proto";
 service DriversService {
   rpc List(DriverListInput) returns (Drivers) {}
   rpc Create(Driver) returns (Driver) {}
-  rpc Update(Id) returns (Driver) {}
+  rpc Update(Driver) returns (Driver) {}
   rpc Delete(Id) returns (BoolMessage) {}
 }
 ```

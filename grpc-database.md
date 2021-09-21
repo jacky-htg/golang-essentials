@@ -272,36 +272,547 @@ func main() {
 
 }
 
+```
+
+- Update server.go untuk mengaupdate roting dengan menginject db ke service
+
+```
 func grpcRoute(grpcServer *grpc.Server, log *log.Logger, db *sql.DB) {
-	driverServer := newDriverHandler(log)
+	driverServer := newDriverHandler(log, db)
+
+	drivers.RegisterDriversServiceServer(grpcServer, driverServer)
+}
+```
+
+- Update server.go service handler agar mempunyai proprety db
+
+```
+type driverHandler struct {
+	log *log.Logger
+	db  *sql.DB
+}
+
+func newDriverHandler(log *log.Logger, db *sql.DB) *driverHandler {
+	handler := new(driverHandler)
+	handler.log = log
+	handler.db = db
+	return handler
+}
+```
+
+- Update file server.go untuk membuat fungsi logError
+
+```
+func logError(log *log.Logger, code codes.Code, err error) error {
+	log.Print(err.Error())
+	return status.Error(code, err.Error())
+}
+```
+
+- Update file server.go untuk mengupdate fungsi List
+
+```
+func (u *driverHandler) List(ctx context.Context, in *drivers.DriverListInput) (*drivers.Drivers, error) {
+	out := &drivers.Drivers{}
+	query := `SELECT id, name, phone, licence_number, company_id, company_name FROM drivers`
+	where := []string{"is_deleted = false"}
+	paramQueries := []interface{}{}
+
+	if len(in.Ids) > 0 {
+		orWhere := []string{}
+		for _, id := range in.Ids {
+			paramQueries = append(paramQueries, id)
+			orWhere = append(orWhere, fmt.Sprintf("id = %d", len(paramQueries)))
+		}
+		if len(orWhere) > 0 {
+			where = append(where, "("+strings.Join(orWhere, " OR ")+")")
+		}
+	}
+
+	if len(in.CompanyIds) > 0 {
+		orWhere := []string{}
+		for _, id := range in.CompanyIds {
+			paramQueries = append(paramQueries, id)
+			orWhere = append(orWhere, fmt.Sprintf("company_id = %d", len(paramQueries)))
+		}
+		if len(orWhere) > 0 {
+			where = append(where, "("+strings.Join(orWhere, " OR ")+")")
+		}
+	}
+
+	if len(in.LicenceNumbers) > 0 {
+		orWhere := []string{}
+		for _, licenceNumber := range in.LicenceNumbers {
+			paramQueries = append(paramQueries, licenceNumber)
+			orWhere = append(orWhere, fmt.Sprintf("licence_number = %d", len(paramQueries)))
+		}
+		if len(orWhere) > 0 {
+			where = append(where, "("+strings.Join(orWhere, " OR ")+")")
+		}
+	}
+
+	if len(in.Names) > 0 {
+		orWhere := []string{}
+		for _, name := range in.Names {
+			paramQueries = append(paramQueries, name)
+			orWhere = append(orWhere, fmt.Sprintf("name = %d", len(paramQueries)))
+		}
+		if len(orWhere) > 0 {
+			where = append(where, "("+strings.Join(orWhere, " OR ")+")")
+		}
+	}
+
+	if len(in.Phones) > 0 {
+		orWhere := []string{}
+		for _, phone := range in.Phones {
+			paramQueries = append(paramQueries, phone)
+			orWhere = append(orWhere, fmt.Sprintf("phone = %d", len(paramQueries)))
+		}
+		if len(orWhere) > 0 {
+			where = append(where, "("+strings.Join(orWhere, " OR ")+")")
+		}
+	}
+
+	if in.Pagination == nil {
+		in.Pagination = &generic.Pagination{}
+	}
+
+	if len(in.Pagination.Keyword) > 0 {
+		orWhere := []string{}
+
+		paramQueries = append(paramQueries, in.Pagination.Keyword)
+		orWhere = append(orWhere, fmt.Sprintf("name = %d", len(paramQueries)))
+
+		paramQueries = append(paramQueries, in.Pagination.Keyword)
+		orWhere = append(orWhere, fmt.Sprintf("phone = %d", len(paramQueries)))
+
+		paramQueries = append(paramQueries, in.Pagination.Keyword)
+		orWhere = append(orWhere, fmt.Sprintf("licence_number = %d", len(paramQueries)))
+
+		paramQueries = append(paramQueries, in.Pagination.Keyword)
+		orWhere = append(orWhere, fmt.Sprintf("company_name = %d", len(paramQueries)))
+
+		if len(orWhere) > 0 {
+			where = append(where, "("+strings.Join(orWhere, " OR ")+")")
+		}
+	}
+
+	if len(in.Pagination.Sort) > 0 {
+		in.Pagination.Sort = strings.ToLower(in.Pagination.Sort)
+		if in.Pagination.Sort != "asc" {
+			in.Pagination.Sort = "desc"
+		}
+	} else {
+		in.Pagination.Sort = "desc"
+	}
+
+	if len(in.Pagination.Order) > 0 {
+		in.Pagination.Order = strings.ToLower(in.Pagination.Order)
+		if !(in.Pagination.Order == "id" ||
+			in.Pagination.Order == "name" ||
+			in.Pagination.Order == "phone" ||
+			in.Pagination.Order == "licence_number" ||
+			in.Pagination.Order == "company_id" ||
+			in.Pagination.Order == "company_name") {
+			in.Pagination.Order = "id"
+		}
+	} else {
+		in.Pagination.Order = "id"
+	}
+
+	if in.Pagination.Limit <= 0 {
+		in.Pagination.Limit = 10
+	}
+
+	if in.Pagination.Offset <= 0 {
+		in.Pagination.Offset = 0
+	}
+
+	if len(where) > 0 {
+		query += " WHERE " + strings.Join(where, " AND ")
+	}
+
+	query += " ORDER BY " + in.Pagination.Order + " " + in.Pagination.Sort
+	query += " LIMIT " + strconv.Itoa(int(in.Pagination.Limit))
+	query += " OFFSET " + strconv.Itoa(int(in.Pagination.Offset))
+
+	rows, err := u.db.QueryContext(ctx, query, paramQueries...)
+	if err != nil {
+		return out, logError(u.log, codes.Internal, err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var obj drivers.Driver
+		err = rows.Scan(&obj.Id, &obj.Name, &obj.Phone, &obj.LicenceNumber, &obj.CompanyId, &obj.CompanyName)
+		if err != nil {
+			return out, logError(u.log, codes.Internal, err)
+		}
+
+		out.Driver = append(out.Driver, &obj)
+	}
+
+	if rows.Err() != nil {
+		return out, logError(u.log, codes.Internal, rows.Err())
+	}
+
+	return out, nil
+}
+```
+
+- Update file server.go untuk mengupdate fungsi Create
+
+```
+func (u *driverHandler) Create(ctx context.Context, in *drivers.Driver) (*drivers.Driver, error) {
+	query := `
+		INSERT INTO drivers (
+			id, name, phone, licence_number, company_id, company_name, created, created_by, updated, updated_by)
+		VALUES ($1, $2, $3 ,$4, $5, $6, $7, $8, $9, $10)
+	`
+	in.Id = uuid.New().String()
+	now := time.Now().Format("2006-01-02 15:04:05.000000")
+	_, err := u.db.ExecContext(ctx, query,
+		in.Id, in.Name, in.Phone, in.LicenceNumber, in.CompanyId, in.CompanyName, now, "jaka", now, "jaka")
+
+	if err != nil {
+		return &drivers.Driver{}, logError(u.log, codes.Internal, err)
+	}
+
+	return in, nil
+}
+```
+
+- Update file server.go untuk mengupdate fungsi Update
+
+```
+func (u *driverHandler) Update(ctx context.Context, in *drivers.Driver) (*drivers.Driver, error) {
+	query := `
+		UPDATE drivers 
+		SET name = $1, 
+				phone = $2, 
+				licence_number = $3, 
+				updated = $4, 
+				updated_by = $5
+		WHERE id = $6
+	`
+	now := time.Now().Format("2006-01-02 15:04:05.000000")
+	_, err := u.db.ExecContext(ctx, query,
+		in.Name, in.Phone, in.LicenceNumber, now, "jaka", in.Id)
+
+	if err != nil {
+		return &drivers.Driver{}, logError(u.log, codes.Internal, err)
+	}
+
+	return in, nil
+}
+```
+
+- Update file server.go untuk mengupdate fungsi Delete
+
+```
+func (u *driverHandler) Delete(ctx context.Context, in *generic.Id) (*generic.BoolMessage, error) {
+	query := `
+		UPDATE drivers 
+		SET is_deleted = true
+		WHERE id = $1
+	`
+	_, err := u.db.ExecContext(ctx, query, in.Id)
+
+	if err != nil {
+		return &generic.BoolMessage{IsTrue: false}, logError(u.log, codes.Internal, err)
+	}
+
+	return &generic.BoolMessage{IsTrue: true}, nil
+}
+```
+
+- Test create dengan perintah `grpcurl -plaintext -import-path ~/jackyhtg/skeleton/proto -proto ~/jackyhtg/skeleton/proto/drivers/driver_service.proto -d '{"name": "jacky", "phone": "08172221", "licence_number": "1234", "company_id": "UAT", "company_name": "Universal Alabama Tahoma"}' localhost:7070 skeleton.DriversService.Create`
+- Tes list dengan perintah `grpcurl -import-path ~/jackyhtg/skeleton/proto -proto ~/jackyhtg/skeleton/proto/drivers/driver_service.proto -plaintext localhost:7070 skeleton.DriversService.List` 
+- Tes delete denagn perintah `grpcurl -plaintext -import-path ~/jackyhtg/skeleton/proto -proto ~/jackyhtg/skeleton/proto/drivers/driver_service.proto -d '{"id":"3a36a71f-021c-4465-9fda-36699b320855"}' localhost:7070 skeleton.DriversService.Delete`
+
+Ini adalah kode keseluruhan server.go
+
+```
+package main
+
+import (
+	"context"
+	"database/sql"
+	"fmt"
+	"log"
+	"net"
+	"os"
+	"strconv"
+	"strings"
+	"time"
+
+	"skeleton/config"
+	"skeleton/lib/database/postgres"
+	"skeleton/pb/drivers"
+	"skeleton/pb/generic"
+
+	"github.com/google/uuid"
+	_ "github.com/lib/pq"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+)
+
+func main() {
+	config.Setup(".env")
+
+	log := log.New(os.Stdout, "Skeleton : ", log.LstdFlags|log.Lmicroseconds|log.Lshortfile)
+
+	db, err := postgres.Open()
+	if err != nil {
+		log.Fatalf("connecting to db: %v", err)
+		return
+	}
+	log.Print("connecting to postgresql database")
+
+	defer db.Close()
+
+	// listen tcp port
+	lis, err := net.Listen("tcp", ":"+os.Getenv("PORT"))
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+		return
+	}
+
+	grpcServer := grpc.NewServer()
+
+	// routing grpc services
+	grpcRoute(grpcServer, log, db)
+
+	if err := grpcServer.Serve(lis); err != nil {
+		log.Fatalf("failed to serve: %s", err)
+		return
+	}
+	log.Print("serve grpc on port: " + os.Getenv("PORT"))
+
+}
+
+func grpcRoute(grpcServer *grpc.Server, log *log.Logger, db *sql.DB) {
+	driverServer := newDriverHandler(log, db)
 
 	drivers.RegisterDriversServiceServer(grpcServer, driverServer)
 }
 
 type driverHandler struct {
 	log *log.Logger
+	db  *sql.DB
 }
 
-func newDriverHandler(log *log.Logger) *driverHandler {
+func newDriverHandler(log *log.Logger, db *sql.DB) *driverHandler {
 	handler := new(driverHandler)
 	handler.log = log
+	handler.db = db
 	return handler
 }
 
 func (u *driverHandler) List(ctx context.Context, in *drivers.DriverListInput) (*drivers.Drivers, error) {
-	return &drivers.Drivers{}, nil
+	out := &drivers.Drivers{}
+	query := `SELECT id, name, phone, licence_number, company_id, company_name FROM drivers`
+	where := []string{"is_deleted = false"}
+	paramQueries := []interface{}{}
+
+	if len(in.Ids) > 0 {
+		orWhere := []string{}
+		for _, id := range in.Ids {
+			paramQueries = append(paramQueries, id)
+			orWhere = append(orWhere, fmt.Sprintf("id = %d", len(paramQueries)))
+		}
+		if len(orWhere) > 0 {
+			where = append(where, "("+strings.Join(orWhere, " OR ")+")")
+		}
+	}
+
+	if len(in.CompanyIds) > 0 {
+		orWhere := []string{}
+		for _, id := range in.CompanyIds {
+			paramQueries = append(paramQueries, id)
+			orWhere = append(orWhere, fmt.Sprintf("company_id = %d", len(paramQueries)))
+		}
+		if len(orWhere) > 0 {
+			where = append(where, "("+strings.Join(orWhere, " OR ")+")")
+		}
+	}
+
+	if len(in.LicenceNumbers) > 0 {
+		orWhere := []string{}
+		for _, licenceNumber := range in.LicenceNumbers {
+			paramQueries = append(paramQueries, licenceNumber)
+			orWhere = append(orWhere, fmt.Sprintf("licence_number = %d", len(paramQueries)))
+		}
+		if len(orWhere) > 0 {
+			where = append(where, "("+strings.Join(orWhere, " OR ")+")")
+		}
+	}
+
+	if len(in.Names) > 0 {
+		orWhere := []string{}
+		for _, name := range in.Names {
+			paramQueries = append(paramQueries, name)
+			orWhere = append(orWhere, fmt.Sprintf("name = %d", len(paramQueries)))
+		}
+		if len(orWhere) > 0 {
+			where = append(where, "("+strings.Join(orWhere, " OR ")+")")
+		}
+	}
+
+	if len(in.Phones) > 0 {
+		orWhere := []string{}
+		for _, phone := range in.Phones {
+			paramQueries = append(paramQueries, phone)
+			orWhere = append(orWhere, fmt.Sprintf("phone = %d", len(paramQueries)))
+		}
+		if len(orWhere) > 0 {
+			where = append(where, "("+strings.Join(orWhere, " OR ")+")")
+		}
+	}
+
+	if in.Pagination == nil {
+		in.Pagination = &generic.Pagination{}
+	}
+
+	if len(in.Pagination.Keyword) > 0 {
+		orWhere := []string{}
+
+		paramQueries = append(paramQueries, in.Pagination.Keyword)
+		orWhere = append(orWhere, fmt.Sprintf("name = %d", len(paramQueries)))
+
+		paramQueries = append(paramQueries, in.Pagination.Keyword)
+		orWhere = append(orWhere, fmt.Sprintf("phone = %d", len(paramQueries)))
+
+		paramQueries = append(paramQueries, in.Pagination.Keyword)
+		orWhere = append(orWhere, fmt.Sprintf("licence_number = %d", len(paramQueries)))
+
+		paramQueries = append(paramQueries, in.Pagination.Keyword)
+		orWhere = append(orWhere, fmt.Sprintf("company_name = %d", len(paramQueries)))
+
+		if len(orWhere) > 0 {
+			where = append(where, "("+strings.Join(orWhere, " OR ")+")")
+		}
+	}
+
+	if len(in.Pagination.Sort) > 0 {
+		in.Pagination.Sort = strings.ToLower(in.Pagination.Sort)
+		if in.Pagination.Sort != "asc" {
+			in.Pagination.Sort = "desc"
+		}
+	} else {
+		in.Pagination.Sort = "desc"
+	}
+
+	if len(in.Pagination.Order) > 0 {
+		in.Pagination.Order = strings.ToLower(in.Pagination.Order)
+		if !(in.Pagination.Order == "id" ||
+			in.Pagination.Order == "name" ||
+			in.Pagination.Order == "phone" ||
+			in.Pagination.Order == "licence_number" ||
+			in.Pagination.Order == "company_id" ||
+			in.Pagination.Order == "company_name") {
+			in.Pagination.Order = "id"
+		}
+	} else {
+		in.Pagination.Order = "id"
+	}
+
+	if in.Pagination.Limit <= 0 {
+		in.Pagination.Limit = 10
+	}
+
+	if in.Pagination.Offset <= 0 {
+		in.Pagination.Offset = 0
+	}
+
+	if len(where) > 0 {
+		query += " WHERE " + strings.Join(where, " AND ")
+	}
+
+	query += " ORDER BY " + in.Pagination.Order + " " + in.Pagination.Sort
+	query += " LIMIT " + strconv.Itoa(int(in.Pagination.Limit))
+	query += " OFFSET " + strconv.Itoa(int(in.Pagination.Offset))
+
+	rows, err := u.db.QueryContext(ctx, query, paramQueries...)
+	if err != nil {
+		return out, logError(u.log, codes.Internal, err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var obj drivers.Driver
+		err = rows.Scan(&obj.Id, &obj.Name, &obj.Phone, &obj.LicenceNumber, &obj.CompanyId, &obj.CompanyName)
+		if err != nil {
+			return out, logError(u.log, codes.Internal, err)
+		}
+
+		out.Driver = append(out.Driver, &obj)
+	}
+
+	if rows.Err() != nil {
+		return out, logError(u.log, codes.Internal, rows.Err())
+	}
+
+	return out, nil
 }
 
 func (u *driverHandler) Create(ctx context.Context, in *drivers.Driver) (*drivers.Driver, error) {
+	query := `
+		INSERT INTO drivers (
+			id, name, phone, licence_number, company_id, company_name, created, created_by, updated, updated_by)
+		VALUES ($1, $2, $3 ,$4, $5, $6, $7, $8, $9, $10)
+	`
+	in.Id = uuid.New().String()
+	now := time.Now().Format("2006-01-02 15:04:05.000000")
+	_, err := u.db.ExecContext(ctx, query,
+		in.Id, in.Name, in.Phone, in.LicenceNumber, in.CompanyId, in.CompanyName, now, "jaka", now, "jaka")
+
+	if err != nil {
+		return &drivers.Driver{}, logError(u.log, codes.Internal, err)
+	}
+
 	return in, nil
 }
 
-func (u *driverHandler) Update(ctx context.Context, in *generic.Id) (*drivers.Driver, error) {
-	return &drivers.Driver{}, nil
+func (u *driverHandler) Update(ctx context.Context, in *drivers.Driver) (*drivers.Driver, error) {
+	query := `
+		UPDATE drivers 
+		SET name = $1, 
+				phone = $2, 
+				licence_number = $3, 
+				updated = $4, 
+				updated_by = $5
+		WHERE id = $6
+	`
+	now := time.Now().Format("2006-01-02 15:04:05.000000")
+	_, err := u.db.ExecContext(ctx, query,
+		in.Name, in.Phone, in.LicenceNumber, now, "jaka", in.Id)
+
+	if err != nil {
+		return &drivers.Driver{}, logError(u.log, codes.Internal, err)
+	}
+
+	return in, nil
 }
 
 func (u *driverHandler) Delete(ctx context.Context, in *generic.Id) (*generic.BoolMessage, error) {
-	return &generic.BoolMessage{}, nil
+	query := `
+		UPDATE drivers 
+		SET is_deleted = true
+		WHERE id = $1
+	`
+	_, err := u.db.ExecContext(ctx, query, in.Id)
+
+	if err != nil {
+		return &generic.BoolMessage{IsTrue: false}, logError(u.log, codes.Internal, err)
+	}
+
+	return &generic.BoolMessage{IsTrue: true}, nil
 }
 
+func logError(log *log.Logger, code codes.Code, err error) error {
+	log.Print(err.Error())
+	return status.Error(code, err.Error())
+}
 ```

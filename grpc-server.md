@@ -63,8 +63,8 @@ func (u *driverHandler) Create(ctx context.Context, in *drivers.Driver) (*driver
 	return in, nil
 }
 
-func (u *driverHandler) Update(ctx context.Context, in *generic.Id) (*drivers.Driver, error) {
-	return &drivers.Driver{}, nil
+func (u *driverHandler) Update(ctx context.Context, in *drivers.Driver) (*drivers.Driver, error) {
+	return in, nil
 }
 
 func (u *driverHandler) Delete(ctx context.Context, in *generic.Id) (*generic.BoolMessage, error) {
