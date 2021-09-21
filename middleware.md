@@ -2,6 +2,7 @@
 Pada bab ini kita akan membuat middleware. Kasus yang digunakan adalah handling auth.
 
 - Buat file baru libraries/api/middleware.go
+
 ```
 package api
 
@@ -28,7 +29,9 @@ func wrapMiddleware(mw []Middleware, handler Handler) Handler {
 	return handler
 }
 ```
+
 - list semua middleware yang diperlukan pada routing/route.go
+
 ```
 package routing
 
@@ -68,6 +71,7 @@ func API(db *sql.DB, log *log.Logger) http.Handler {
 ```
 
 - Tambahkan field middleware di type App libraries/api/app.go
+
 ```
 package api
 
@@ -149,6 +153,7 @@ func NewApp(log *log.Logger, mw ...Middleware) *App {
 ```
 
 - Buat middleware untuk handling authorization ( middlewares/auth.go )
+
 ```
 package middlewares
 

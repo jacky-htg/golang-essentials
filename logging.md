@@ -3,17 +3,22 @@
 - Jangan gunakan variabel global, seperti variabel di level paket.
 - Solusinya, kita akan melewatkan pointer *log.Logger ke paket yang membutuhkannya melalui pattern dependency injection.
 - Create variabel log (pointer) di awal `func run()` di file main.go
+
 ```
     // =========================================================================
 	// Logging
 	log := log.New(os.Stdout, "Essentials : ", log.LstdFlags|log.Lmicroseconds|log.Lshortfile)
 ```
+
 - Semua pemakaian log akan menggunakan pointer log yang telah dibuat.
 - Lewatkan pointer log ke service yang membutuhkan dengan pattern dependency injection
+
 ```
 service := controllers.Users{Db: db, Log: log}
 ```
+
 - File main.go berubah menjadi 
+
 ```
 package main
 
@@ -114,7 +119,9 @@ func run() error {
 	return nil
 }
 ```
+
 - File controllers/users.go berubah menjadi 
+
 ```
 package controllers
 

@@ -2,6 +2,7 @@
 Membuat token auth menggunakan jwt token.
 
 - Tambahkan TOKEN_SALT environtment pada file .env
+
 ```
 APP_PORT=9000
 APP_ENV=local
@@ -13,6 +14,7 @@ TOKEN_SALT=secret-salt
 ```
 
 - Membuat token library pada libraries/token/token.go
+
 ```
 package token
 
@@ -61,7 +63,9 @@ func ClaimToken(username string) (string, error) {
 }
 
 ```
+
 - Tambahkan  login routing pada  routing/route.go
+
 ```
     // Auth Routing
 	{
@@ -71,6 +75,7 @@ func ClaimToken(username string) (string, error) {
 ```
 
 - Buat controllers auths pada controllers/auths.go
+
 ```
 package controllers
 
@@ -135,6 +140,7 @@ func (u *Auths) Login(w http.ResponseWriter, r *http.Request) {
 ```
 
 - Buat payload login request pada payloads/request/login_request.go
+
 ```
 package request
 
@@ -146,6 +152,7 @@ type LoginRequest struct {
 ```
 
 - Buat GetByUsername method pada models/user.go
+
 ```
 // GetByUsername : get user by username
 func (u *User) GetByUsername(ctx context.Context, db *sql.DB) error {
@@ -159,7 +166,9 @@ func (u *User) GetByUsername(ctx context.Context, db *sql.DB) error {
 	return err
 }
 ```
+
 - Buat payload token response pada payloads/response/token_response.go
+
 ```
 package response
 
@@ -220,6 +229,7 @@ func (u *Auths) Login(t *testing.T) {
 ```
 
 - Update tests/main_test.go untuk mengetes login
+
 ```
 package tests
 

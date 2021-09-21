@@ -3,6 +3,7 @@ Untuk memanajemen pengaturan hak akses
 
 ## Design Tabel
 - Design rbac database pada schema/migrate.go dan schema/seed.go
+
 ```
 package schema
 
@@ -174,6 +175,7 @@ func Seed(db *sql.DB) error {
 
 ## Design Routing
 - Buat routing untuk rbac
+
 ```
     // Roles Routing
 	{
@@ -196,6 +198,7 @@ func Seed(db *sql.DB) error {
 
 ## Access
 - Buat perintah scan-access pada libraries/auth/access.go
+
 ```
 package auth
 
@@ -347,7 +350,9 @@ func removeAccess(tx *sql.Tx, existingAccess []uint32) error {
 }
 
 ```
+
 - Library di atas butuh library array. Buat file libraries/array/string.go dan libraries/array/uint32.go
+
 ```
 package array
 
@@ -411,7 +416,9 @@ func (s ArrUint32) RemoveByIndex(array []uint32, index int) []uint32 {
 	return append(array[:index], array[(index+1):]...)
 }
 ```
+
 - Buat model Access models/access.go
+
 ```
 package models
 
@@ -587,6 +594,7 @@ func (u *Access) getArgs() []interface{} {
 ```
 
 - Ubah file cmd/main.go
+
 ```
     switch flag.Arg(0) {
 	case "migrate":
@@ -608,9 +616,11 @@ func (u *Access) getArgs() []interface{} {
 		fmt.Println("Scan access complete")
 	}
 ```
+
 - `go run cmd/main.go scan-access` untuk insert routing ke tabel access
 
 - Buat file controllers/access.go
+
 ```
 package controllers
 
@@ -659,6 +669,7 @@ func (u *Access) List(w http.ResponseWriter, r *http.Request) {
 ```
 
 - Buat file payloads/response/access_response.go
+
 ```
 package response
 
@@ -685,6 +696,7 @@ func (u *AccessResponse) Transform(access *models.Access) {
 
 ## Roles
 - Buat models/role.go
+
 ```
 package models
 
@@ -820,7 +832,9 @@ func (u *Role) getArgs() []interface{} {
 }
 
 ```
+
 - Buat file payloads/request/role_request.go
+
 ```
 package request
 
@@ -860,6 +874,7 @@ func (u *RoleRequest) Transform(role *models.Role) *models.Role {
 ```
 
 - Buat file payloads/response/role_response.go
+
 ```
 package response
 
@@ -881,6 +896,7 @@ func (u *RoleResponse) Transform(role *models.Role) {
 ```
 
 - Buat file controllers/roles.go
+
 ```
 package controllers
 

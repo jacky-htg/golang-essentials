@@ -4,6 +4,7 @@
 - Konfigurasi yang akan diatur meliputi : port server, database driver, database connection
 - Sebagai tambahan dibuat konfigurasi penanda apakah aplikasi berjalan di production atau lokal
 - Buat file .env yang isinya 
+
 ```
 APP_PORT=0.0.0.0:9000
 APP_ENV=local
@@ -11,7 +12,9 @@ APP_ENV=local
 DB_DRIVER=mysql
 DB_SOURCE=root:pass@tcp(localhost:3306)/essentials?parseTime=true
 ```
+
 - Kemudian buat library untuk membaca file .env dan menyalinnya ke environment OS. Buat file libraries/config/config.go
+
 ```
 package config
 
@@ -39,13 +42,17 @@ func Setup(file string) error {
 	return nil
 }
 ```
+
 - Ubah file main.go agar meload file .env jika environment-nya developement atau lokal, dengan menyisipkan kode
+
 ```
 if _, ok := os.LookupEnv("APP_ENV"); !ok {
 	config.Setup(".env")
 }
 ```
+
 - Ubah file main.go agar membaca env port saat membuat parameter server
+
 ```
     server := http.Server{
 		Addr:         os.Getenv("APP_PORT"),
@@ -54,7 +61,9 @@ if _, ok := os.LookupEnv("APP_ENV"); !ok {
 		WriteTimeout: 5 * time.Second,
 	}
 ```
+
 - File main.go akan menjadi seperti ini 
+
 ```
 package main
 
@@ -145,6 +154,7 @@ func main() {
 ```
 
 - Ubah file libraries/database/database.go 
+
 ```
 package database
 
@@ -160,6 +170,7 @@ func Open() (*sql.DB, error) {
 ```
 
 - Ubah file cmd/main.go menjadi seperti berikut :
+
 ```
 package main
 

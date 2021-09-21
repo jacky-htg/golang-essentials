@@ -2,6 +2,7 @@
 - Setiap payload request yang masuk harus divalidasi
 - Kita akan menggunakan [validator v.9](gopkg.in/go-playground/validator.v9)
 - Setiap struct di payload request ditambahkan tag validator
+
 ```
 package request
 
@@ -47,6 +48,7 @@ func (u *UserRequest) Transform(user *models.User) *models.User {
 ```
 
 - Pengecekan bisa dilakukan secara generic di helper request libaries/api/request.go
+
 ```
 package api
 
@@ -89,6 +91,7 @@ func Decode(r *http.Request, val interface{}) error {
 ```
 
 - Adakalanya kita ingin validasi dilakukan secara khusus di suatu payload request. Untuk itu kita akan membuat validasi di helper request adalah optional.
+
 ```
 package api
 
@@ -131,6 +134,7 @@ func Decode(r *http.Request, val interface{}, mustValidate bool) error {
 ```
 
 - Kemudian kita tambahkan validasi khusus di payload request yang membutuhkan validasi khusus.
+
 ```
 package request
 
@@ -204,6 +208,7 @@ func (u *UserRequest) Transform(user *models.User) *models.User {
 
 - Selanjutnya setiap call api.Decode() perlu memberitahu apakah akan menggunakan validasi global atau tidak dengan melempar parameter boolean musValidate. Dan mungkin perlu memanggil fungsi Validate khusus `userRequest.Validate()`
 - Berikut contoh perubahan di file usecases/user_usecase.go
+
 ```
 package usecases
 
@@ -271,6 +276,7 @@ func (u *UserUsecase) Create(r *http.Request) (response.UserResponse, error) {
 ```
 
 - Dan ini contoh validasi yang dilakukan secara global di helper request pada method Update di file controllers/users.go
+
 ```
 // Update user by id
 func (u *Users) Update(w http.ResponseWriter, r *http.Request) {

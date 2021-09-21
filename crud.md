@@ -4,6 +4,7 @@ Pada bab ini kita akan melengkapi method Users.Create, Users.View, Users.Update 
 ## Create
 - Karena membutuhkan beberapa validasi dan hashing password, create user akan ditangani menggunakan usecase.
 - Pertama kita siapkan model-nya terlebih dahulu. Edit file models/user.go dan tambahkan method Create.
+
 ```
 // Create new user
 func (u *User) Create(db *sql.DB) error {
@@ -33,7 +34,9 @@ func (u *User) Create(db *sql.DB) error {
 	return nil
 }
 ```
+
 - Untuk response kita sudah ada file payloads/response/user_response.go dan tidak perlu ada perubahan. Namun yang kita perlukan adalah payload untuk menangani request. Buatlah file payloads/request/user_request.go yang berfungsi untuk menerima json body dari request, kemudian mengconvertnya menjadi model.
+
 ```
 package request
 
@@ -62,6 +65,7 @@ func (u *NewUserRequest) Transform() *models.User {
 ```
 
 - Selanjutnya kita buat file usecases/user_usecase.go untuk interaksi dan validasi pembuatan user baru.
+
 ```
 package usecases
 
@@ -129,6 +133,7 @@ func (u *UserUsecase) Create(r *http.Request) ([]byte, error) {
 ```
 
 - Terakhir, ubah method Users.Create di file controllers/users.go
+
 ```
 // Create new user
 func (u *Users) Create(w http.ResponseWriter, r *http.Request) {
@@ -149,6 +154,7 @@ func (u *Users) Create(w http.ResponseWriter, r *http.Request) {
 
 ## Read
 - Tambahkan method `func (u *User) Get(db *sql.DB) error` pada file models/user.go
+
 ```
 func (u *User) Get(db *sql.DB) error {
 	const q = `SELECT id, username, password, email, is_active FROM users`
@@ -157,6 +163,7 @@ func (u *User) Get(db *sql.DB) error {
 ```
 
 - Ubah method View pada file controllers/users.go menjadi
+
 ```
 // View user by id
 func (u *Users) View(w http.ResponseWriter, r *http.Request) {
@@ -196,6 +203,7 @@ func (u *Users) View(w http.ResponseWriter, r *http.Request) {
 
 ## Update
 - Tambahkan method `func (u *User) Update(db *sql.DB) error` pada file models/user.go
+
 ```
 // Update user by id
 func (u *User) Update(db *sql.DB) error {
@@ -213,6 +221,7 @@ func (u *User) Update(db *sql.DB) error {
 ```
 
 - Tambahkan `type UserRequest struct{}` pada file payloads/request/user_request.go dan method Transform untuk reference UserRequest
+
 ```
 // UserRequest : format json request for update user
 type UserRequest struct {
@@ -233,6 +242,7 @@ func (u *UserRequest) Transform(user *models.User) *models.User {
 ```
 
 - Ubah method Update pada file controllers/users.go
+
 ```
 paramID := r.Context().Value(api.Ctx("ps")).(httprouter.Params).ByName("id")
 	id, err := strconv.Atoi(paramID)
@@ -286,6 +296,7 @@ paramID := r.Context().Value(api.Ctx("ps")).(httprouter.Params).ByName("id")
 
 ## Delete
 - Tambahkan method `func (u *User) Delete(db *sql.DB) error` pada file models/user.go
+
 ```
 // Delete user by id
 func (u *User) Delete(db *sql.DB) error {
@@ -303,6 +314,7 @@ func (u *User) Delete(db *sql.DB) error {
 ```
 
 - Ubah method Delete pada file controllers/users.go
+
 ```
 // Delete user by id
 func (u *Users) Delete(w http.ResponseWriter, r *http.Request) {

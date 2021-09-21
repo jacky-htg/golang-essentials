@@ -2,7 +2,8 @@
 - JSON adalah format response API yang cukup populer. Bab ini kita akan membuat response dalam format json.
 - Sebagai sample, kita akan membuang/menghapus handler HelloWorld dan menggantinya dengan handler ListUsers
 - Membuat type struct User
-- Membuat handler ListUsers untuk menampilkan list users    
+- Membuat handler ListUsers untuk menampilkan list users 
+   
 ```
 package main
 

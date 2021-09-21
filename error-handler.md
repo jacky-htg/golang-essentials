@@ -1,5 +1,6 @@
 # Error Handler
 Tidak semua error adalah "internal server error". Kita harus menghandle berbagai jenis error yang muncul. Pada bab ini  kita akan menghandle semua jenis error dengan standar format seperti berikut :
+
 ```
 {
     "status_code": "REBEL-404",
@@ -11,6 +12,7 @@ Tidak semua error adalah "internal server error". Kita harus menghandle berbagai
 ## Custome Error
 
 - Buat custome error yang mengimplementasikan error interface. Custome error yang dibuat mempunyai field :
+
 ```
 type Error struct {
 	Err           error
@@ -19,14 +21,18 @@ type Error struct {
 	HTTPStatus    int
 }
 ``` 
+
 - Karena mengimplementasikan interface error, maka custome error yang dibuat harus mengimplementasikan method `func Error() string`
+
 ```
 func (err *Error) Error() string {
 	return err.Err.Error()
 }
 ```
+
 - Untuk mempermudah saat pembuatan custome error, kita akan melengkapi fungsi dengan fungsi ErrBadRequest, ErrNotFound, dan ErrForbidden.
 - Berikut file baru libraries/api/error.go yang berisi :
+
 ```
 package api
 
@@ -85,7 +91,9 @@ func (err *Error) Error() string {
 	return err.Err.Error()
 }
 ```
+
 - Kode di atas error karena kita memakai beberapa konstanta yang belum dibuat. Buatlah file libraries/api/status_code.go untuk menyimpan konstanta status code.
+
 ```
 package api
 
@@ -106,7 +114,9 @@ const (
 	StatusCodeNotFound string = "REBEL-404"
 )
 ```
+
 - Buat file baru libraries/api/status_message.go untuk menyimpan konstanta status message.
+
 ```
 package api
 
@@ -128,7 +138,9 @@ const (
 )
 
 ```
+
 - Ubah api.Decode pada file libraries/api/request.go agar mengembalikan custome error dengan status "400 Bad Request"
+
 ```
 package api
 
@@ -147,7 +159,9 @@ func Decode(r *http.Request, val interface{}) error {
 	return nil
 }
 ```
+
 - Kemudian setiap error harus didefinisikan dengan jelas merupakan error custome apa. Ubah method Get pada file models/user.go agar mengembalikan ErrNotFound 
+
 ```
 // Get user by id
 func (u *User) Get(db *sql.DB) error {
@@ -163,6 +177,7 @@ func (u *User) Get(db *sql.DB) error {
 ```
 
 - Ubah file usecases/user_usecase.go agar error password not match diganti menjadi ErrBadRequest
+
 ```
 package usecases
 
@@ -225,6 +240,7 @@ func (u *UserUsecase) Create(r *http.Request) (response.UserResponse, error) {
 ## Response Format
 
 - Edit file libraries/api/response.go untuk mengubah format response mengikuti struct berikut :
+
 ```
 type ResponseFormat struct {
 	StatusCode string      `json:"status_code"`
@@ -234,6 +250,7 @@ type ResponseFormat struct {
 ```
 
 - Ubah fungsi Response di file libraries/api/response.go agar mendukung format yang baru
+
 ```
 // Response converts a Go value to JSON and sends it to the client.
 func Response(w http.ResponseWriter, data interface{}, statusCode string, message string, httpCode int) error {
@@ -254,7 +271,9 @@ func Response(w http.ResponseWriter, data interface{}, statusCode string, messag
 	return nil
 }
 ```
+
 - Dan kita akan membuat dua response, yaitu ResponseOK dan ResponseError, untuk itu kita edit file libraries/api/response.go untuk menambahkan dua fungsi response yang baru.
+
 ```
 // ResponseOK converts a Go value to JSON and sends it to the client.
 func ResponseOK(w http.ResponseWriter, data interface{}, HTTPStatus int) error {
@@ -282,6 +301,7 @@ func ResponseError(w http.ResponseWriter, err error) error {
 ```
 
 - Ubah file controllers/users.go agar memanggil fungsi response yang baru : ResponseOK atau ResponseError
+
 ```
 package controllers
 

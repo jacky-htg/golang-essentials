@@ -27,7 +27,9 @@ func helloworld(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "Hello World!")
 }
 ```
+
 - Kita juga bisa mendefinisikan parameter parameter untuk menjalankan server http melalui struct [http.Server](https://golang.org/pkg/net/http/#Server)
+
 ```
 package main
 
@@ -59,7 +61,9 @@ func helloworld(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "Hello World!")
 }
 ```
+
 - Listening server bisa dijalankan secara asynchronous melalui go routine. Dan untuk menangkap error yang terjadi digunakan channel.
+
 ```
 package main
 

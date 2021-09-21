@@ -5,6 +5,7 @@ Pembahasan database dibagi dalam 3 bahasan, yaitu: pembuatan migration, seed dan
 
 - Langkah pertama adalah membuat database. Buka mysql dan buatlah schema : "essentials"
 - Kemudian buat koneksi database dengan membuat fungsi openDb(). Misalkan user=root dan password=pass.
+
 ```
 func openDB() (*sql.DB, error) {
 	return sql.Open("mysql", "root:pass@tcp(localhost:3306)/essentials?parseTime=true")
@@ -14,6 +15,7 @@ func openDB() (*sql.DB, error) {
 ## Migration
 - Ada banyak library yang mengerjakan proses migration. Kali ini saya akan menggunakan library [darwin](https://github.com/GuiaBolso/darwin) karena cukup simple.
 - Buat folder schema. Kemudian buatlan file schema/migrate.go yang isinya sebagai berikut :
+
 ```
 // file schema/migrate.go
 package schema
@@ -194,6 +196,7 @@ func openDB() (*sql.DB, error) {
 - Digunakan untuk dump data users
 - Buatlah file schema/seed.go
 - Fungsi seed menggunakan fitur transaction, sehingga jika ada query yang gagal akan dirollback semua.
+
 ```
 // file schema/seed.go
 package schema
@@ -382,6 +385,7 @@ func openDB() (*sql.DB, error) {
 - Saat ini isi/data dari ListUsers masih di-hardcode. Kini kita akan mengisinya dengan data dari tabel users.
 - Ganti handle ListUsers dengan method Users.List
 - Buat type Users dengan Db yang diinject dari fungsi utama (dependency injection).
+
 ```
 //Users : struct for set Users Dependency Injection
 type Users struct {
@@ -390,6 +394,7 @@ type Users struct {
 ```
 
 - Buat method Users.List
+
 ```
 //List : http handler for returning list of users
 func (u *Users) List(w http.ResponseWriter, r *http.Request) {
@@ -434,8 +439,10 @@ func (u *Users) List(w http.ResponseWriter, r *http.Request) {
 		log.Println("error writing result", err)
 	}
 }
-``` 
+```
+
 - Di fungsi utama, ubah parameter Handler pada server untuk memanggil Users.List
+
 ```
 service := Users{Db: db}
 server := http.Server{
@@ -445,7 +452,9 @@ server := http.Server{
 		WriteTimeout: 5 * time.Second,
 	}
 ``` 
+
 - Berikut hasil akhir dari file main.go
+
 ```
 package main
 

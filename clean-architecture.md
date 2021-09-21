@@ -7,6 +7,7 @@
 - Domain layer meliputi : use case yang berisi interaction dan logic
 - Data layer meliputi : entity / model 
 - Untuk mengadopsi clean architecture, dibuat struktur direktori aplikasi sebagai berikut :
+
 ```
 > cmd
 > controllers
@@ -18,9 +19,11 @@
 > schema
 > usecases
 ```
+
 - Implementasi tidak harus kaku. Tidak semua endpoint harus ada use case. Pattern use case digunakan jika mengandung banyak logic, atau melibatkan banyak model. Jika endpoint sederhana dengan hanya 1 model, tidak perlu membuat use case.
 - Dalam contoh list user, karena masih sederhana, kita tidak akan menggunakan use case.
 - Kita akan memecah kode di file main.go menjadi 5 file yaitu :
+
 ```
 main.go -> berisi kode untuk handling start up dan shutdown 
 cmd/main.go -> berisi kode untuk handling console command, yaitu migrate dan seed
@@ -29,7 +32,9 @@ controllers/users.go -> berisi struct Users dan method List handler
 models/user.go -> berisi struct User dan method List untuk mendapatkan data list user dari database
 payloads/response/user_response.go -> Format json response dari list user
 ``` 
+
 - Berikut isi dari file libraries/database/database.go
+
 ```
 package database
 
@@ -43,6 +48,7 @@ func Open() (*sql.DB, error) {
 ```
 
 - Berikut isi dari file cmd/main.go
+
 ```
 package main
 
@@ -89,6 +95,7 @@ func main() {
 ```
 
 - Berikut isi dari file models/user.go
+
 ```
 package models
 
@@ -132,6 +139,7 @@ func (u *User) List(db *sql.DB) ([]User, error) {
 ```
 
 - Berikut adalah isi dari file payloads/response/user_response.go
+
 ```
 package response
 
@@ -156,6 +164,7 @@ func (u *UserResponse) Transform(user models.User) {
 ```
 
 - Berikut isi file controllers/users.go
+
 ```
 package controllers
 
@@ -207,6 +216,7 @@ func (u *Users) List(w http.ResponseWriter, r *http.Request) {
 ```
 
 - Dan isi dari file main.go adalah :
+
 ```
 package main
 

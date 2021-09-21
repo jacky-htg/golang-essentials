@@ -3,6 +3,7 @@ Decode Request dan set/write response adalah suatu kode yang ditulis berulang-ul
 
 ## Request Helper
 - Buatlah file libraries/api/request.go
+
 ```
 package api
 
@@ -23,6 +24,7 @@ func Decode(r *http.Request, val interface{}) error {
 ```
 
 - Ubah method Update pada file controllers/users.go agar memanggil helper request
+
 ```
 // Update user by id
 func (u *Users) Update(w http.ResponseWriter, r *http.Request) {
@@ -77,6 +79,7 @@ func (u *Users) Update(w http.ResponseWriter, r *http.Request) {
 ```
 
 - Ubah method Create pada file usecases/user_usecase.go agar memanggil helper request
+
 ```
 // Create new user
 func (u *UserUsecase) Create(r *http.Request) ([]byte, error) {
@@ -125,6 +128,7 @@ func (u *UserUsecase) Create(r *http.Request) ([]byte, error) {
 
 ## Response Helper
 - Buat file libraries/api/response.go
+
 ```
 package api
 
@@ -154,6 +158,7 @@ func Response(w http.ResponseWriter, data interface{}, statusCode int) error {
 ```
 
 - Ubah file usecases/user_usecase.go menjadi
+
 ```
 package usecases
 
@@ -214,6 +219,7 @@ func (u *UserUsecase) Create(r *http.Request) (response.UserResponse, error) {
 ```
 
 - Ubah file controllers/users.go menjadi 
+
 ```
 package controllers
 

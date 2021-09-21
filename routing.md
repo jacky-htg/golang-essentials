@@ -1,6 +1,7 @@
 # Routing
 - Jika ada lebih dari satu endpoint, kita membutuhkan routing
 - File main.go akan diubah agar parameter server, yaitu http.Server.Handler akan diarahkan ke file routing yang mengimplementasikan interface http.Handler
+
 ```
     // parameter server
 	server := http.Server{
@@ -10,7 +11,9 @@
 		WriteTimeout: 5 * time.Second,
 	}
 ```
+
 - Berikut full kode main.go mengikuti perubahan parameter Handler
+
 ```
 package main
 
@@ -109,11 +112,13 @@ func run(log *log.Logger) error {
 }
 
 ``` 
+
 - Kode di atas error karena kita belum mebuat file routing/route.go yang menghandle routing
 
 ## Routing Menggunakan ServeMux
 - Golang sudah mempunyai routing bawaan yaitu http.ServeMux
 - Kita akan buat routing yang mengimplementasikan interface http.Handler. Buat file routing/route.go yang berisi :
+
 ```
 package routing
 
@@ -140,10 +145,12 @@ func API(db *sql.DB, log *log.Logger) http.Handler {
 	return app
 }
 
-``` 
+```
+
 - Kode di atas jika dijalankan akan error `*app does not implement http.Handler (missing ServeHTTP method)` karena func API return-nya adalah interface http.Handler namun nyatanya yang direturn adalah *app
 - Interface http.Handler mempunyai method abstract bernama ServeHTTP
 - Karena itu, *app harus mengimplementasikan interface http.Handler dengan membuat method konkret ServeHTTP
+
 ```
 package routing
 
@@ -180,6 +187,7 @@ func (a *app) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 ## Penggunaan HTTP Method dalam ServeMux 
 - HandleFunc tidak memperhatikan http method, sehingga baik method GET, POST, PUT, DELETE akan mengeksekusi handler users.List
 - Untuk mendukung method kita perlu merubah fungsi HandleFunc di atas.
+
 ```
 package routing
 
@@ -234,7 +242,9 @@ func API(db *sql.DB, log *log.Logger) http.Handler {
 }
 
 ```
+
 - Tambahkan method lainnya di file controllers/users.go
+
 ```
 package controllers
 
@@ -360,16 +370,19 @@ func (u *Users) Delete(w http.ResponseWriter, r *http.Request) {
 
 ## Routing dengan httprouter
 - http.ServeMux sangat handal performance-nya. Namun http.ServeMux tidak support pattern dalam routing url, sehingga terkesan tidak modern. Padahal umumnya sekarang untuk routing ResT kita menggunakan pattern, seperti :
+
 ```
 GET /users/:id
 PUT /users/:id
 DELETE /users/:id
 ```
+
 - Karena itulah terpaksa kita harus membuat routing sendiri atau memilih menggunakan library routing lain yang sudah ada. Salah satunya adalah [httprouter](https://github.com/julienschmidt/httprouter)
 - Performance httprouter sangat handal -- [lihat benchmark](https://github.com/julienschmidt/go-http-routing-benchmark) --
 - Kekurangan httprouter adalah tidak mendukung standard http.Handler dan tidak ada middleware
 - Tapi kita bisa membuat middleware sendiri dan mengubah sedikit agar httprouter mendukung standar http.Handler.
 - Ubah file routing/route.go menjadi :
+
 ```
 package routing
 
@@ -407,7 +420,9 @@ func API(db *sql.DB, log *log.Logger) http.Handler {
 	return app
 }
 ```
+
 - Ubah file controllers/users.go menjadi :
+
 ```
 package controllers
 
@@ -522,8 +537,10 @@ func (u *Users) Delete(w http.ResponseWriter, r *http.Request, ps httprouter.Par
 	}
 }
 ```
+
 - Routing ini sudah berjalan dengan baik. Namun agar kode routing lebih dimaintenance, file routing/route.go akan dipecah menjadi dua file. Kode-kode yang mengatur tentang app akan dijadikan library tersendiri.
 - Ubah file routing/route.go menjadi :
+
 ```
 package routing
 
@@ -550,7 +567,9 @@ func API(db *sql.DB, log *log.Logger) http.Handler {
 	return app
 }
 ```
+
 - Buat file libraries/api/app.go yang berisi :
+
 ```
 package api
 
@@ -592,6 +611,7 @@ func NewApp(log *log.Logger) *App {
 - Buat `type Handler func(http.ResponseWriter, *http.Request)` di file libraries/api/app.go
 - Buat `type Ctx string` di file libraries/api/app.go untuk dijadikan key saat memindahkan httrouter.params ke context 
 - Ubah parameter httprouter.Handle menjadi http.Handle di fungsi App.Handle di file libraries/api/app.go
+
 ```
 // Handle associates a httprouter Handle function with an HTTP Method and URL pattern.
 func (a *App) Handle(method, url string, h Handler) {
@@ -604,7 +624,9 @@ func (a *App) Handle(method, url string, h Handler) {
 	a.mux.Handle(method, url, fn)
 }
 ```
+
 - Keseluruhan file libraries/api/app.go setelah mengalami perubahan adalah sebagai berikut:
+
 ```
 package api
 
@@ -654,7 +676,9 @@ func NewApp(log *log.Logger) *App {
 }
 
 ```
+
 - Ubah kembali file controllers/users.go agar sesuai dengan standar http.Handle
+
 ```
 package controllers
 
@@ -773,6 +797,7 @@ func (u *Users) Delete(w http.ResponseWriter, r *http.Request) {
 
 ## Handle CORS
 - Untuk handle CORS tambahkan header seperti berikut di file libraries/api/app.go
+
 ```
 package api
 
@@ -842,7 +867,9 @@ func NewApp(log *log.Logger) *App {
 }
 
 ```
+
 - File routing juga memanggil method HandleCors 
+
 ```
 package routing
 

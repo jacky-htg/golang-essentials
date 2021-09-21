@@ -2,6 +2,7 @@
 Unit testing adalah suatu tes untuk mengecek sebuah unit atu fungsi berjalan dengan baik atau tidak. Untuk pengetesan, baik pengetesan unit maupun pengetesan API, kita akan menggunakan database tersendiri yang kontainer-nya akan dicreate saat awal pengetesan dan di-drop setelah pengetesan berakhir. Proses create dan drop kontainer ini menggunakan perintah docker.
 
 - Buat file libraries/database/databasetest/docker.go untuk mengelola perintah start dan stop kontainer mysql menggunakan docker.
+
 ```
 package databasetest
 
@@ -35,6 +36,7 @@ func StopContainer(t *testing.T) {
 ```
 
 - Buat file tests/app_test.go to menyediakan services utama. Setiap kali dilakukan pengetesan maka akan memanggil service uatama ini.
+
 ```
 package tests
 
@@ -103,6 +105,7 @@ func NewUnit(t *testing.T) (*sql.DB, func()) {
 ``` 
 
 - Buat file unit test tests/user_test.go
+
 ```
 package tests
 
