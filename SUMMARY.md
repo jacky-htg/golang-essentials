@@ -2,20 +2,15 @@
 
 * [Go Guidance](README.md)
 
-## Golang Basic
+## Golang Fundamental
 
-* [Basic Golang](golang-basic/basic.md)
-
-## Pseudo OOP
-
-* [Pseudo OOP](pseudo-oop/pseudo_oop.md)
-
-## Konkurensi <a id="konkurensi-1"></a>
-
-* [Konkurensi](konkurensi-1/konkurensi.md)
+* [Basic Golang](golang-fundamental/basic.md)
+* [Pseudo OOP](golang-fundamental/pseudo_oop.md)
+* [Konkurensi](golang-fundamental/konkurensi.md)
 
 ## Design Pattern
 
+* [Singleton](design-pattern/singleton.md)
 * [Dependency Injection](design-pattern/dependency-injection.md)
 
 ## Build Rest API Framework

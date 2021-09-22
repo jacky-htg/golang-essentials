@@ -2,7 +2,7 @@
 
 Mempelajari pemrograman golang untuk pemula. Materi akan dibahas step by step dari basic sampai mahir. Ruang lingkup pembelajaran meliputi :
 
-## [Basic](golang-basic/basic.md)
+## [Basic](golang-fundamental/basic.md)
 
 * Install golang
 * Hello world
@@ -10,14 +10,14 @@ Mempelajari pemrograman golang untuk pemula. Materi akan dibahas step by step da
 * Flow controll : if, else, switch, for, defer
 * Array : array, slice, map
 
-## [Psuedo OOP](pseudo-oop/pseudo_oop.md)
+## [Psuedo OOP](golang-fundamental/pseudo_oop.md)
 
 * struct
 * Method
 * Interface
 * Encapsulation, inheritance and polymorphism
 
-## [Konkurensi](konkurensi-1/konkurensi.md)
+## [Konkurensi](golang-fundamental/konkurensi.md)
 
 * Go routine
 * Channel
