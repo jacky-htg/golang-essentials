@@ -1,7 +1,8 @@
 # Protocol Buffer
-- Buat file proto/generic/generic_message.proto
 
-```
+* Buat file proto/generic/generic\_message.proto
+
+```text
 syntax = "proto3";
 package skeleton;
 
@@ -27,12 +28,11 @@ message Pagination {
   string order = 4;
   string sort = 5;
 }
-
 ```
 
-- Buat file proto/drivers/driver_message.proto
+* Buat file proto/drivers/driver\_message.proto
 
-```
+```text
 syntax = "proto3";
 package skeleton;
 
@@ -55,12 +55,11 @@ message Driver {
 message Drivers {
   repeated Driver driver = 1;
 }
-
 ```
 
-- Buat file proto/drivers/driver_input.proto
+* Buat file proto/drivers/driver\_input.proto
 
-```
+```text
 syntax = "proto3";
 package skeleton;
 
@@ -76,12 +75,11 @@ message DriverListInput {
   repeated string company_ids = 5;
   Pagination pagination = 6;
 }
-
 ```
 
-- Buat file proto/drivers/driver_service.proto
+* Buat file proto/drivers/driver\_service.proto
 
-```
+```text
 syntax = "proto3";
 package skeleton;
 
@@ -98,3 +96,4 @@ service DriversService {
   rpc Delete(Id) returns (BoolMessage) {}
 }
 ```
+

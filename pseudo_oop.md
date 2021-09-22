@@ -1,35 +1,38 @@
 # Pseudo OOP
+
 Golang bukan merupakan bahasa pemrograman yang berorientasi objek. Tapi golang memiliki fitur seperti type, struct, method, reference dan interface yang memungkinkan untuk melakukan pemrograman yang mirip dengan OOP.
 
 ## struct
-- sebuah tipe data abstract
-- berisi dari kumpulan dari berbagai type
-- struct bisa digunakan dalam konsep class
 
-```
+* sebuah tipe data abstract
+* berisi dari kumpulan dari berbagai type
+* struct bisa digunakan dalam konsep class
+
+```text
 type User struct {
-	ID uint64
-	Name string	
+    ID uint64
+    Name string    
 }
 
 func main() {
-	var user User
-	user.ID = 1
-	user.Name = "Jacky"
-	fmt.Printf("%v\n", user)
-	println(user.Name)
+    var user User
+    user.ID = 1
+    user.Name = "Jacky"
+    fmt.Printf("%v\n", user)
+    println(user.Name)
 
-	user2 := User{ID: 2, Name: "JetLee"}
-	fmt.Printf("%v\n", user2)
-	println(user2.Name)
+    user2 := User{ID: 2, Name: "JetLee"}
+    fmt.Printf("%v\n", user2)
+    println(user2.Name)
 }
 ```
 
 ## Method
-- Kita bisa mendefiniskan suatu method pada sebuah type.
-- Method adalah fungsi yang mempunyai argumen khusus receiver berupa type.
 
-```
+* Kita bisa mendefiniskan suatu method pada sebuah type.
+* Method adalah fungsi yang mempunyai argumen khusus receiver berupa type.
+
+```text
 package main
 
 type MyStr string
@@ -45,9 +48,9 @@ func main() {
 }
 ```
 
-- Type yang bisa dibuatkan method adalah type local, yaitu type yang ada dalam paket yang sama dengan method yang dibuat. 
+* Type yang bisa dibuatkan method adalah type local, yaitu type yang ada dalam paket yang sama dengan method yang dibuat. 
 
-```
+```text
 package main
 
 // ini error karena string bukan type local dalam paket main
@@ -62,65 +65,66 @@ func main() {
 }
 ```
 
-- Receiver bisa berupa pointer
+* Receiver bisa berupa pointer
 
-```
+```text
 package main
 
 type myStr string
 
 func (m *myStr) Change() {
-	*m = myStr("Selamat Sore")
+    *m = myStr("Selamat Sore")
 }
 
 func (m *myStr) Print() {
-	println(*m)
+    println(*m)
 }
 
 func main() {
-	str := myStr("Selamat Pagi")
-	str.Print()
-	str.Change()
-	str.Print()
+    str := myStr("Selamat Pagi")
+    str.Print()
+    str.Change()
+    str.Print()
 }
 ```
 
 ## Interface
-- Interface berisi kumpulan yang berisi method yang abstract
 
-```
+* Interface berisi kumpulan yang berisi method yang abstract
+
+```text
 type i interface{
     method()
 }
 ```
 
-- Type lain akan mengimplementasikan method dalam interface
-- Tidak ada perintah implement, suatu interface akan dipenuhi secara implisit begitu ada yang mengimplementasikannya 
+* Type lain akan mengimplementasikan method dalam interface
+* Tidak ada perintah implement, suatu interface akan dipenuhi secara implisit begitu ada yang mengimplementasikannya 
 
-```
+```text
 package main
 
 type i interface {
-	method()
+    method()
 }
 
 type myStr string
 
 func (m *myStr) method() {
-	println(*m)
+    println(*m)
 }
 
 func main() {
-	var i i
-	str := myStr("Hello")
-	i = &str
-	i.method()
+    var i i
+    str := myStr("Hello")
+    i = &str
+    i.method()
 }
 ```
 
-- Jika suatu interface diinisiasi tapi tidak ada yang mengimplementasikannya akan terjadi error nil pointer dereference
+* Jika suatu interface diinisiasi tapi tidak ada yang mengimplementasikannya akan terjadi error nil pointer dereference
 
-```
+```text
 package main
 
 type i interface {
@@ -133,9 +137,9 @@ func main() {
 }
 ```
 
-- Isi interface dapat dibayangkan sebagai sebuah pasangan nilai dan sebuah tipe: `(nilai, type)`
+* Isi interface dapat dibayangkan sebagai sebuah pasangan nilai dan sebuah tipe: `(nilai, type)`
 
-```
+```text
 package main
 
 type i interface{
@@ -145,27 +149,28 @@ type i interface{
 type myStr string
 
 func (m *myStr) method() {
-	println(*m)
+    println(*m)
 }
 
 func main() {
-	var i i
-	str := myStr("Hello")
-	i = &str
-	i.method()
-    	describe(i)
+    var i i
+    str := myStr("Hello")
+    i = &str
+    i.method()
+        describe(i)
 }
 
 func describe(i I) {
-	fmt.Printf("(%v, %T)\n", i, i)
+    fmt.Printf("(%v, %T)\n", i, i)
 }
 ```
 
 ## Interface Kosong
-- Interface kosong merupakan interface yang tidak memiliki method
-- Untuk mengklaim nilai interface harus dilakukan type asserting
 
-```
+* Interface kosong merupakan interface yang tidak memiliki method
+* Untuk mengklaim nilai interface harus dilakukan type asserting
+
+```text
 var a interface{}
 a = "string"
 println(a.(string))
@@ -179,12 +184,12 @@ if value, ok := a.(bool); ok {
 myMap := map[string]interface{}{"Satu": true, "Dua": "string", "Tiga": uint(3)}
 println(myMap["Satu"].(bool))
 println(myMap["Dua"].(string))
-println(myMap["Tiga"].(uint)) 
+println(myMap["Tiga"].(uint))
 ```
 
-- Penggunaan switch type dalam melakukan asserting
+* Penggunaan switch type dalam melakukan asserting
 
-```
+```text
 package main
 
 type myStr string
@@ -192,7 +197,7 @@ type myStr string
 func main() {
     var a interface{}
     a = myStr("Jacky")
-    
+
     switch t := a.(type) {
         case string :
             println("type string", t)
@@ -207,147 +212,150 @@ func main() {
 ```
 
 ## Pseudo Object
-- tidak ada class dalam go, tapi kita bisa menggunakan type
-- variable class diganti dengan type struct
-- method class diganti dengan method dengan pointer reference
-- gunakan kata kunci new() untuk membuat object
 
-```
+* tidak ada class dalam go, tapi kita bisa menggunakan type
+* variable class diganti dengan type struct
+* method class diganti dengan method dengan pointer reference
+* gunakan kata kunci new\(\) untuk membuat object
+
+```text
 package main
 
 import (
-	"fmt"
+    "fmt"
 )
 
 type becak struct {
-	roda  int
-	warna string
+    roda  int
+    warna string
 }
 
 func (o *becak) caraJalan() string {
-	return "dikayuh"
+    return "dikayuh"
 }
 
 func main() {
-	becak1 := becak{roda: 3, warna: "biru"}
-	fmt.Printf("%v, %T\n", becak1, becak1)
-	println("cara jalan:", becak1.caraJalan())
+    becak1 := becak{roda: 3, warna: "biru"}
+    fmt.Printf("%v, %T\n", becak1, becak1)
+    println("cara jalan:", becak1.caraJalan())
 
-	becak2 := &becak1
-	fmt.Printf("%v, %T\n", becak2, becak2)
-	println("cara jalan:", becak2.caraJalan())
+    becak2 := &becak1
+    fmt.Printf("%v, %T\n", becak2, becak2)
+    println("cara jalan:", becak2.caraJalan())
 
-	becak3 := new(becak)
-	becak3.roda = 3
-	becak3.warna = "merah"
-	fmt.Printf("%v, %T\n", becak3, becak3)
-	println("cara jalan:", becak3.caraJalan())
+    becak3 := new(becak)
+    becak3.roda = 3
+    becak3.warna = "merah"
+    fmt.Printf("%v, %T\n", becak3, becak3)
+    println("cara jalan:", becak3.caraJalan())
 }
 ```
 
 ### Method Overloading
-- Method overloading dimungkinkan dengan reference yang berbeda
 
-```
+* Method overloading dimungkinkan dengan reference yang berbeda
+
+```text
 package main
 
 import (
-	"fmt"
+    "fmt"
 )
 
 type becak struct {
-	roda  int
-	warna string
+    roda  int
+    warna string
 }
 
 type gerobak struct {
-    	roda int
-    	warna string
+        roda int
+        warna string
 } 
 
 func (o *becak) caraJalan() string {
-	return "dikayuh"
+    return "dikayuh"
 }
 
 func (o *gerobak) caraJalan() string {
-	return "didorong"
+    return "didorong"
 }
 
 func main() {
-	becak := new(becak)
-	println("becak", "cara jalan:", becak.caraJalan())
+    becak := new(becak)
+    println("becak", "cara jalan:", becak.caraJalan())
 
-    	gerobak := new(gerobak)
-    	println("gerobak", "cara jalan:", gerobak.caraJalan())
+        gerobak := new(gerobak)
+        println("gerobak", "cara jalan:", gerobak.caraJalan())
 }
-``` 
+```
 
 ### Encapsulation
-- Encapsulasi terjadi di level paket.
-- Kita bisa memilih kode (type, variabel, fungsi dll) yang hendak diexport ke luar paket dan mana yang hanya bisa diakses dalam paket yang sama.
-- Penamaan kode yang bersifat publik diawali dengan huruf besar.
-- Penamaan kode yang bersifat privat diawali dengan huruf kecil.
 
-```
+* Encapsulasi terjadi di level paket.
+* Kita bisa memilih kode \(type, variabel, fungsi dll\) yang hendak diexport ke luar paket dan mana yang hanya bisa diakses dalam paket yang sama.
+* Penamaan kode yang bersifat publik diawali dengan huruf besar.
+* Penamaan kode yang bersifat privat diawali dengan huruf kecil.
+
+```text
 // file APP/latihan/kendaraan.go
 package latihan
 
 // Kendaraan interface
 type Kendaraan interface {
-	CaraJalan() string
-	SetWarna(string)
-	GetWarna() string
-	GetRoda() int
+    CaraJalan() string
+    SetWarna(string)
+    GetWarna() string
+    GetRoda() int
 }
 
 type becak struct {
-	roda  int
-	warna string
+    roda  int
+    warna string
 }
 
 func (o *becak) SetWarna(s string) {
-	o.warna = s
+    o.warna = s
 }
 
 func (o *becak) GetWarna() string {
-	return o.warna
+    return o.warna
 }
 
 func (o *becak) GetRoda() int {
-	return 3
+    return 3
 }
 
 func (o *becak) CaraJalan() string {
-	return "dikayuh"
+    return "dikayuh"
 }
 
 // NewBecak function untuk membuat objek becak
 func NewBecak() Kendaraan {
-	return &becak{}
+    return &becak{}
 }
 ```
 
-```
+```text
 package main
 
 import (
-	"golang-essentials/latihan"
+    "golang-essentials/latihan"
 )
 
 func main() {
-	becak := latihan.NewBecak()
-	becak.SetWarna("Biru")
-	println(becak.CaraJalan())
-	println("jumlah roda:", becak.GetRoda())
-	println("warna:", becak.GetWarna())
+    becak := latihan.NewBecak()
+    becak.SetWarna("Biru")
+    println(becak.CaraJalan())
+    println("jumlah roda:", becak.GetRoda())
+    println("warna:", becak.GetWarna())
 }
-
 ```
 
 ### Inheritance
-- Go memungkinkan inheritance melalui embedded berupa field anonim
 
-```
+* Go memungkinkan inheritance melalui embedded berupa field anonim
+
+```text
 package main
 
 import (
@@ -374,17 +382,18 @@ func main () {
     user.Street = "Marlioboro"
     user.Number = "212"
     user.City = "Jogja"
-    
+
     fmt.Printf("%v", user)
 }
 ```
 
-- Tapi banyak programmer golang yang tidak menyarankan untuk melakukan inheritance. Melainkan melakukan pendekatan object composition.
+* Tapi banyak programmer golang yang tidak menyarankan untuk melakukan inheritance. Melainkan melakukan pendekatan object composition.
 
 ### Object Composition
-- Daripada melakukan pseudo inheritance melalui embedded, disarankan untuk melakukan object composition
 
-```
+* Daripada melakukan pseudo inheritance melalui embedded, disarankan untuk melakukan object composition
+
+```text
 package main
 
 import (
@@ -411,94 +420,94 @@ func main () {
     user.Address.Street = "Marlioboro"
     user.Address.Number = "212"
     user.Address.City = "Jogja"
-    
+
     fmt.Printf("%v", user)
 }
 ```
 
 ### Polymorphism
 
-```
+```text
 package main
 
 import "fmt"
 
 type Hewan struct {
-	Nama  string
-	Nyata bool
+    Nama  string
+    Nyata bool
 }
 
 func (c *Hewan) Cetak() {
-	fmt.Printf("Nama: '%s', Nyata: %t\n", c.Nama, c.Nyata)
+    fmt.Printf("Nama: '%s', Nyata: %t\n", c.Nama, c.Nyata)
 }
 
 type HewanTerbang struct {
-	Hewan
-	PanjangSayap int
+    Hewan
+    PanjangSayap int
 }
 
 func (c HewanTerbang) Cetak() {
-	fmt.Printf("Nama: '%s', Nyata: %t, PanjangSayap: %d\n", c.Nama, c.Nyata, c.PanjangSayap)
+    fmt.Printf("Nama: '%s', Nyata: %t, PanjangSayap: %d\n", c.Nama, c.Nyata, c.PanjangSayap)
 }
 
 type Unicorn struct {
-	Hewan
+    Hewan
 }
 
 type Naga struct {
-	HewanTerbang
+    HewanTerbang
 }
 
 type Pterodactilus struct {
-	HewanTerbang
+    HewanTerbang
 }
 
 func NewPterodactyl(panjangSayap int) *Pterodactilus {
-	p := new(Pterodactilus)
-	p.Nama = "Pterodactilus"
-	p.Nyata = true
-	p.PanjangSayap = panjangSayap
+    p := new(Pterodactilus)
+    p.Nama = "Pterodactilus"
+    p.Nyata = true
+    p.PanjangSayap = panjangSayap
 
-	return p
+    return p
 }
 
 func main() {
-	hewan := new(Hewan)
-	hewan.Nama = "Sembarang hewan"
-	hewan.Nyata = false
+    hewan := new(Hewan)
+    hewan.Nama = "Sembarang hewan"
+    hewan.Nyata = false
 
-	naga := new(Naga)
-	naga.Nama = "Naga"
-	naga.Nyata = false
-	
-	uni := new(Unicorn)
-	uni.Nama = "Unicorn"
-	uni.Nyata = false
+    naga := new(Naga)
+    naga.Nama = "Naga"
+    naga.Nyata = false
 
-	p1 := new(Pterodactilus)
-	p1.Nama = "Pterodactilus"
-	p1.Nyata = true
-	p1.PanjangSayap = 5
+    uni := new(Unicorn)
+    uni.Nama = "Unicorn"
+    uni.Nyata = false
 
-	p2 := NewPterodactyl(8)
+    p1 := new(Pterodactilus)
+    p1.Nama = "Pterodactilus"
+    p1.Nyata = true
+    p1.PanjangSayap = 5
 
-	hewan.Cetak()
-	naga.Cetak()
-	uni.Cetak()
-	p1.Cetak()
-	p2.Cetak()
+    p2 := NewPterodactyl(8)
 
-	animals := []*Hewan{
-		hewan,
-		&naga.Hewan,
-		&uni.Hewan,
-		&p1.Hewan,
-		&p2.Hewan,
-	}
-	fmt.Println("Cetak() melalui  embedded type Hewan")
-	for _, c := range animals {
-		c.Cetak()
-	}
+    hewan.Cetak()
+    naga.Cetak()
+    uni.Cetak()
+    p1.Cetak()
+    p2.Cetak()
+
+    animals := []*Hewan{
+        hewan,
+        &naga.Hewan,
+        &uni.Hewan,
+        &p1.Hewan,
+        &p2.Hewan,
+    }
+    fmt.Println("Cetak() melalui  embedded type Hewan")
+    for _, c := range animals {
+        c.Cetak()
+    }
 }
-
 ```
+

@@ -1,9 +1,10 @@
 # Tracing
-- Tracing penting untuk mencatat setiao request yang masuk.
-- Gunakan opentracing agar lebih fleksible.
-- Tambahkan env untuk tracing di file .env
 
-```
+* Tracing penting untuk mencatat setiao request yang masuk.
+* Gunakan opentracing agar lebih fleksible.
+* Tambahkan env untuk tracing di file .env
+
+```text
 PORT = 7070
 POSTGRES_HOST = localhost
 POSTGRES_PORT = 5432
@@ -15,14 +16,15 @@ SERVICE_NAME = skeleton
 DD_AGENT_HOST = localhost
 ```
 
-- Update file server.go untuk memasang opentracing
+* Update file server.go untuk memasang opentracing
 
-```
+```text
 t := opentracer.New(
-		tracer.WithServiceName(os.Getenv("SERVICE_NAME")),
-		tracer.WithAnalytics(true),
-		tracer.WithAgentAddr(os.Getenv("DD_AGENT_HOST")),
-	)
-	opentracing.SetGlobalTracer(t)
-	defer tracer.Stop()
+        tracer.WithServiceName(os.Getenv("SERVICE_NAME")),
+        tracer.WithAnalytics(true),
+        tracer.WithAgentAddr(os.Getenv("DD_AGENT_HOST")),
+    )
+    opentracing.SetGlobalTracer(t)
+    defer tracer.Stop()
 ```
+

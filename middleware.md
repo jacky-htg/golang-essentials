@@ -1,9 +1,10 @@
 # Middleware
+
 Pada bab ini kita akan membuat middleware. Kasus yang digunakan adalah handling auth.
 
-- Buat file baru libraries/api/middleware.go
+* Buat file baru libraries/api/middleware.go
 
-```
+```text
 package api
 
 // Middleware is a function designed to run some code before and/or after
@@ -16,79 +17,79 @@ type Middleware func(Handler) Handler
 // they are provided.
 func wrapMiddleware(mw []Middleware, handler Handler) Handler {
 
-	// Loop backwards through the middleware invoking each one. Replace the
-	// handler with the new wrapped handler. Looping backwards ensures that the
-	// first middleware of the slice is the first to be executed by requests.
-	for i := len(mw) - 1; i >= 0; i-- {
-		h := mw[i]
-		if h != nil {
-			handler = h(handler)
-		}
-	}
+    // Loop backwards through the middleware invoking each one. Replace the
+    // handler with the new wrapped handler. Looping backwards ensures that the
+    // first middleware of the slice is the first to be executed by requests.
+    for i := len(mw) - 1; i >= 0; i-- {
+        h := mw[i]
+        if h != nil {
+            handler = h(handler)
+        }
+    }
 
-	return handler
+    return handler
 }
 ```
 
-- list semua middleware yang diperlukan pada routing/route.go
+* list semua middleware yang diperlukan pada routing/route.go
 
-```
+```text
 package routing
 
 import (
-	"database/sql"
-	"essentials/controllers"
-	"essentials/libraries/api"
+    "database/sql"
+    "essentials/controllers"
+    "essentials/libraries/api"
     "essentials/middlewares"
-	"log"
-	"net/http"
+    "log"
+    "net/http"
 )
 
 func mid(db *sql.DB, log *log.Logger) []api.Middleware {
-	var mw []api.Middleware
-	mw = append(mw, middlewares.Auths(db, log, []string{"/login"}))
+    var mw []api.Middleware
+    mw = append(mw, middlewares.Auths(db, log, []string{"/login"}))
 
-	return mw
+    return mw
 }
 
 // API handling routing
 func API(db *sql.DB, log *log.Logger) http.Handler {
-	app := api.NewApp(log, mid(db, log)...)
-	app.HandleCors()
+    app := api.NewApp(log, mid(db, log)...)
+    app.HandleCors()
 
-	// Users routing
-	{
-		users := controllers.Users{Db: db, Log: log}
-		app.Handle(http.MethodGet, "/users", users.List)
-		app.Handle(http.MethodPost, "/users", users.Create)
-		app.Handle(http.MethodGet, "/users/:id", users.View)
-		app.Handle(http.MethodPut, "/users/:id", users.Update)
-		app.Handle(http.MethodDelete, "/users/:id", users.Delete)
-	}
+    // Users routing
+    {
+        users := controllers.Users{Db: db, Log: log}
+        app.Handle(http.MethodGet, "/users", users.List)
+        app.Handle(http.MethodPost, "/users", users.Create)
+        app.Handle(http.MethodGet, "/users/:id", users.View)
+        app.Handle(http.MethodPut, "/users/:id", users.Update)
+        app.Handle(http.MethodDelete, "/users/:id", users.Delete)
+    }
 
-	return app
+    return app
 }
 ```
 
-- Tambahkan field middleware di type App libraries/api/app.go
+* Tambahkan field middleware di type App libraries/api/app.go
 
-```
+```text
 package api
 
 import (
-	"context"
-	"log"
-	"net/http"
-	"time"
+    "context"
+    "log"
+    "net/http"
+    "time"
 
-	"github.com/julienschmidt/httprouter"
+    "github.com/julienschmidt/httprouter"
 )
 
 // App struct for new api
 type App struct {
-	log *log.Logger
-	mux *httprouter.Router
-	mw  []Middleware
+    log *log.Logger
+    mux *httprouter.Router
+    mw  []Middleware
 }
 
 // Handler type as standard http.Handle
@@ -99,94 +100,93 @@ type Ctx string
 
 // Handle associates a httprouter Handle function with an HTTP Method and URL pattern.
 func (a *App) Handle(method, url string, h Handler) {
-	h = wrapMiddleware(a.mw, h)
+    h = wrapMiddleware(a.mw, h)
 
-	fn := func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-		ctx := context.WithValue(r.Context(), Ctx("ps"), ps)
-		//const timeout = 1 * time.Second
-		//ctx2, cancel := context.WithTimeout(ctx, timeout)
-		//defer cancel()
+    fn := func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+        ctx := context.WithValue(r.Context(), Ctx("ps"), ps)
+        //const timeout = 1 * time.Second
+        //ctx2, cancel := context.WithTimeout(ctx, timeout)
+        //defer cancel()
 
-		header := w.Header()
-		header.Add("Access-Control-Allow-Origin", "*")
-		header.Add("Access-Control-Allow-Methods", "DELETE, POST, GET, OPTIONS, PUT")
-		header.Add("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With, Token")
-		header.Add("Content-Type", "application/json; charset=utf-8")
+        header := w.Header()
+        header.Add("Access-Control-Allow-Origin", "*")
+        header.Add("Access-Control-Allow-Methods", "DELETE, POST, GET, OPTIONS, PUT")
+        header.Add("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With, Token")
+        header.Add("Content-Type", "application/json; charset=utf-8")
 
-		h(w, r.WithContext(ctx))
-	}
+        h(w, r.WithContext(ctx))
+    }
 
-	a.mux.Handle(method, url, fn)
+    a.mux.Handle(method, url, fn)
 }
 
 // HandleCors and OPTIONS response
 func (a *App) HandleCors() {
-	a.mux.GlobalOPTIONS = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Header.Get("Access-Control-Request-Method") != "" {
-			// Set CORS headers
-			header := w.Header()
-			header.Add("Access-Control-Allow-Origin", "*")
-			header.Add("Access-Control-Allow-Methods", "DELETE, POST, GET, OPTIONS, PUT")
-			header.Add("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With, Token")
-			header.Add("Content-Type", "application/json; charset=utf-8")
-		}
+    a.mux.GlobalOPTIONS = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        if r.Header.Get("Access-Control-Request-Method") != "" {
+            // Set CORS headers
+            header := w.Header()
+            header.Add("Access-Control-Allow-Origin", "*")
+            header.Add("Access-Control-Allow-Methods", "DELETE, POST, GET, OPTIONS, PUT")
+            header.Add("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With, Token")
+            header.Add("Content-Type", "application/json; charset=utf-8")
+        }
 
-		// Adjust status code to 204
-		w.WriteHeader(http.StatusNoContent)
-	})
+        // Adjust status code to 204
+        w.WriteHeader(http.StatusNoContent)
+    })
 }
 
 // ServeHTTP implements the http.Handler interface
 func (a *App) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	a.mux.ServeHTTP(w, r)
+    a.mux.ServeHTTP(w, r)
 }
 
 // NewApp for create new api
 func NewApp(log *log.Logger, mw ...Middleware) *App {
-	return &App{
-		log: log,
-		mux: httprouter.New(),
-		mw:  mw,
-	}
+    return &App{
+        log: log,
+        mux: httprouter.New(),
+        mw:  mw,
+    }
 }
-
 ```
 
-- Buat middleware untuk handling authorization ( middlewares/auth.go )
+* Buat middleware untuk handling authorization \( middlewares/auth.go \)
 
-```
+```text
 package middlewares
 
 import (
-	"database/sql"
-	"errors"
-	"log"
-	"net/http"
+    "database/sql"
+    "errors"
+    "log"
+    "net/http"
 
-	"essentials/libraries/api"
+    "essentials/libraries/api"
 )
 
 // Auths middleware
 func Auths(db *sql.DB, log *log.Logger, allow []string) api.Middleware {
-	fn := func(before api.Handler) api.Handler {
-		h := func(w http.ResponseWriter, r *http.Request) {
-			var isAuth bool
+    fn := func(before api.Handler) api.Handler {
+        h := func(w http.ResponseWriter, r *http.Request) {
+            var isAuth bool
 
-			// hardcode athorization for true.
-			// upcoming chapter, this line will execute RBAC checking
-			isAuth = true
+            // hardcode athorization for true.
+            // upcoming chapter, this line will execute RBAC checking
+            isAuth = true
 
-			if !isAuth {
-				api.ResponseError(w, api.ErrForbidden(errors.New("Forbidden"), ""))
-			} else {
-				before(w, r)
-			}
-		}
+            if !isAuth {
+                api.ResponseError(w, api.ErrForbidden(errors.New("Forbidden"), ""))
+            } else {
+                before(w, r)
+            }
+        }
 
-		return h
-	}
+        return h
+    }
 
-	return fn
+    return fn
 }
-
 ```
+
