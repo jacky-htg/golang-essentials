@@ -8,7 +8,7 @@ Golang bukan merupakan bahasa pemrograman yang berorientasi objek. Tapi golang m
 * berisi dari kumpulan dari berbagai type
 * struct bisa digunakan dalam konsep class
 
-```text
+```go
 type User struct {
     ID uint64
     Name string    
@@ -32,7 +32,7 @@ func main() {
 * Kita bisa mendefiniskan suatu method pada sebuah type.
 * Method adalah fungsi yang mempunyai argumen khusus receiver berupa type.
 
-```text
+```go
 package main
 
 type MyStr string
@@ -50,7 +50,7 @@ func main() {
 
 * Type yang bisa dibuatkan method adalah type local, yaitu type yang ada dalam paket yang sama dengan method yang dibuat. 
 
-```text
+```go
 package main
 
 // ini error karena string bukan type local dalam paket main
@@ -67,7 +67,7 @@ func main() {
 
 * Receiver bisa berupa pointer
 
-```text
+```go
 package main
 
 type myStr string
@@ -92,7 +92,7 @@ func main() {
 
 * Interface berisi kumpulan yang berisi method yang abstract
 
-```text
+```go
 type i interface{
     method()
 }
@@ -101,7 +101,7 @@ type i interface{
 * Type lain akan mengimplementasikan method dalam interface
 * Tidak ada perintah implement, suatu interface akan dipenuhi secara implisit begitu ada yang mengimplementasikannya 
 
-```text
+```go
 package main
 
 type i interface {
@@ -124,7 +124,7 @@ func main() {
 
 * Jika suatu interface diinisiasi tapi tidak ada yang mengimplementasikannya akan terjadi error nil pointer dereference
 
-```text
+```go
 package main
 
 type i interface {
@@ -139,7 +139,7 @@ func main() {
 
 * Isi interface dapat dibayangkan sebagai sebuah pasangan nilai dan sebuah tipe: `(nilai, type)`
 
-```text
+```go
 package main
 
 type i interface{
@@ -170,7 +170,7 @@ func describe(i I) {
 * Interface kosong merupakan interface yang tidak memiliki method
 * Untuk mengklaim nilai interface harus dilakukan type asserting
 
-```text
+```go
 var a interface{}
 a = "string"
 println(a.(string))
@@ -189,7 +189,7 @@ println(myMap["Tiga"].(uint))
 
 * Penggunaan switch type dalam melakukan asserting
 
-```text
+```go
 package main
 
 type myStr string
@@ -218,7 +218,7 @@ func main() {
 * method class diganti dengan method dengan pointer reference
 * gunakan kata kunci new\(\) untuk membuat object
 
-```text
+```go
 package main
 
 import (
@@ -255,7 +255,7 @@ func main() {
 
 * Method overloading dimungkinkan dengan reference yang berbeda
 
-```text
+```go
 package main
 
 import (
@@ -296,7 +296,7 @@ func main() {
 * Penamaan kode yang bersifat publik diawali dengan huruf besar.
 * Penamaan kode yang bersifat privat diawali dengan huruf kecil.
 
-```text
+```go
 // file APP/latihan/kendaraan.go
 package latihan
 
@@ -335,7 +335,7 @@ func NewBecak() Kendaraan {
 }
 ```
 
-```text
+```go
 package main
 
 import (
@@ -355,7 +355,7 @@ func main() {
 
 * Go memungkinkan inheritance melalui embedded berupa field anonim
 
-```text
+```go
 package main
 
 import (
@@ -393,7 +393,7 @@ func main () {
 
 * Daripada melakukan pseudo inheritance melalui embedded, disarankan untuk melakukan object composition
 
-```text
+```go
 package main
 
 import (
@@ -427,7 +427,7 @@ func main () {
 
 ### Polymorphism
 
-```text
+```go
 package main
 
 import "fmt"

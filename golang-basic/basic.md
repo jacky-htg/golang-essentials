@@ -13,7 +13,7 @@ Anda dapat membaca [dokumentasi instalasi golang](https://golang.org/doc/install
 * Buat file main.go yang berisi kode berikut
 * Jalankan `go run main.go`
 
-```text
+```go
 package main
 
 func main(){
@@ -58,7 +58,7 @@ complex64 complex128
 
 ### Konstanta
 
-```text
+```go
 const pi float64 = 22/7
 const (
   alamat string = "Gandaria City, Jakarta Selatan"
@@ -68,7 +68,7 @@ const (
 
 ### Variabel
 
-```text
+```go
 package repositories
 // contoh variabel yang siklus hidupnya ada dalam satu paket. 
 // Seluruh kode dalam paket repositories, biarpun berbeda file bisa mengakses variabel ini
@@ -99,7 +99,7 @@ func Satu() {
 
 ### Siklus hidup variabel
 
-```text
+```go
 package repositories
 // contoh variabel yang siklus hidupnya ada dalam satu paket. 
 // Seluruh kode dalam paket repositories, biarpun berbeda file bisa mengakses variabel ini
@@ -128,7 +128,7 @@ func Satu() {
 * Jika ingin membuat variabel global dalam satu paket, sebaiknya pertimbangkan kembali, karena siklus hidupnya ada di seluruh kode dalam paket tersebut
 * Untuk menghemat memori, deklarasikan variabel sesuai dengan kebutuhan siklus hidupnya
 
-```text
+```go
 package main
 
 func main() {
@@ -174,7 +174,7 @@ func main() {
 * Cara export dilakukan dengan memberi nama var, type, const, fungsi dll yang diawali dengan huruf besar
 * Jika suatu paket ingin menggunakan kode dari paket lainnya, harus mengimport terlebih dahulu
 
-```text
+```go
 // file APP/latihan/satu.go
 package latihan
 
@@ -193,7 +193,7 @@ func cetaknama () {
 }
 ```
 
-```text
+```go
 // file APP/latihan/dua.go
 package latihan
 
@@ -206,7 +206,7 @@ func PrintNama() {
 }
 ```
 
-```text
+```go
 // file APP/main.go
 package main
 
@@ -228,7 +228,7 @@ func main() {
 * Untuk mengubah suatu tipe menjadi tipe lain, bisa melalui fungsi bawaan golang maupun menggunakan paket strconv.
 * Lebih jauh tentang strconv bisa melihat langsung ke paket strconv
 
-```text
+```go
 package main
 
 func main() {
@@ -258,7 +258,7 @@ func main() {
 
 ### Pointer
 
-```text
+```go
 func main() {
     i := 10
     p := &i       // menunjuk ke i
@@ -272,7 +272,7 @@ func main() {
 
 * fungsi juga merupakan sebuah tipe
 
-```text
+```go
 // contoh membuat type berupa fungsi 
 type Handler func(http.ResponseWriter, *http.Request)
 type CustomeHandler func(http.ResponseWriter, *http.Request) error
@@ -280,14 +280,14 @@ type CustomeHandler func(http.ResponseWriter, *http.Request) error
 
 * Format fungsi : func NAMA \(argument type\) type\_return
 
-```text
+```go
 // Contoh membuat suatu fungsi
 func Jumlah (a int, b int) int {
   return a+b
 }
 ```
 
-```text
+```go
 type operasi func(a int, b int) int
 func main() {
   // Lambda
@@ -338,7 +338,7 @@ func Hitung(o operasi, x int, y int) int {
 * Bisa dipanggil dengan cara biasa dengan argumen individual
 * Bisa dipanggil secara dinamis dengan melempar argumen slice...
 
-```text
+```go
 func sum(nums ...int) {
     total := 0
     for _, num := range nums {
@@ -361,7 +361,7 @@ func main() {
 
 ### if
 
-```text
+```go
 if err != nil {
     return err
 }
@@ -379,7 +379,7 @@ if b := 1; b < 10 {
 
 ### switch
 
-```text
+```go
 func main() {
     fmt.Print("Go berjalan pada ")
     switch os := runtime.GOOS; os {
@@ -407,7 +407,7 @@ func main() {
 
 ### for
 
-```text
+```go
 func main() {
     // standard for
     for i:=0; i<=10; i++ {
@@ -444,7 +444,7 @@ func main() {
 * Perintah defer menunda eksekusi dari sebuah fungsi sampai fungsi yang melingkupinya selesai.
 * Argumen untuk pemanggilan defer dievaluasi langsung, tapi pemanggilan fungsi tidak dieksekusi sampai fungsi yang melingkupinya selesai.
 
-```text
+```go
 func main() {
     defer println("datang")
     println("selamat")
@@ -453,7 +453,7 @@ func main() {
 
 * Jika ada tumpukan perintah defer, maka akan dieksekusi secara LIFO \(last In First Out\)
 
-```text
+```go
 func main() {
     defer println("pertama")
     for i:=0; i<= 10; i++ {
@@ -468,7 +468,7 @@ func main() {
 
 ### Array
 
-```text
+```go
 var salam [2]string
 salam[0] = "selamat"
 salam[1] = "pagi"
@@ -482,7 +482,7 @@ fmt.Println(greeting)
 
 * Merupakan potongan dari sebuah array
 
-```text
+```go
 var musim [3]string
 musim[0] = "panas"
 musim[1] = "panas-sekali"
@@ -501,7 +501,7 @@ fmt.Println(slice)
 * kalau di PHP ini seperti assosiatif array.
 * index otomatis disort secara alpabet
 
-```text
+```go
 hari := map[string]int{"Senin":1, "Selasa":2, "Rabu":3}
 fmt.Println(hari)
 ```
@@ -511,14 +511,14 @@ fmt.Println(hari)
 * mengunakan potongan array \(slice\) sehingga tidak dideklarasikan kapasitasnya
 * untuk menambahkan anggota dengan menggunakan fungsi append
 
-```text
+```go
 var salam []string
 salam = append(salam, "selamat")
 salam = append(salam, "pagi")
 fmt.Println(salam)
 ```
 
-```text
+```go
 func main() {
     buah := []string{"rambutan", "durian", "salak"}
     exist, index := InArray("duku", buah)

@@ -8,7 +8,7 @@ Konkurensi adalah komposisi / struktur dari berbagai proses yang berjalan secara
 * Aksi go routine bersifat asynchronous, jadi tidak saling menunggu dengan go routine yang lain.
 * Proses yang hendak dieksekusi sebagai go routine harus berupa fungsi tanpa return yang dipanggil dengan kata kunci go
 
-```text
+```go
 package main
 
 import "time"
@@ -27,7 +27,7 @@ func main() {
 }
 ```
 
-```text
+```go
 package main
 
 import "time"
@@ -47,7 +47,7 @@ func main() {
 }
 ```
 
-```text
+```go
 package main
 
 import "time"
@@ -67,7 +67,7 @@ func main() {
 
 * Go routine jalan di multi core processor, dan bisa diset mau jalan di berapa core.
 
-```text
+```go
 package main
 
 import "time"
@@ -95,7 +95,7 @@ func main() {
 * Channel harus dibuat sebelum digunakan, dengan kombinasi kata kunci make dan chan
 * Aliran untuk menerima / mengirim data ditunjukkan dengan arah panah
 
-```text
+```go
 package main
 
 import "runtime"
@@ -110,7 +110,7 @@ func main() {
 }
 ```
 
-```text
+```go
 package main
 
 func main() {
@@ -127,7 +127,7 @@ func main() {
 }
 ```
 
-```text
+```go
 package main
 
 func main() {
@@ -143,7 +143,7 @@ func main() {
 }
 ```
 
-```text
+```go
 package main
 
 func main() {
@@ -163,7 +163,7 @@ func main() {
 }
 ```
 
-```text
+```go
 package main
 
 func main() {
@@ -194,7 +194,7 @@ func main() {
 * Pengiriman ke kanal buffer akan ditahan bila buffer telah penuh. Penerimaan akan ditahan saat buffer kosong.
 * Jika pengiriman data melebihi panjang buffer, maka akan diperlakukan secara synchronous.
 
-```text
+```go
 package main
 
 func main() {
@@ -215,7 +215,7 @@ func main() {
 }
 ```
 
-```text
+```go
 package main
 
 func main() {
@@ -234,7 +234,7 @@ func main() {
 }
 ```
 
-```text
+```go
 package main
 
 func main() {
@@ -251,7 +251,7 @@ func main() {
 
 * Range merupakan perulangan dari sebuah channel
 
-```text
+```go
 package main
 
 func main() {
@@ -278,7 +278,7 @@ func main() {
 * Yang melakukan close hanya pengirim. Karena jika yang melakukan close adalah penerima, dan ada routine yang melakukan pengrimana akan menyebabkan panic.
 * Penerima bisa menambahkan pengecekan, jika masih ada data yang dikirim maka akan diterima. 
 
-```text
+```go
 package main
 
 func main() {
@@ -300,7 +300,7 @@ func main() {
 }
 ```
 
-```text
+```go
 package main
 
 func main() {
@@ -322,7 +322,7 @@ func main() {
 }
 ```
 
-```text
+```go
 package main
 
 func main() {
@@ -338,7 +338,7 @@ func main() {
 }
 ```
 
-```text
+```go
 package main
 
 func main() {
@@ -358,7 +358,7 @@ func main() {
 }
 ```
 
-```text
+```go
 package main
 
 func main() {
@@ -383,7 +383,7 @@ func main() {
 }
 ```
 
-```text
+```go
 package main
 
 func main() {
@@ -410,7 +410,7 @@ func main() {
 * Jika melibatkan lebih dari satu go routine, diperlukan fungsi kontrol melalui select
 * Select akan menerima secara acak mana data yang terlebih dahulu tersedia
 
-```text
+```go
 package main
 
 func main() {
@@ -436,7 +436,7 @@ func main() {
 }
 ```
 
-```text
+```go
 package main
 
 func main() {
@@ -464,7 +464,7 @@ func main() {
 }
 ```
 
-```text
+```go
 package main
 
 func main() {
@@ -496,7 +496,7 @@ func main() {
 
 * Jika saat select tidak ada channel yang siap diterima maka akan dijalankan baris kode default
 
-```text
+```go
 package main
 
 func main() {
@@ -530,7 +530,7 @@ func main() {
 
 * Teknik tambahan untuk mengakhiri select jika tidak ada penerimaan data
 
-```text
+```go
 package main
 
 import (
@@ -569,7 +569,7 @@ loop:
 
 Hati-hati jika ingin menggabungkan antara select timeout dengan default, karena bisa terjadi looping forever.
 
-```text
+```go
 package main
 
 import (
@@ -610,7 +610,7 @@ loop:
 
 Ini disebabkan time.After\(time.Second \* 5\) selalu dibuat setiap looping seleksi, untuk mengatasinya, buat variable untuk menampung timeout agar timeout dikenali disetiap looping.
 
-```text
+```go
 package main
 
 import (
@@ -657,7 +657,7 @@ loop:
 * Jika tidak ingin berkomunikasi karena ngin memastikan hanya satu goroutine yang dapat mengakses suatu variabel pada satu waktu untuk menghindari konflik, digunakan sync mutex
 * mutex adalah mutual exclusion dengan fungsi `Lock` dan `Unlock`
 
-```text
+```go
 package main
 
 import (
@@ -711,7 +711,7 @@ func main() {
 
 ### Group Routine
 
-```text
+```go
 package main
 
 import "fmt"
@@ -732,7 +732,7 @@ func main() {
 
 * Solusi untuk kasus di atas adalah dengan menggunakan standar library sync.WaitGroup
 
-```text
+```go
 package main
 
 import (
@@ -759,7 +759,7 @@ func main() {
 * Perhatikan saya mengenalkan variabel local id sebagai id sebuah goroutine. Ini adalah mekanisme aman menggunakan variabel local. Karena jika menggunakan varibel luar i, akan terjadi konflik karena menjalankan potensi race condition.
 * Di bawah ini adalah contoh kode yang salah karena tidak menggunakan variabel local. 
 
-```text
+```go
 package main
 
 import (
@@ -787,7 +787,7 @@ func main() {
 * Ingat untuk menggunakan variabel local sebagai id
 * Error yang ditangkap adalah error pertama yang dihasilkan oleh routine. 
 
-```text
+```go
 package main
 
 import (
@@ -831,7 +831,7 @@ func routine(id int) error {
 * context bisa digunakan untuk melakukan deadline maupun cancell ation suatu fungsi.
 * context bisa digunakan untuk melakukan cancellation kode saat context sdh berakhir.
 
-```text
+```go
 package main
 
 import (
@@ -878,7 +878,7 @@ func routineContext(ctx context.Context, id int) error {
 
 Kita bisa menambahkan deadline suatu context
 
-```text
+```go
 package main
 
 import (
@@ -929,7 +929,7 @@ func routineContext(ctx context.Context, id int) error {
 
 Bandingkan jika kita tidak handle context, maka cancellation jadi tidak berfungsi.
 
-```text
+```go
 package main
 
 import (

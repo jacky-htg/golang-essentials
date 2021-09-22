@@ -7,7 +7,7 @@ Pembahasan database dibagi dalam 3 bahasan, yaitu: pembuatan migration, seed dan
 * Langkah pertama adalah membuat database. Buka mysql dan buatlah schema : "essentials"
 * Kemudian buat koneksi database dengan membuat fungsi openDb\(\). Misalkan user=root dan password=pass.
 
-```text
+```go
 func openDB() (*sql.DB, error) {
     return sql.Open("mysql", "root:pass@tcp(localhost:3306)/essentials?parseTime=true")
 }
@@ -18,7 +18,7 @@ func openDB() (*sql.DB, error) {
 * Ada banyak library yang mengerjakan proses migration. Kali ini saya akan menggunakan library [darwin](https://github.com/GuiaBolso/darwin) karena cukup simple.
 * Buat folder schema. Kemudian buatlan file schema/migrate.go yang isinya sebagai berikut :
 
-```text
+```go
 // file schema/migrate.go
 package schema
 
@@ -63,7 +63,7 @@ func Migrate(db *sql.DB) error {
 * Karena shema/Migrate\(\) membutuhkan koneksi database, maka di awal fungsi utama akan dilakukan pemanggilan fungsi koneksi database.
 * Jangan lupa untuk mengimport paket essentials/schema dan \_ "github.com/go-sql-driver/mysql"
 
-```text
+```go
 package main
 
 import (
@@ -199,7 +199,7 @@ func openDB() (*sql.DB, error) {
 * Buatlah file schema/seed.go
 * Fungsi seed menggunakan fitur transaction, sehingga jika ada query yang gagal akan dirollback semua.
 
-```text
+```go
 // file schema/seed.go
 package schema
 
@@ -251,7 +251,7 @@ func Seed(db *sql.DB) error {
 
 import \( "context" "database/sql" "encoding/json" "essentials/schema" "flag" "log" "net/http" "os" "os/signal" "syscall" "time"
 
-```text
+```go
 _ "github.com/go-sql-driver/mysql"
 ```
 
@@ -259,7 +259,7 @@ _ "github.com/go-sql-driver/mysql"
 
 func main\(\) { // ========================================================================= // App Starting
 
-```text
+```go
 log.Printf("main : Started")
 defer log.Println("main : Completed")
 

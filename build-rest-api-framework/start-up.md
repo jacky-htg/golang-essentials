@@ -3,7 +3,7 @@
 * Start up me-listen semua domain, port 9000 dan menghandle-nya dengan fungsi helloworld 
 * Untuk start up, kita menggunakan fungsi-fungsi pada [paket net/http](https://golang.org/pkg/net/http), yaitu http.HandlerFunc\(\) dan http.ListenAndServe\(\)
 
-```text
+```go
 package main
 
 import (
@@ -31,7 +31,7 @@ func helloworld(w http.ResponseWriter, r *http.Request) {
 
 * Kita juga bisa mendefinisikan parameter parameter untuk menjalankan server http melalui struct [http.Server](https://golang.org/pkg/net/http/#Server)
 
-```text
+```go
 package main
 
 import (
@@ -65,7 +65,7 @@ func helloworld(w http.ResponseWriter, r *http.Request) {
 
 * Listening server bisa dijalankan secara asynchronous melalui go routine. Dan untuk menangkap error yang terjadi digunakan channel.
 
-```text
+```go
 package main
 
 import (

@@ -4,7 +4,7 @@
 * Untuk mengetahui apakah server di-shutdown, kita listening sinyal dari OS. Dan menerimanya melalui channel.
 * Karena sekarang ada lebih dari satu channel, kita akan mengontrolnya melalui perintah SELECT.
 
-```text
+```go
 package main
 
 import (

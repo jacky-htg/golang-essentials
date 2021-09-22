@@ -5,7 +5,7 @@
 * Membuat type struct User
 * Membuat handler ListUsers untuk menampilkan list users 
 
-```text
+```go
 package main
 
 import (
