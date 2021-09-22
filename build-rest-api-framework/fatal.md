@@ -9,7 +9,7 @@
 * Hapus seluruh call log.Fatal dan diganti dengan return error
 * Panggil fungsi run\(\) di main\(\), jika terjadi error eksekusi log.Fatal
 
-```text
+```go
 package main
 
 import (
@@ -108,7 +108,7 @@ func run() error {
 
 * File cmd/main.go berubah menjadi seperti berikut :
 
-```text
+```go
 package main
 
 import (

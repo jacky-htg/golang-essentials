@@ -4,7 +4,7 @@
 * Kita akan praktekan dengan mengubah port menjadi env.
 * Buat file config/config.go
 
-```text
+```go
 package config
 
 import (
@@ -42,7 +42,7 @@ PORT=7070
 * masih di file server.go pada fungsi main tambahkan di baris paling atas `config.Setup(".env")`
 * semua port yang dihardcode ganti dengan `os.Getenv("PORT")`
 
-```text
+```go
 package main
 
 import (

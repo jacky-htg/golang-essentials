@@ -16,7 +16,7 @@ TOKEN_SALT=secret-salt
 
 * Membuat token library pada libraries/token/token.go
 
-```text
+```go
 package token
 
 import (
@@ -66,7 +66,7 @@ func ClaimToken(username string) (string, error) {
 
 * Tambahkan  login routing pada  routing/route.go
 
-```text
+```go
     // Auth Routing
     {
         auth := controllers.Auths{Db: db, Log: log}
@@ -76,7 +76,7 @@ func ClaimToken(username string) (string, error) {
 
 * Buat controllers auths pada controllers/auths.go
 
-```text
+```go
 package controllers
 
 import (
@@ -140,7 +140,7 @@ func (u *Auths) Login(w http.ResponseWriter, r *http.Request) {
 
 * Buat payload login request pada payloads/request/login\_request.go
 
-```text
+```go
 package request
 
 //LoginRequest : format json request for login
@@ -152,7 +152,7 @@ type LoginRequest struct {
 
 * Buat GetByUsername method pada models/user.go
 
-```text
+```go
 // GetByUsername : get user by username
 func (u *User) GetByUsername(ctx context.Context, db *sql.DB) error {
     const q string = `SELECT id, username, password, email, is_active FROM users`
@@ -168,7 +168,7 @@ func (u *User) GetByUsername(ctx context.Context, db *sql.DB) error {
 
 * Buat payload token response pada payloads/response/token\_response.go
 
-```text
+```go
 package response
 
 //TokenResponse : format json response for token
@@ -179,7 +179,7 @@ type TokenResponse struct {
 
 * Buat api test untuk login. Buat file controllers/tests/authstest.go
 
-```text
+```go
 package tests
 
 import (
@@ -228,7 +228,7 @@ func (u *Auths) Login(t *testing.T) {
 
 * Update tests/main\_test.go untuk mengetes login
 
-```text
+```go
 package tests
 
 import (

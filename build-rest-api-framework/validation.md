@@ -4,7 +4,7 @@
 * Kita akan menggunakan [validator v.9](https://github.com/waresix/golang-guidance/tree/ed3e782c3d335790b55cda7cba53952493f67e51/gopkg.in/go-playground/validator.v9)
 * Setiap struct di payload request ditambahkan tag validator
 
-```text
+```go
 package request
 
 import (
@@ -50,7 +50,7 @@ func (u *UserRequest) Transform(user *models.User) *models.User {
 
 * Pengecekan bisa dilakukan secara generic di helper request libaries/api/request.go
 
-```text
+```go
 package api
 
 import (
@@ -93,7 +93,7 @@ func Decode(r *http.Request, val interface{}) error {
 
 * Adakalanya kita ingin validasi dilakukan secara khusus di suatu payload request. Untuk itu kita akan membuat validasi di helper request adalah optional.
 
-```text
+```go
 package api
 
 import (
@@ -136,7 +136,7 @@ func Decode(r *http.Request, val interface{}, mustValidate bool) error {
 
 * Kemudian kita tambahkan validasi khusus di payload request yang membutuhkan validasi khusus.
 
-```text
+```go
 package request
 
 import (
@@ -209,7 +209,7 @@ func (u *UserRequest) Transform(user *models.User) *models.User {
 * Selanjutnya setiap call api.Decode\(\) perlu memberitahu apakah akan menggunakan validasi global atau tidak dengan melempar parameter boolean musValidate. Dan mungkin perlu memanggil fungsi Validate khusus `userRequest.Validate()`
 * Berikut contoh perubahan di file usecases/user\_usecase.go
 
-```text
+```go
 package usecases
 
 import (
@@ -276,7 +276,7 @@ func (u *UserUsecase) Create(r *http.Request) (response.UserResponse, error) {
 
 * Dan ini contoh validasi yang dilakukan secara global di helper request pada method Update di file controllers/users.go
 
-```text
+```go
 // Update user by id
 func (u *Users) Update(w http.ResponseWriter, r *http.Request) {
     paramID := r.Context().Value(api.Ctx("ps")).(httprouter.Params).ByName("id")

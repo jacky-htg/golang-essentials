@@ -14,7 +14,7 @@ POSTGRES_DB = drivers
 
 * Buat file lib/database/postgres/postgres.go
 
-```text
+```go
 package postgres
 
 import (
@@ -58,7 +58,7 @@ func StatusCheck(ctx context.Context, db *sql.DB) error {
 
 * Buat file schema/migrate.go
 
-```text
+```go
 package schema
 
 import (
@@ -104,7 +104,7 @@ func Migrate(db *sql.DB) error {
 
 * Buat file schema/seed.go
 
-```text
+```go
 package schema
 
 import (
@@ -149,7 +149,7 @@ func Seed(db *sql.DB, seeds ...string) error {
 
 * Buat file cmd/cli.go
 
-```text
+```go
 package main
 
 import (
@@ -219,7 +219,7 @@ func run(log *log.Logger) error {
 * Jalankan `go run cmd/cli.go migrate` 
 * Update file server.go untuk membuat koneksi database
 
-```text
+```go
 package main
 
 import (
@@ -274,7 +274,7 @@ func main() {
 
 * Update server.go untuk mengaupdate roting dengan menginject db ke service
 
-```text
+```go
 func grpcRoute(grpcServer *grpc.Server, log *log.Logger, db *sql.DB) {
     driverServer := newDriverHandler(log, db)
 
@@ -284,7 +284,7 @@ func grpcRoute(grpcServer *grpc.Server, log *log.Logger, db *sql.DB) {
 
 * Update server.go service handler agar mempunyai proprety db
 
-```text
+```go
 type driverHandler struct {
     log *log.Logger
     db  *sql.DB
@@ -300,7 +300,7 @@ func newDriverHandler(log *log.Logger, db *sql.DB) *driverHandler {
 
 * Update file server.go untuk membuat fungsi logError
 
-```text
+```go
 func logError(log *log.Logger, code codes.Code, err error) error {
     log.Print(err.Error())
     return status.Error(code, err.Error())
@@ -309,7 +309,7 @@ func logError(log *log.Logger, code codes.Code, err error) error {
 
 * Update file server.go untuk mengupdate fungsi List
 
-```text
+```go
 func (u *driverHandler) List(ctx context.Context, in *drivers.DriverListInput) (*drivers.Drivers, error) {
     out := &drivers.Drivers{}
     query := `SELECT id, name, phone, licence_number, company_id, company_name FROM drivers`
@@ -460,7 +460,7 @@ func (u *driverHandler) List(ctx context.Context, in *drivers.DriverListInput) (
 
 * Update file server.go untuk mengupdate fungsi Create
 
-```text
+```go
 func (u *driverHandler) Create(ctx context.Context, in *drivers.Driver) (*drivers.Driver, error) {
     query := `
         INSERT INTO drivers (
@@ -482,7 +482,7 @@ func (u *driverHandler) Create(ctx context.Context, in *drivers.Driver) (*driver
 
 * Update file server.go untuk mengupdate fungsi Update
 
-```text
+```go
 func (u *driverHandler) Update(ctx context.Context, in *drivers.Driver) (*drivers.Driver, error) {
     query := `
         UPDATE drivers 
@@ -507,7 +507,7 @@ func (u *driverHandler) Update(ctx context.Context, in *drivers.Driver) (*driver
 
 * Update file server.go untuk mengupdate fungsi Delete
 
-```text
+```go
 func (u *driverHandler) Delete(ctx context.Context, in *generic.Id) (*generic.BoolMessage, error) {
     query := `
         UPDATE drivers 
@@ -530,7 +530,7 @@ func (u *driverHandler) Delete(ctx context.Context, in *generic.Id) (*generic.Bo
 
 Ini adalah kode keseluruhan server.go
 
-```text
+```go
 package main
 
 import (

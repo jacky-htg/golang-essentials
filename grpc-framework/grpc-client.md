@@ -27,7 +27,7 @@ service AuthService {
 * jalankan `make gen`
 * Buat lib grpc client lib/grpcclient/client.go
 
-```text
+```go
 package grpcclient
 
 import (
@@ -43,7 +43,7 @@ func Close(conn map[string]*grpc.ClientConn) {
 
 * Buat file grpcconn/client\_conn.go
 
-```text
+```go
 package grpcconn
 
 import (
@@ -83,7 +83,7 @@ AUTH_SERVICE = localhost:5050
 
 * Update file server.go untuk membuat koneksi grpc client dan menginject-nya ke routing agar diteruskan ke service yang sekiranya membutuhkan koneksi tersebut.
 
-```text
+```go
 package main
 
 import (
@@ -144,7 +144,7 @@ func main() {
 
 * Ubah file route/route.go untuk menambahkan dependecy injection koneksi grpc client kepada repository yang membutuhkan.
 
-```text
+```go
 package route
 
 import (
@@ -173,7 +173,7 @@ func GrpcRoute(grpcServer *grpc.Server, log *log.Logger, db *sql.DB, clientConne
 
 * Ubah file repository yang membutuhkan koneksi grpc client. misal file domain/ddrivers/repositories/repo.go
 
-```text
+```go
 package repositories
 
 import (
@@ -240,7 +240,7 @@ func (u *repo) SetPb(in *drivers.Driver) {
 
 * Sekarang repository sudah bisa melakukan call grpc ke auth service kapan pun membutuhkan, misal dengan kode berikut :
 
-```text
+```go
 loginInput := auth.LoginInput{username:"waresix", password:"1234"} 
 response, err := u.authClient.Login(ctx, &loginInput)
 ```

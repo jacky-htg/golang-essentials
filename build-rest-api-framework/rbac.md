@@ -6,7 +6,7 @@ Untuk memanajemen pengaturan hak akses
 
 * Design rbac database pada schema/migrate.go dan schema/seed.go
 
-```text
+```go
 package schema
 
 import (
@@ -102,7 +102,7 @@ func Migrate(db *sql.DB) error {
 }
 ```
 
-```text
+```go
 package schema
 
 import (
@@ -179,7 +179,7 @@ func Seed(db *sql.DB) error {
 
 * Buat routing untuk rbac
 
-```text
+```go
     // Roles Routing
     {
         roles := controllers.Roles{Db: db, Log: log}
@@ -203,7 +203,7 @@ func Seed(db *sql.DB) error {
 
 * Buat perintah scan-access pada libraries/auth/access.go
 
-```text
+```go
 package auth
 
 import (
@@ -356,7 +356,7 @@ func removeAccess(tx *sql.Tx, existingAccess []uint32) error {
 
 * Library di atas butuh library array. Buat file libraries/array/string.go dan libraries/array/uint32.go
 
-```text
+```go
 package array
 
 type ArrString string
@@ -386,7 +386,7 @@ func (s ArrString) Remove(array []string, value string) []string {
 }
 ```
 
-```text
+```go
 package array
 
 type ArrUint32 uint32
@@ -422,7 +422,7 @@ func (s ArrUint32) RemoveByIndex(array []uint32, index int) []uint32 {
 
 * Buat model Access models/access.go
 
-```text
+```go
 package models
 
 import (
@@ -597,7 +597,7 @@ func (u *Access) getArgs() []interface{} {
 
 * Ubah file cmd/main.go
 
-```text
+```go
     switch flag.Arg(0) {
     case "migrate":
         if err := schema.Migrate(db); err != nil {
@@ -622,7 +622,7 @@ func (u *Access) getArgs() []interface{} {
 * `go run cmd/main.go scan-access` untuk insert routing ke tabel access
 * Buat file controllers/access.go
 
-```text
+```go
 package controllers
 
 import (
@@ -671,7 +671,7 @@ func (u *Access) List(w http.ResponseWriter, r *http.Request) {
 
 * Buat file payloads/response/access\_response.go
 
-```text
+```go
 package response
 
 import (
@@ -699,7 +699,7 @@ func (u *AccessResponse) Transform(access *models.Access) {
 
 * Buat models/role.go
 
-```text
+```go
 package models
 
 import (
@@ -836,7 +836,7 @@ func (u *Role) getArgs() []interface{} {
 
 * Buat file payloads/request/role\_request.go
 
-```text
+```go
 package request
 
 import (
@@ -875,7 +875,7 @@ func (u *RoleRequest) Transform(role *models.Role) *models.Role {
 
 * Buat file payloads/response/role\_response.go
 
-```text
+```go
 package response
 
 import (
@@ -897,7 +897,7 @@ func (u *RoleResponse) Transform(role *models.Role) {
 
 * Buat file controllers/roles.go
 
-```text
+```go
 package controllers
 
 import (

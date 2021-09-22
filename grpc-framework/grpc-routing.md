@@ -4,7 +4,7 @@
 * pecah kode driverHandler dalam file domain/ddrivers/handler.go
 * karena akan kita export, pastikan type dan fungsi dubah dengan awalan huruf besar
 
-```text
+```go
 package ddrivers
 
 import (
@@ -244,7 +244,7 @@ func logError(log *log.Logger, code codes.Code, err error) error {
 
 * pecah kode routing dalam file route/route.go
 
-```text
+```go
 package route
 
 import (
@@ -265,7 +265,7 @@ func GrpcRoute(grpcServer *grpc.Server, log *log.Logger, db *sql.DB) {
 
 * Ubah file server.go
 
-```text
+```go
 package main
 
 import (

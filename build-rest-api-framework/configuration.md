@@ -16,7 +16,7 @@ DB_SOURCE=root:pass@tcp(localhost:3306)/essentials?parseTime=true
 
 * Kemudian buat library untuk membaca file .env dan menyalinnya ke environment OS. Buat file libraries/config/config.go
 
-```text
+```go
 package config
 
 import (
@@ -46,7 +46,7 @@ func Setup(file string) error {
 
 * Ubah file main.go agar meload file .env jika environment-nya developement atau lokal, dengan menyisipkan kode
 
-```text
+```go
 if _, ok := os.LookupEnv("APP_ENV"); !ok {
     config.Setup(".env")
 }
@@ -54,7 +54,7 @@ if _, ok := os.LookupEnv("APP_ENV"); !ok {
 
 * Ubah file main.go agar membaca env port saat membuat parameter server
 
-```text
+```go
     server := http.Server{
         Addr:         os.Getenv("APP_PORT"),
         Handler:      http.HandlerFunc(service.List),
@@ -65,7 +65,7 @@ if _, ok := os.LookupEnv("APP_ENV"); !ok {
 
 * File main.go akan menjadi seperti ini 
 
-```text
+```go
 package main
 
 import (
@@ -156,7 +156,7 @@ func main() {
 
 * Ubah file libraries/database/database.go 
 
-```text
+```go
 package database
 
 import (
@@ -172,7 +172,7 @@ func Open() (*sql.DB, error) {
 
 * Ubah file cmd/main.go menjadi seperti berikut :
 
-```text
+```go
 package main
 
 import (

@@ -4,7 +4,7 @@ Melakukan tes seluruh endpoint yang dibuat.
 
 * Buat file controllers/tests/userstest.go untuk menghandle pengesan API users
 
-```text
+```go
 package tests
 
 import (
@@ -222,7 +222,7 @@ func (u *Users) Delete(t *testing.T, id float64) {
 
 * Buat file tests/main\_test.go
 
-```text
+```go
 package tests
 
 import (

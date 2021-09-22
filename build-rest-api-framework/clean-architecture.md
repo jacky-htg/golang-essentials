@@ -35,7 +35,7 @@ payloads/response/user_response.go -> Format json response dari list user
 
 * Berikut isi dari file libraries/database/database.go
 
-```text
+```go
 package database
 
 import "database/sql"
@@ -48,7 +48,7 @@ func Open() (*sql.DB, error) {
 
 * Berikut isi dari file cmd/main.go
 
-```text
+```go
 package main
 
 import (
@@ -94,7 +94,7 @@ func main() {
 
 * Berikut isi dari file models/user.go
 
-```text
+```go
 package models
 
 import (
@@ -137,7 +137,7 @@ func (u *User) List(db *sql.DB) ([]User, error) {
 
 * Berikut adalah isi dari file payloads/response/user\_response.go
 
-```text
+```go
 package response
 
 import "essentials/models"
@@ -161,7 +161,7 @@ func (u *UserResponse) Transform(user models.User) {
 
 * Berikut isi file controllers/users.go
 
-```text
+```go
 package controllers
 
 import (
@@ -212,7 +212,7 @@ func (u *Users) List(w http.ResponseWriter, r *http.Request) {
 
 * Dan isi dari file main.go adalah :
 
-```text
+```go
 package main
 
 import (

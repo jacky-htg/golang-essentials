@@ -5,7 +5,7 @@
 * Tambahkan argumen context.Context ke semua fungsi di models/user.go
 * Passing ctx variable ke db.QueryContext, db.QueryRowContext, db.PrepareContext and stmt.ExecContext di file models/user.go
 
-```text
+```go
 package models
 
 import (
@@ -118,7 +118,7 @@ func (u *User) Delete(ctx context.Context, db *sql.DB) error {
 
 * Pass nilai dari r.Context\(\) dari file controllers/users.go pada setiap kali memanggil method di models/user.go
 
-```text
+```go
 package controllers
 
 import (
@@ -269,7 +269,7 @@ func (u *Users) Delete(w http.ResponseWriter, r *http.Request) {
 
 * Pass nilai dari r.Context\(\) dari file usecases/user\_usecase.go pada setiap kali memanggil method di models/user.go
 
-```text
+```go
 package usecases
 
 import (
@@ -330,7 +330,7 @@ func (u *UserUsecase) Create(r *http.Request) (response.UserResponse, error) {
 
 * Pada unit test, pass nilai dari context.Background\(\) di file tests/user\_tes.go setiap memanggil method di models/user.go
 
-```text
+```go
 package tests
 
 import (

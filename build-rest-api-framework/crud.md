@@ -7,7 +7,7 @@ Pada bab ini kita akan melengkapi method Users.Create, Users.View, Users.Update 
 * Karena membutuhkan beberapa validasi dan hashing password, create user akan ditangani menggunakan usecase.
 * Pertama kita siapkan model-nya terlebih dahulu. Edit file models/user.go dan tambahkan method Create.
 
-```text
+```go
 // Create new user
 func (u *User) Create(db *sql.DB) error {
     const query = `
@@ -39,7 +39,7 @@ func (u *User) Create(db *sql.DB) error {
 
 * Untuk response kita sudah ada file payloads/response/user\_response.go dan tidak perlu ada perubahan. Namun yang kita perlukan adalah payload untuk menangani request. Buatlah file payloads/request/user\_request.go yang berfungsi untuk menerima json body dari request, kemudian mengconvertnya menjadi model.
 
-```text
+```go
 package request
 
 import (
@@ -67,7 +67,7 @@ func (u *NewUserRequest) Transform() *models.User {
 
 * Selanjutnya kita buat file usecases/user\_usecase.go untuk interaksi dan validasi pembuatan user baru.
 
-```text
+```go
 package usecases
 
 import (
@@ -135,7 +135,7 @@ func (u *UserUsecase) Create(r *http.Request) ([]byte, error) {
 
 * Terakhir, ubah method Users.Create di file controllers/users.go
 
-```text
+```go
 // Create new user
 func (u *Users) Create(w http.ResponseWriter, r *http.Request) {
     uc := usecases.UserUsecase{Log: u.Log, Db: u.Db}
@@ -157,7 +157,7 @@ func (u *Users) Create(w http.ResponseWriter, r *http.Request) {
 
 * Tambahkan method `func (u *User) Get(db *sql.DB) error` pada file models/user.go
 
-```text
+```go
 func (u *User) Get(db *sql.DB) error {
     const q = `SELECT id, username, password, email, is_active FROM users`
     return db.QueryRow(q+" WHERE id=?", u.ID).Scan(&u.ID, &u.Username, &u.Password, &u.Email, &u.IsActive)
@@ -166,7 +166,7 @@ func (u *User) Get(db *sql.DB) error {
 
 * Ubah method View pada file controllers/users.go menjadi
 
-```text
+```go
 // View user by id
 func (u *Users) View(w http.ResponseWriter, r *http.Request) {
     paramID := r.Context().Value(api.Ctx("ps")).(httprouter.Params).ByName("id")
@@ -207,7 +207,7 @@ func (u *Users) View(w http.ResponseWriter, r *http.Request) {
 
 * Tambahkan method `func (u *User) Update(db *sql.DB) error` pada file models/user.go
 
-```text
+```go
 // Update user by id
 func (u *User) Update(db *sql.DB) error {
     const q string = `UPDATE users SET is_active = ? WHERE id = ?`
@@ -225,7 +225,7 @@ func (u *User) Update(db *sql.DB) error {
 
 * Tambahkan `type UserRequest struct{}` pada file payloads/request/user\_request.go dan method Transform untuk reference UserRequest
 
-```text
+```go
 // UserRequest : format json request for update user
 type UserRequest struct {
     ID       uint64 `json:"id"`
@@ -246,7 +246,7 @@ func (u *UserRequest) Transform(user *models.User) *models.User {
 
 * Ubah method Update pada file controllers/users.go
 
-```text
+```go
 paramID := r.Context().Value(api.Ctx("ps")).(httprouter.Params).ByName("id")
     id, err := strconv.Atoi(paramID)
     if err != nil {
@@ -301,7 +301,7 @@ paramID := r.Context().Value(api.Ctx("ps")).(httprouter.Params).ByName("id")
 
 * Tambahkan method `func (u *User) Delete(db *sql.DB) error` pada file models/user.go
 
-```text
+```go
 // Delete user by id
 func (u *User) Delete(db *sql.DB) error {
     const q string = `DELETE FROM users WHERE id = ?`
@@ -319,7 +319,7 @@ func (u *User) Delete(db *sql.DB) error {
 
 * Ubah method Delete pada file controllers/users.go
 
-```text
+```go
 // Delete user by id
 func (u *Users) Delete(w http.ResponseWriter, r *http.Request) {
     paramID := r.Context().Value(api.Ctx("ps")).(httprouter.Params).ByName("id")
@@ -327,7 +327,7 @@ func (u *Users) Delete(w http.ResponseWriter, r *http.Request) {
     if err != nil {
         u.Log.Println("convert param to id", err)
         w.WriteHeader(http.StatusInternalServerError)
-        return
+        retugorn
     }
 
     user := new(models.User)

@@ -3,7 +3,7 @@
 * Jika ada lebih dari satu endpoint, kita membutuhkan routing
 * File main.go akan diubah agar parameter server, yaitu http.Server.Handler akan diarahkan ke file routing yang mengimplementasikan interface http.Handler
 
-```text
+```go
     // parameter server
     server := http.Server{
         Addr:         os.Getenv("APP_PORT"),
@@ -15,7 +15,7 @@
 
 * Berikut full kode main.go mengikuti perubahan parameter Handler
 
-```text
+```go
 package main
 
 import (
@@ -120,7 +120,7 @@ func run(log *log.Logger) error {
 * Golang sudah mempunyai routing bawaan yaitu http.ServeMux
 * Kita akan buat routing yang mengimplementasikan interface http.Handler. Buat file routing/route.go yang berisi :
 
-```text
+```go
 package routing
 
 import (
@@ -151,7 +151,7 @@ func API(db *sql.DB, log *log.Logger) http.Handler {
 * Interface http.Handler mempunyai method abstract bernama ServeHTTP
 * Karena itu, \*app harus mengimplementasikan interface http.Handler dengan membuat method konkret ServeHTTP
 
-```text
+```go
 package routing
 
 import (
@@ -188,7 +188,7 @@ func (a *app) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 * HandleFunc tidak memperhatikan http method, sehingga baik method GET, POST, PUT, DELETE akan mengeksekusi handler users.List
 * Untuk mendukung method kita perlu merubah fungsi HandleFunc di atas.
 
-```text
+```go
 package routing
 
 import (
@@ -244,7 +244,7 @@ func API(db *sql.DB, log *log.Logger) http.Handler {
 
 * Tambahkan method lainnya di file controllers/users.go
 
-```text
+```go
 package controllers
 
 import (
@@ -382,7 +382,7 @@ DELETE /users/:id
 * Tapi kita bisa membuat middleware sendiri dan mengubah sedikit agar httprouter mendukung standar http.Handler.
 * Ubah file routing/route.go menjadi :
 
-```text
+```go
 package routing
 
 import (
@@ -422,7 +422,7 @@ func API(db *sql.DB, log *log.Logger) http.Handler {
 
 * Ubah file controllers/users.go menjadi :
 
-```text
+```go
 package controllers
 
 import (
@@ -540,7 +540,7 @@ func (u *Users) Delete(w http.ResponseWriter, r *http.Request, ps httprouter.Par
 * Routing ini sudah berjalan dengan baik. Namun agar kode routing lebih dimaintenance, file routing/route.go akan dipecah menjadi dua file. Kode-kode yang mengatur tentang app akan dijadikan library tersendiri.
 * Ubah file routing/route.go menjadi :
 
-```text
+```go
 package routing
 
 import (
@@ -569,7 +569,7 @@ func API(db *sql.DB, log *log.Logger) http.Handler {
 
 * Buat file libraries/api/app.go yang berisi :
 
-```text
+```go
 package api
 
 import (
@@ -612,7 +612,7 @@ func NewApp(log *log.Logger) *App {
 * Buat `type Ctx string` di file libraries/api/app.go untuk dijadikan key saat memindahkan httrouter.params ke context 
 * Ubah parameter httprouter.Handle menjadi http.Handle di fungsi App.Handle di file libraries/api/app.go
 
-```text
+```go
 // Handle associates a httprouter Handle function with an HTTP Method and URL pattern.
 func (a *App) Handle(method, url string, h Handler) {
 
@@ -627,7 +627,7 @@ func (a *App) Handle(method, url string, h Handler) {
 
 * Keseluruhan file libraries/api/app.go setelah mengalami perubahan adalah sebagai berikut:
 
-```text
+```go
 package api
 
 import (
@@ -678,7 +678,7 @@ func NewApp(log *log.Logger) *App {
 
 * Ubah kembali file controllers/users.go agar sesuai dengan standar http.Handle
 
-```text
+```go
 package controllers
 
 import (
@@ -798,7 +798,7 @@ func (u *Users) Delete(w http.ResponseWriter, r *http.Request) {
 
 * Untuk handle CORS tambahkan header seperti berikut di file libraries/api/app.go
 
-```text
+```go
 package api
 
 import (
@@ -869,7 +869,7 @@ func NewApp(log *log.Logger) *App {
 
 * File routing juga memanggil method HandleCors 
 
-```text
+```go
 package routing
 
 import (

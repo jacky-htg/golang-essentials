@@ -18,7 +18,7 @@ DD_AGENT_HOST = localhost
 
 * Update file server.go untuk memasang opentracing
 
-```text
+```go
 t := opentracer.New(
         tracer.WithServiceName(os.Getenv("SERVICE_NAME")),
         tracer.WithAnalytics(true),

@@ -28,7 +28,7 @@
 * untuk fungsi-fungsi pendukung akan dikelompokkan ke dalam folder lib/helper
 * Buat file lib/helper/error\_ctx.go
 
-```text
+```go
 package helper
 
 import (
@@ -55,7 +55,7 @@ func ContextError(ctx context.Context) error {
 * repository adalah kode-kode yang mengakses transaksi database
 * Buat file domain/ddrivers/repository\_interface.go
 
-```text
+```go
 package ddrivers
 
 import (
@@ -78,7 +78,7 @@ type DriverRepoInterface interface {
 * Buat folder domain/ddrivers/repositories. Semua file yang mengimplementasikan repository interface akan dibuat dalam filder ini. 
 * Buat file domain/ddrivers/repositories/repo.go
 
-```text
+```go
 package repositories
 
 import (
@@ -142,7 +142,7 @@ func (u *repo) SetPb(in *drivers.Driver) {
 
 * Buat file domain/ddrivers/repositories/find\_all.go
 
-```text
+```go
 package repositories
 
 import (
@@ -317,7 +317,7 @@ func (u *repo) FindAll(ctx context.Context, in *drivers.DriverListInput) (*drive
 
 * Buat file domain/ddrivers/repositories/find\_driver\_by\_id.go
 
-```text
+```go
 package repositories
 
 import (
@@ -354,7 +354,7 @@ func (u *repo) Find(ctx context.Context, id string) error {
 
 * Buat file domain/ddrivers/repositories/create\_driver.go
 
-```text
+```go
 package repositories
 
 import (
@@ -396,7 +396,7 @@ func (u *repo) Create(ctx context.Context) error {
 
 * Buat file domain/ddrivers/repositories/update\_driver\_by\_id.go
 
-```text
+```go
 package repositories
 
 import (
@@ -439,7 +439,7 @@ func (u *repo) Update(ctx context.Context) error {
 
 * Buat file domain/ddrivers/repositories/delete\_driver\_by\_id.go
 
-```text
+```go
 package repositories
 
 import (
@@ -479,7 +479,7 @@ func (u *repo) Delete(ctx context.Context, in *generic.Id) error {
 * Setiap request perlu divalidasi
 * Buat file domain/ddrivers/validation\_interface.go 
 
-```text
+```go
 package ddrivers
 
 import (
@@ -497,7 +497,7 @@ type DriverValidationInterface interface {
 * Untuk kemudahan pengelolaan kode, semua implementasi validasi akan dimasukkan dalam folder domain/drivers/validation
 * Buat file domain/ddrivers/validation/driover\_validation.go
 
-```text
+```go
 package validation
 
 import (
@@ -520,7 +520,7 @@ func NewValidation(log *log.Logger, driverRepo ddrivers.DriverRepoInterface) ddr
 
 * Buat file domain/ddrivers/validation/create\_driver\_validation.go
 
-```text
+```go
 package validation
 
 import (
@@ -570,7 +570,7 @@ func (u *driverValidation) Create(ctx context.Context, in *drivers.Driver) error
 
 * Buat file domain/ddrivers/validation/update\_driver\_validation.go
 
-```text
+```go
 package validation
 
 import (
@@ -620,7 +620,7 @@ func (u *driverValidation) Create(ctx context.Context, in *drivers.Driver) error
 
 * Buat file domain/ddrivers/validation/delete\_driver/validation.fo
 
-```text
+```go
 package validation
 
 import (
@@ -649,7 +649,7 @@ func (u *driverValidation) Delete(ctx context.Context, id string) error {
 * usacase digunakan untuk menghandle logic. usecase yang akan memanggil validation maupun repository sekiranya logic membutuhkan hal tersebut.
 * Buat file usecase\_interface.go
 
-```text
+```go
 package ddrivers
 
 import (
@@ -669,7 +669,7 @@ type DriverUsecaseInterface interface {
 * Buat folder usecase untuk menyimpan seluruh fiule implementasi usecase interface.
 * Buat file domain/ddrivers/usecase/usecase.go
 
-```text
+```go
 package usecase
 
 import (
@@ -692,7 +692,7 @@ func NewService(log *log.Logger, driverRepo ddrivers.DriverRepoInterface) ddrive
 
 * Buat file domain/ddrivers/usecase/create\_driver\_usecase.go
 
-```text
+```go
 package usecase
 
 import (
@@ -728,7 +728,7 @@ func (u *service) Create(ctx context.Context, in *drivers.Driver) (*drivers.Driv
 
 * Buat file domain/ddrivers/usecase/list\_driver\_usecase.go
 
-```text
+```go
 package usecase
 
 import (
@@ -750,7 +750,7 @@ func (u *service) List(ctx context.Context, in *drivers.DriverListInput) (*drive
 
 * Buat file domain/ddrivers/usecase/update\_driver\_usecase.go
 
-```text
+```go
 package usecase
 
 import (
@@ -786,7 +786,7 @@ func (u *service) Update(ctx context.Context, in *drivers.Driver) (*drivers.Driv
 
 * Buat file domain.ddrivers/usecase/delete\_driver\_usecase.go
 
-```text
+```go
 package usecase
 
 import (
@@ -824,7 +824,7 @@ func (u *service) Delete(ctx context.Context, in *generic.Id) (*generic.BoolMess
 * handler mengimpolementasikan seluruh seluruh funhgsi dari interface DomainServiceServer
 * Buat file domain/ddrivers/handler/grpc.go
 
-```text
+```go
 package handler
 
 import (
@@ -865,7 +865,7 @@ func (u *DriverHandler) Delete(ctx context.Context, in *generic.Id) (*generic.Bo
 
 * Ubah file route/route.go
 
-```text
+```go
 package route
 
 import (

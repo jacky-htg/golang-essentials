@@ -5,7 +5,7 @@
 * Solusinya, kita akan melewatkan pointer \*log.Logger ke paket yang membutuhkannya melalui pattern dependency injection.
 * Create variabel log \(pointer\) di awal `func run()` di file main.go
 
-```text
+```go
     // =========================================================================
     // Logging
     log := log.New(os.Stdout, "Essentials : ", log.LstdFlags|log.Lmicroseconds|log.Lshortfile)
@@ -14,13 +14,13 @@
 * Semua pemakaian log akan menggunakan pointer log yang telah dibuat.
 * Lewatkan pointer log ke service yang membutuhkan dengan pattern dependency injection
 
-```text
+```go
 service := controllers.Users{Db: db, Log: log}
 ```
 
 * File main.go berubah menjadi 
 
-```text
+```go
 package main
 
 import (
@@ -123,7 +123,7 @@ func run() error {
 
 * File controllers/users.go berubah menjadi 
 
-```text
+```go
 package controllers
 
 import (

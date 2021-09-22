@@ -2,7 +2,7 @@
 
 * Buat file server.go
 
-```text
+```go
 package main
 
 import (
