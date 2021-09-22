@@ -55,7 +55,7 @@ import (
 )
 
 func ClientConn() (map[string]*grpc.ClientConn, func(), error) {
-	var conn map[string]*grpc.ClientConn
+	conn := make(map[string]*grpc.ClientConn)
 
 	authConn, err := grpc.Dial(os.Getenv("AUTH_SERVICE"), grpc.WithInsecure())
 	if err != nil {
@@ -239,4 +239,11 @@ func (u *repo) SetPb(in *drivers.Driver) {
 	}
 }
 
+```
+
+- Sekarang repository sudah bisa melakukan call grpc ke auth service kapan pun membutuhkan, misal dengan kode berikut :
+
+```
+loginInput := auth.LoginInput{username:"waresix", password:"1234"} 
+response, err := u.authClient.Login(ctx, &loginInput)
 ```
