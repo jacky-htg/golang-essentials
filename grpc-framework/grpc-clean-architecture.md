@@ -1,6 +1,6 @@
 # Clean Architecture
 
-* kita sudah pernah mempelajari [clean arcitecture](clean-architecture.md)
+* kita sudah pernah mempelajari [clean arcitecture](../build-rest-api-framework/clean-architecture.md)
 * kali ini kita akan menggunakan konsep domain
 * structure folder sebagai berikut
 

@@ -1,6 +1,6 @@
 # Config
 
-* kita sudah mempelajari config di materi [Configuration](configuration.md)
+* kita sudah mempelajari config di materi [Configuration](../build-rest-api-framework/configuration.md)
 * Kita akan praktekan dengan mengubah port menjadi env.
 * Buat file config/config.go
 

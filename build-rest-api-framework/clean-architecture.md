@@ -1,6 +1,6 @@
 # Clean architecture
 
-![](.gitbook/assets/clean-architecture.jpg)
+![](../.gitbook/assets/clean-architecture.jpg)
 
 * Terdiri dari 3 layer: presentation layer, domain layer, dan data layer.
 * Presentation layer meliputi : routing, payload request dan payload response.

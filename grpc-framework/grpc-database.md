@@ -1,6 +1,6 @@
 # Database
 
-* Kita sudah pernah mempelajari [database](database.md)
+* Kita sudah pernah mempelajari [database](../build-rest-api-framework/database.md)
 * Update .env untuk menambahkan konfigurasi database 
 
 ```text

@@ -427,7 +427,7 @@ if _, err := w.Write(data); err != nil {
 - Di fungsi utama, ubah parameter Handler pada server untuk memanggil Users.List
 ```
 
-service := Users{Db: db} server := http.Server{ Addr: "localhost:9000", Handler: http.HandlerFunc\(service.List\), ReadTimeout: 5  _time.Second, WriteTimeout: 5_  time.Second, }
+service := Users{Db: db} server := http.Server{ Addr: "localhost:9000", Handler: http.HandlerFunc\(service.List\), ReadTimeout: 5 _time.Second, WriteTimeout: 5_ time.Second, }
 
 ```text
 - Berikut hasil akhir dari file main.go
