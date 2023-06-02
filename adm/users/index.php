@@ -2,6 +2,11 @@
 session_start();
 require_once('../../../helpers/config.php');
 
+if ($_SESSION['role'] != 'A') {
+  header('Location: /'); 
+  exit();
+}
+
 $datetime = new DateTime();
 $_SESSION['deleteuser'] = $datetime->getTimestamp();
 

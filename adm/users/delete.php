@@ -1,5 +1,11 @@
 <?php
 session_start();
+
+if ($_SESSION['role'] != 'A') {
+  header('Location: /'); 
+  exit();
+}
+
 require_once('../../../helpers/config.php');
 require_once('../../../helpers/connection.php');
 
