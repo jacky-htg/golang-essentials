@@ -1,4 +1,18 @@
 <?php
+define('WORK_DIR', substr($_SERVER['DOCUMENT_ROOT'], 0, -4));
+
+if (!getenv('APP_NAME')) {
+  $handle = fopen(WORK_DIR.'.env', "r");
+  if($handle) {
+    while (($line = fgets($handle)) !== false) {
+      if (strlen($line) > 0 && sizeof(explode('=', $line, 2)) > 1) {
+        putenv(trim($line));
+      }
+    }
+
+    fclose($handle);
+  }
+}
 
 $DB_host = getenv('DB_HOST');
 $DB_user = getenv('DB_USER');
