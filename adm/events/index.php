@@ -1,11 +1,18 @@
 <?php
 session_start();
+
+if ($_SESSION['role'] != 'A') {
+  header('Location: /'); 
+  exit();
+}
+
 require_once('../../../helpers/config.php');
 
 $datetime = new DateTime();
 $_SESSION['deleteevent'] = $datetime->getTimestamp();
 
 require_once('../../../helpers/connection.php');
+require_once('../../../helpers/utils.php');
 
 try {
   $page = isset($_GET['page']) && $_GET['page'] > 0 ? $_GET['page'] : 1;
@@ -105,10 +112,10 @@ function getCount($db, $condition, $where) {
   return $dataCount;
 }
 function listData($db, $condition, $where, $sort, $offset, $limit) {
-  $query = "SELECT * FROM events $condition";
+  $query = "SELECT BIN_TO_UUID(id) as id, title, description, date, speaker, number_of_participant, is_done, has_send_certificate FROM events $condition";
   $query .= " ORDER BY {$sort['field']} {$sort['order']}";
   $query .= " LIMIT $offset, $limit";
-  $stmt = $db->prepare($query);
+  $stmt = $db->prepare($query); 
   if ($condition) {
     if (isset($where['search'])) {
       $search = "%{$where['search']}%";

@@ -7,7 +7,7 @@
     <?php require_once('../../../templates/header.php');?>
     <?php require_once('../../../templates/menu.php');?>
     <section>
-    <?php require_once('../../../templates/toast.php');?>
+      <?php require_once('../../../templates/toast.php');?>
 
       <h2>Events</h2>
       
@@ -34,6 +34,7 @@
           </select>
         </div>
       </div>
+      
       <table>
         <tr>
           <th>
