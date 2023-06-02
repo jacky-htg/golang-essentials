@@ -51,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $db -> close();
 
   } catch(Exception $e) {
-    unset($_SESSION['editmk']);
+    unset($_SESSION['edituser']);
     header('Location: ./index.php?error=Invalid ID User'); 
     exit();
   }
