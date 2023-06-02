@@ -1,2 +1,2 @@
 <?php 
-require_once('../../../events/index.php');
+require_once('../../..//adm/events/index.php');
