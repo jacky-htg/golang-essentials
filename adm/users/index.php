@@ -6,6 +6,7 @@ $datetime = new DateTime();
 $_SESSION['deleteuser'] = $datetime->getTimestamp();
 
 require_once('../../../helpers/connection.php');
+require_once('../../../helpers/utils.php');
 
 try {
   $page = isset($_GET['page']) && $_GET['page'] > 0 ? $_GET['page'] : 1;
@@ -157,20 +158,6 @@ function listData($db, $condition, $where, $sort, $offset, $limit) {
   }
   $result -> free_result();
   return $datas;
-}
-
-function getLinkPagination($page, $sort, $where) {
-  $params = ['page' => $page];
-  $params['sort_field'] = $sort['field'];
-  $params['sort_order'] = $sort['order'];
-  if (isset($where['search'])) $params['search'] = $where['search'];
-
-  $url = [];
-  foreach ($params as $i=>$v) {
-    $url[] = $i . '=' . $v;
-  }
-  
-  return './index.php?'.implode('&', $url);
 }
 
 include('index_view.php');

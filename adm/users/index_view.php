@@ -15,7 +15,7 @@
         <a href="./add.php"><button>Tambah User Admin Baru</button></a> &nbsp; &nbsp;
         <div class="search">
           <input type="text" id="search" placeholder="Search.." name="search" value="<?php echo isset($where['search']) ? $where['search']: '' ;?>">
-          <button type="submit" onchange="window.location.href='./index.php?search='+document.getElementById('search').value+'&role='+document.getElementById('role').value+'&is_actived='+document.getElementById('is_actived').value+'&is_verified_email='+document.getElementById('is_verified_email').value"><i class="fa fa-search"></i></button>
+          <button type="submit" onclick="window.location.href='./index.php?search='+document.getElementById('search').value+'&role='+document.getElementById('role').value+'&is_actived='+document.getElementById('is_actived').value+'&is_verified_email='+document.getElementById('is_verified_email').value"><i class="fa fa-search"></i></button>
         </div>
         <div>
           <label>&nbsp; Role</label>
@@ -45,32 +45,32 @@
       <table>
         <tr>
           <th>
-            <a class="header" href="./index.php?sort_field=id&search=<?php echo isset($where['search'])?$where['search'] : '';?>&sort_order=<?php echo $sort['field'] == 'id' && $sort['order'] == 'asc' ? 'desc' : 'asc';?>">
+            <a class="header" href="<?php echo getLinkSorting('id', $sort, $where);?>">
               ID 	<?php echo $sort['field'] == 'id' ? ($sort['order'] == 'asc' ? '&uarr;': '&darr;') : '';?>
             </a>
           </th>
           <th>
-            <a class="header" href="./index.php?sort_field=email&search=<?php echo isset($where['search'])?$where['search'] : '';?>&sort_order=<?php echo $sort['field'] == 'email' && $sort['order'] == 'asc' ? 'desc' : 'asc';?>">
+            <a class="header" href="<?php echo getLinkSorting('email', $sort, $where);?>">
               EMAIL 	<?php echo $sort['field'] == 'email' ? ($sort['order'] == 'asc' ? '&uarr;': '&darr;') : '';?>
             </a>
           </th>
           <th>
-            <a class="header" href="./index.php?sort_field=name&search=<?php echo isset($where['search'])?$where['search'] : '';?>&sort_order=<?php echo $sort['field'] == 'name' && $sort['order'] == 'asc' ? 'desc' : 'asc';?>">
+            <a class="header" href="<?php echo getLinkSorting('name', $sort, $where);?>">
               NAME 	<?php echo $sort['field'] == 'name' ? ($sort['order'] == 'asc' ? '&uarr;': '&darr;') : '';?>
             </a>
           </th>
           <th>
-            <a class="header" href="./index.php?sort_field=role&search=<?php echo isset($where['search'])?$where['search'] : '';?>&sort_order=<?php echo $sort['field'] == 'role' && $sort['order'] == 'asc' ? 'desc' : 'asc';?>">
+            <a class="header" href="<?php echo getLinkSorting('role', $sort, $where);?>">
               ROLE 	<?php echo $sort['field'] == 'role' ? ($sort['order'] == 'asc' ? '&uarr;': '&darr;') : '';?>
             </a>
           </th>
           <th>
-            <a class="header" href="./index.php?sort_field=is_actived&search=<?php echo isset($where['search'])?$where['search'] : '';?>&sort_order=<?php echo $sort['field'] == 'is_actived' && $sort['order'] == 'asc' ? 'desc' : 'asc';?>">
+            <a class="header" href="<?php echo getLinkSorting('is_actived', $sort, $where);?>">
             IS ACTIVED 	<?php echo $sort['field'] == 'is_actived' ? ($sort['order'] == 'asc' ? '&uarr;': '&darr;') : '';?>
             </a>
           </th>
           <th>
-            <a class="header" href="./index.php?sort_field=is_verified_email&search=<?php echo isset($where['search'])?$where['search'] : '';?>&sort_order=<?php echo $sort['field'] == 'is_verified_email' && $sort['order'] == 'asc' ? 'desc' : 'asc';?>">
+            <a class="header" href="<?php echo getLinkSorting('is_verified_email', $sort, $where);?>">
             IS VERIFIED 	<?php echo $sort['field'] == 'is_verified_email' ? ($sort['order'] == 'asc' ? '&uarr;': '&darr;') : '';?>
             </a>
           </th>
