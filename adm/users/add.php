@@ -51,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'cs_phone' => $SENDGRID['cs_phone']
           ],
         ]],
-        'template_id' => $SENDGRID['template_id']
+        'template_id' => $SENDGRID['registration_template']
       ];
 
       $ch = curl_init('https://api.sendgrid.com/v3/mail/send');
