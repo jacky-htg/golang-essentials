@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>COMPLETED HIMATIKA EVENTS</title>
+    <title>Upcoming HIMATIKA EVENTS</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
     <style type="text/css">
@@ -192,123 +192,51 @@
         }
     </style>
 </head>
-
+<?php
+require_once('../../helpers/config.php');
+require_once('../../helpers/connection.php');
+require_once('../../helpers/utils.php');
+?>
 <body>
-    <section class="container">
-        <h1>COMPLETED HIMATIKA EVENTS</h1>
-        <div class="row">
-            <article class="card fl-left">
-                <section class="date">
-                    <time datetime="23th Apr">
-                        <span>23 Apr KORMA</span><span></span>
-                    </time>
-                </section>
-                <section class="card-cont">
-                    <big> Koding Ramadan </big>
-                    <div class="even-date">
-                        <i class="fa fa-calendar"></i>
-                        <time>
-                            <span>wednesday 28 April 2023</span>
-                            <span>08:55pm to 12:00 am</span>
-                        </time>
-                    </div>
-                    <div class="even-info">
-                        <i class="fa fa-map-marker"></i>
-                        <p>
-                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Eaque labore ducimus similique iure
-                            quo nesciunt, laudantium consequatur magnam! Est porro a ipsam libero, optio explicabo quos
-                            nostrum veniam fugit? Dolor?
-                        </p>
-                    </div>
-                    <a href="#">Detail</a>
-                </section>
-            </article>
+<section class="container">
+    <h1>Upcoming HIMATIKA EVENTS</h1>
+    <div class="row">
+        <?php
+        // Assuming you have already established a database connection
+        $query = "SELECT * FROM events WHERE is_done = 1 ORDER BY date ASC";
+        $result = mysqli_query($db, $query);
 
-            <article class="card fl-left">
-                <section class="date">
-                    <time datetime="23th Apr">
-                        <span>23 Apr KORMA</span><span></span>
+        while ($row = mysqli_fetch_assoc($result)) {
+            $eventDate = date('d M Y', strtotime($row['date']));
+            $eventTime = date('h:ia', strtotime($row['date']));
+            $eventDescription = $row['description'];
+        ?>
+        <article class="card fl-left">
+            <section class="date">
+                <time datetime="<?php echo $eventDate; ?>">
+                    <span><?php echo $eventDate; ?></span><span></span>
+                </time>
+            </section>
+            <section class="card-cont">
+                <big><?php echo $row['title']; ?></big>
+                <div class="even-date">
+                    <i class="fa fa-calendar"></i>
+                    <time>
+                        <span><?php echo $eventDescription; ?></span>
+                        <span><?php echo $eventTime; ?></span>
                     </time>
-                </section>
-                <section class="card-cont">
-                    <big> Koding Ramadan </big>
-                    <div class="even-date">
-                        <i class="fa fa-calendar"></i>
-                        <time>
-                            <span>wednesday 28 April 2023</span>
-                            <span>08:55pm to 12:00 am</span>
-                        </time>
-                    </div>
-                    <div class="even-info">
-                        <i class="fa fa-map-marker"></i>
-                        <p>
-                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Eaque labore ducimus similique iure
-                            quo nesciunt, laudantium consequatur magnam! Est porro a ipsam libero, optio explicabo quos
-                            nostrum veniam fugit? Dolor?
-                        </p>
-                    </div>
-                    <a href="#">Detail</a>
-                </section>
-            </article>            
-        </div>
+                </div>
+                <div class="even-info">
+                    <i class="fa fa-map-marker"></i>
+                    <p>Kuota Peserta <?php echo $row['number_of_participant']; ?></p>
+                </div>
+                <a href="#">Detail</a>
+            </section>
+        </article>
+        <?php } ?>
+    </div>
+</section>
 
-        <div class="row">
-            <article class="card fl-left">
-                <section class="date">
-                    <time datetime="23th Apr">
-                        <span>23 Apr KORMA</span><span></span>
-                    </time>
-                </section>
-                <section class="card-cont">
-                    <big> Koding Ramadan </big>
-                    <div class="even-date">
-                        <i class="fa fa-calendar"></i>
-                        <time>
-                            <span>wednesday 28 April 2023</span>
-                            <span>08:55pm to 12:00 am</span>
-                        </time>
-                    </div>
-                    <div class="even-info">
-                        <i class="fa fa-map-marker"></i>
-                        <p>
-                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Eaque labore ducimus similique iure
-                            quo nesciunt, laudantium consequatur magnam! Est porro a ipsam libero, optio explicabo quos
-                            nostrum veniam fugit? Dolor?
-                        </p>
-                    </div>
-                    <a href="#">Detail</a>
-                </section>
-            </article>
-
-            <article class="card fl-left">
-                <section class="date">
-                    <time datetime="23th Apr">
-                        <span>23 Apr KORMA</span><span></span>
-                    </time>
-                </section>
-                <section class="card-cont">
-                    <big> Koding Ramadan </big>
-                    <div class="even-date">
-                        <i class="fa fa-calendar"></i>
-                        <time>
-                            <span>wednesday 28 April 2023</span>
-                            <span>08:55pm to 12:00 am</span>
-                        </time>
-                    </div>
-                    <div class="even-info">
-                        <i class="fa fa-map-marker"></i>
-                        <p>
-                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Eaque labore ducimus similique iure
-                            quo nesciunt, laudantium consequatur magnam! Est porro a ipsam libero, optio explicabo quos
-                            nostrum veniam fugit? Dolor?
-                        </p>
-                    </div>
-                    <a href="#">Detail</a>
-                </section>
-            </article>            
-        </div>
-
-    </section>
     <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
     <script src="https://netdna.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script type="text/javascript">
