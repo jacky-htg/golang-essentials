@@ -7,8 +7,8 @@ Simple events menggunakan PHP native dan MySQL.
 - [x] Change Password
 - [x] CRUD users untuk admin
 - [x] CRUD events untuk admin
-- [ ] list upcoming events untuk public (tehyun)
-- [ ] list completed events untuk public (sigid)
+- [x] list upcoming events untuk public (tehyun)
+- [x] list completed events untuk public (sigid)
 - [ ] detail event untuk public (jojo, hasbi)
 - [ ] Registrasi event untuk public (jojo)
 - [ ] verifikasi peserta  oleh admin (juli)
