@@ -38,11 +38,11 @@
 
 ## GraphQL Framework
 
-* [Pengenalan GraphQL](graphql-framework/pengenalan-graphql.md)
+* [Belajar Mengenai GraphQL](graphql-framework/pengenalan-graphql.md)
 
 ## gRPC Framework
 
-* [Pengenalan gRPC](grpc-framework/pengenalan-grpc.md)
+* [Belajar Mengenai gRPC](grpc-framework/pengenalan-grpc.md)
 * [Protocol Buffer](grpc-framework/grpc-protobuf.md)
 * [makefile](grpc-framework/makefile.md)
 * [gRPC Server](grpc-framework/grpc-server.md)
