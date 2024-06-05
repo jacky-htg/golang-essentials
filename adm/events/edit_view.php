@@ -1,0 +1,42 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="../../style.css"/>
+  </head>
+  <body>
+    <?php require_once('../../../templates/header.php');?>
+    <?php require_once('../../../templates/menu.php');?>
+    <section>
+    <?php require_once('../../../templates/toast.php');?>
+      <a href="./">Kembali ke halaman list event</a>
+      <h2>Edit Event</h2>
+      <form action="./edit.php" method="POST" class="form">
+      <div>
+        <label>Title</label>
+        <input name="title" pattern="[-:a-zA-Z ]+" required value="<?php echo $data['title'];?>"/>
+      </div>  
+      <div>
+        <label>Date</label>
+        <input name="date" type="date" required value="<?php echo $data['date'];?>"/>
+        <input name="time" type="time" required value="<?php echo $data['time'];?>"/>
+        <input name="id" type="hidden" value="<?php echo $data['id'];?>"/>
+        <input type="hidden" name="token" value="<?php echo $_SESSION['editevent'];?>"/>
+      </div>
+      <div>
+        <label>Speaker</label>
+        <input name="speaker" pattern="[a-zA-Z ]+" required value="<?php echo $data['speaker'];?>"/>
+      </div>  
+      <div>
+        <label>Description</label>
+        <textarea name="description"><?php echo $data['description'];?></textarea>
+      </div>  
+      <div>
+        <label>Number of Participant</label>
+        <input name="number_of_participant" type="number" required value="<?php echo $data['number_of_participant'];?>"/>
+      </div>
+
+      <div><button type="submit">Submit</button></div>
+      </form>
+    </section>
+    <?php require_once('../../../templates/footer.php');?>
+  </body>
+</html>
