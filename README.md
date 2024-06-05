@@ -1,10 +1,10 @@
 # Go Guidance
 
-Mempelajari pemrograman golang untuk pemula. Materi akan dibahas step by step dari basic sampai mahir. Ruang lingkup pembelajaran meliputi :
+Mempelajari bahasa pemrograman golang untuk pemula. Materi akan dibahas step by step dari basic sampai expert. Ruang lingkup pembelajaran meliputi :
 
 ## [Basic](golang-fundamental/basic.md)
 
-* Install golang
+* Installasi golang
 * Hello world
 * Package, type, constanta, variable, function
 * Flow controll : if, else, switch, for, defer
