@@ -2,7 +2,7 @@
 
 Bab ini membahas dasar-dasar pemrograman golang
 
-## Instalasi Golang
+## Installasi
 
 Anda dapat membaca [dokumentasi instalasi golang](https://golang.org/doc/install)
 
