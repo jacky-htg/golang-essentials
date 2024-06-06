@@ -1,6 +1,6 @@
 # Go Guidance
 
-Mempelajari pemrograman golang untuk pemula. Materi akan dibahas step by step dari basic sampai mahir. Ruang lingkup pembelajaran meliputi :
+Mempelajari pemrograman golang untuk pemula. Materi akan membahas step by step dari basic sampai mahir. Ruang lingkup pembelajaran meliputi :
 
 ## [Basic](golang-fundamental/basic.md)
 
