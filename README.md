@@ -74,3 +74,7 @@ Di materi sebelumnya, kita telah membuat project melalui perintah `go mod init e
 * [Caching](grpc-framework/grpc-caching.md)
 * [Testing](grpc-framework/grpc-testing.md)
 
+## Referensi Tambahan 
+
+* [Buku "The Go Programing Language"](https://www.gopl.io/)
+* [Dokumentasi Resmi Golang](https://golang.org/doc/)
