@@ -74,3 +74,8 @@ Di materi sebelumnya, kita telah membuat project melalui perintah `go mod init e
 * [Caching](grpc-framework/grpc-caching.md)
 * [Testing](grpc-framework/grpc-testing.md)
 
+
+## Project Info
+* Project Name : LMS
+* Meeting Schedule : Every Sunday, at 08.00 - 09.00 pm (WIB)
+
