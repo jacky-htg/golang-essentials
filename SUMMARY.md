@@ -14,6 +14,7 @@
 * [Dependency Injection](design-pattern/dependency-injection.md)
 * [Concurrency Pattern](design-pattern/concurrency-pattern.md)
 * [Worker Pool](design-pattern/worker-pool.md)
+* [Semaphore](design-pattern/semaphore.md)
 
 ## Build Rest API Framework
 

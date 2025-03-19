@@ -48,7 +48,7 @@ Contoh Kasus: Membatasi jumlah request API ke layanan eksternal.
 
 Contoh Kasus: Manajemen trafik request agar server tidak kelebihan beban.
 
-## 8. Semaphore
+## 8. [Semaphore](semaphore.md)
 
 - Menggunakan semaphoric channel untuk membatasi jumlah goroutine yang berjalan bersamaan.
 
