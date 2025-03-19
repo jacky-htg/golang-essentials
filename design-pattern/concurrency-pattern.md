@@ -54,7 +54,7 @@ Contoh Kasus: Mengontrol akses ke sumber daya yang terbatas seperti koneksi data
 
 Contoh Kasus: Cache warming, di mana hanya satu goroutine yang boleh memperbarui cache.
 
-## 9. Single Flight Pattern
+## 9. [Single Flight Pattern](single-flight.md)
 - Jika dalam waktu bersamaan ada beberapa permintaan identik yang masuk, maka hanya ada satu permintaan yang diteruskan, yang lainnya akan menunggu. Setelah permintaan yang diteruskan mendapatakan response, maka semua permintaan yang masuk akan menerima response yang sama.
 - Banyak digunakan untuk mengelola permintaan ke sebuah proses yang lambat/berat.
 

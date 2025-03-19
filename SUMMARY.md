@@ -16,6 +16,7 @@
     - [Worker Pool](design-pattern/worker-pool.md)
     - [Rate Limit Pattern](design-pattern/rate-limit.md)
     - [Semaphore](design-pattern/semaphore.md)
+    - [Single Flight](design-pattern/single-flight.md)
 
 ## Build Rest API Framework
 

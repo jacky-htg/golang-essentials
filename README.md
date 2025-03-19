@@ -38,6 +38,7 @@ Mempelajari pemrograman golang untuk pemula. Materi akan dibahas step by step da
     - [Worker Pool](design-pattern/worker-pool.md)
     - [Rate Limit](design-pattern/rate-limit.md)
     - [Semaphore](design-pattern/sempahore.md)
+    - [Single Flight](design-pattern/single-flight.md)
 
 ## Build Rest API Framework
 
