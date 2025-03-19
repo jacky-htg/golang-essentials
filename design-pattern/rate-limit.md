@@ -7,10 +7,11 @@ Rate limiting adalah teknik untuk membatasi jumlah permintaan (requests) dalam p
 
 Perbedaan Rate Limit dengan Semaphore:
 
-| Fitur | Rate Limit | Semaphore |
-| Membatasi | Jumlah request dalam waktu tertentu | Jumlah goroutine aktif |
-| Penerapan | Berbasis waktu (misal: 10 req/detik) | Berbasis concurrency (misal: 5 goroutine berjalan bersamaan) |
-| Penggunaan | API rate limiting | Kontrol parallelism |
+| Fitur      | Rate Limit 							| Semaphore 													|
+| ---------- | ------------------------------------ | ------------------------------------------------------------- |
+| Membatasi  | Jumlah request dalam waktu tertentu 	| Jumlah goroutine aktif 										|
+| Penerapan  | Berbasis waktu (misal: 10 req/detik) | Berbasis concurrency (misal: 5 goroutine berjalan bersamaan) 	|
+| Penggunaan | API rate limiting 					| Kontrol parallelism 											|
 
 ## Jenis-Jenis Rate Limiting
 
