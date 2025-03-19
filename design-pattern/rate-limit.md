@@ -17,8 +17,8 @@ Perbedaan Rate Limit dengan Semaphore:
 
 1. Fixed Window → Memeriksa jumlah request dalam interval tetap (misal: 10 request per menit).
 2. Sliding Window → Menghitung request dalam periode berjalan agar lebih akurat.
-3️. Token Bucket → Menggunakan token yang diisi secara periodik (misalnya, 10 token per detik, 1 request = 1 token).
-4️. Leaky Bucket → Request masuk dalam antrian, diproses secara tetap untuk menghindari lonjakan tiba-tiba.
+3. Token Bucket → Menggunakan token yang diisi secara periodik (misalnya, 10 token per detik, 1 request = 1 token).
+4. Leaky Bucket → Request masuk dalam antrian, diproses secara tetap untuk menghindari lonjakan tiba-tiba.
 
 ## Implementasi Simple Rate Limit
 Berikut adalah implmentasi rate limit sederhana menggunakan token bucket.
