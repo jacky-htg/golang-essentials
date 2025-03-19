@@ -12,6 +12,7 @@
 
 * [Singleton](design-pattern/singleton.md)
 * [Dependency Injection](design-pattern/dependency-injection.md)
+* [Concurrency Pattern](design-pattern/concurrency-pattern.md)
 * [Worker Pool](design-pattern/worker-pool.md)
 
 ## Build Rest API Framework
