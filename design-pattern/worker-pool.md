@@ -72,7 +72,6 @@ func main() {
 6. WaitGroup digunakan untuk menunggu semua worker menyelesaikan tugasnya.
 
 ## Keuntungan Worker Pool
-
 ✅ Membatasi jumlah goroutine → Menghindari overhead dari terlalu banyak goroutine.
 ✅ Efisiensi pemrosesan → Tugas didistribusikan ke worker secara merata.
 ✅ Lebih scalable → Bisa dengan mudah menyesuaikan jumlah worker.
