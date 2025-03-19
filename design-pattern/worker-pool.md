@@ -73,7 +73,9 @@ func main() {
 
 ## Keuntungan Worker Pool
 ✅ Membatasi jumlah goroutine → Menghindari overhead dari terlalu banyak goroutine.
+
 ✅ Efisiensi pemrosesan → Tugas didistribusikan ke worker secara merata.
+
 ✅ Lebih scalable → Bisa dengan mudah menyesuaikan jumlah worker.
 
 ## Kapan Tidak Menggunakan Worker Pool?
