@@ -75,7 +75,7 @@ func (rl *RateLimiter) Allow() bool {
 }
 ```
 
-Di midldleware bisa memanggil paket rate limiter
+Di middleware bisa memanggil paket rate limiter
 
 ```go
 package middleware
