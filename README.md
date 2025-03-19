@@ -36,6 +36,7 @@ Mempelajari pemrograman golang untuk pemula. Materi akan dibahas step by step da
 * Dependency injection
 * [Concurrency pattern](design-pattern/concurrency-pattern.md)
     - [Worker Pool](design-pattern/worker-pool.md)
+    - [Future / Promise](design-pattern/future-promise.md)
     - [Rate Limit](design-pattern/rate-limit.md)
     - [Semaphore](design-pattern/sempahore.md)
     - [Single Flight](design-pattern/single-flight.md)

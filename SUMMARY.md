@@ -14,6 +14,7 @@
 * [Dependency Injection](design-pattern/dependency-injection.md)
 * [Concurrency Pattern](design-pattern/concurrency-pattern.md)
     - [Worker Pool](design-pattern/worker-pool.md)
+    - [Future / Promise](design-pattern/future-promise.md)
     - [Rate Limit Pattern](design-pattern/rate-limit.md)
     - [Semaphore](design-pattern/semaphore.md)
     - [Single Flight](design-pattern/single-flight.md)

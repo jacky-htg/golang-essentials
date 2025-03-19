@@ -30,7 +30,7 @@ Contoh Kasus: Notifikasi real-time, event-driven architecture.
 
 Contoh Kasus: ETL (Extract, Transform, Load), pemrosesan data bertingkat.
 
-## 5. Future / Promise
+## 5. [Future / Promise](future-promise.md)
 
 - Menggunakan goroutine untuk menjalankan tugas async dan mengembalikan hasilnya melalui channel atau struct yang menampung nilai dan status.
 
