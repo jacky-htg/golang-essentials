@@ -195,7 +195,7 @@ func main() {
 - Gunakan Benchmarking & Profiling untuk menentukan jumlah optimal
 
 ## Jebakan Goroutine
-Ya, kita sudah mengimplementasikan pattern worker pool untuk mencegah overhead, kita sudah memperkirakan jumlah worker dengan baik. Tapi bagaimana jika ada developer lain (tanpa kordinasi) membuat goroutine juga di fungsi lain? Ini mengakibatkan perhitungan jumlah worker yang kita buat menjadi tidak valid, dan berpotensi tinggi untuk mengalamai overhead. Ini karena jumlah total goroutine bisa melampaui kapasitas optimal, yang dapat menyebabkan beberapa masalah seperti:
+Ya, kita sudah mengimplementasikan pattern worker pool untuk mencegah overhead, kita sudah memperkirakan jumlah worker dengan baik. Tapi bagaimana jika ada developer lain (tanpa kordinasi) membuat goroutine juga di fungsi lain? Ini mengakibatkan perhitungan jumlah worker yang kita buat menjadi tidak valid, dan berpotensi tinggi untuk mengalami overhead. Ini karena jumlah total goroutine bisa melampaui kapasitas optimal, yang dapat menyebabkan beberapa masalah seperti:
 
 1. CPU Starvation
 
