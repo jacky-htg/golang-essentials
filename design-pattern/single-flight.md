@@ -164,10 +164,10 @@ Penjelasan Kode :
 ## Output yang diharapkan
 
 ```
-Fetching API: https://jsonplaceholder.typicode.com/todos/1
-Goroutine 0 result: {"userId":1,"id":1,"title":"delectus aut autem","completed":false}
-Goroutine 1 result: {"userId":1,"id":1,"title":"delectus aut autem","completed":false}
-Goroutine 2 result: {"userId":1,"id":1,"title":"delectus aut autem","completed":false}
+Fetching API: https://example.com/todos/1
+Goroutine 0 result: {"userId":1,"id":1,"title":"lorem ipsum delectus aut autem","completed":false}
+Goroutine 1 result: {"userId":1,"id":1,"title":"lorem ipsum delectus aut autem","completed":false}
+Goroutine 2 result: {"userId":1,"id":1,"title":"lorem ipsum delectus aut autem","completed":false}
 ```
 
 - Fetching API: hanya muncul sekali, menandakan hanya satu request yang benar-benar dikirim.
