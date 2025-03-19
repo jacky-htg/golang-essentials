@@ -34,7 +34,10 @@ Mempelajari pemrograman golang untuk pemula. Materi akan dibahas step by step da
 * Singleton
 * Abstract factory
 * Dependency injection
-* Concurrency pattern
+* [Concurrency pattern](desaign-pattern/concurrency-pattern.md)
+    - [Worker Pool](desaign-pattern/worker-pool.md)
+    - [Rate Limit](desaign-pattern/rate-limit.md)
+    - [Semaphore](desaign-pattern/sempahore.md)
 
 ## Build Rest API Framework
 

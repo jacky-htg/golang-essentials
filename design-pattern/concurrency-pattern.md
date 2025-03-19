@@ -36,37 +36,31 @@ Contoh Kasus: ETL (Extract, Transform, Load), pemrosesan data bertingkat.
 
 Contoh Kasus: Menjalankan beberapa query database secara paralel dan menunggu hasilnya.
 
-## 6. Rate Limiting / Token Bucket
+## 6. [Rate Limiting / Token Bucket](rate-limit.md)
 
 - Mengontrol jumlah goroutine atau request dalam periode waktu tertentu untuk mencegah overload.
 
 Contoh Kasus: Membatasi jumlah request API ke layanan eksternal.
 
-## 7. Leaky Bucket
-
-- Mirip dengan rate limiting, tetapi mempertahankan buffer tugas yang dapat dikosongkan dalam kecepatan tetap.
-
-Contoh Kasus: Manajemen trafik request agar server tidak kelebihan beban.
-
-## 8. [Semaphore](semaphore.md)
+## 7. [Semaphore](semaphore.md)
 
 - Menggunakan semaphoric channel untuk membatasi jumlah goroutine yang berjalan bersamaan.
 
 Contoh Kasus: Mengontrol akses ke sumber daya yang terbatas seperti koneksi database.
 
-## 9. Balking Pattern
+## 8. Balking Pattern
 
 - Jika suatu goroutine menemukan kondisi tertentu (misalnya, resource sedang dipakai), maka ia membatalkan tugasnya tanpa menunggu.
 
 Contoh Kasus: Cache warming, di mana hanya satu goroutine yang boleh memperbarui cache.
 
-## 10. SIngle Flight Pattern
+## 9. Single Flight Pattern
 - Jika dalam waktu bersamaan ada beberapa permintaan identik yang masuk, maka hanya ada satu permintaan yang diteruskan, yang lainnya akan menunggu. Setelah permintaan yang diteruskan mendapatakan response, maka semua permintaan yang masuk akan menerima response yang sama.
 - Banyak digunakan untuk mengelola permintaan ke sebuah proses yang lambat/berat.
 
 Contoh Kasus: request reporting, request ke heavy database, request ke proses yang latency tinggi dan consume banyak resource (memory/cpu), call api third party yang lambat.
 
-## 11. Circuit Breaker
+## 10. Circuit Breaker
 
 - Jika ada kegagalan berturut-turut, sistem akan berhenti mencoba untuk sementara waktu.
 - Bisa dikombinasikan dengan timeout atau retry pattern.
