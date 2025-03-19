@@ -72,16 +72,13 @@ func main() {
 6. WaitGroup digunakan untuk menunggu semua worker menyelesaikan tugasnya.
 
 ## Keuntungan Worker Pool
-✅ Membatasi jumlah goroutine → Menghindari overhead dari terlalu banyak goroutine.
-
-✅ Efisiensi pemrosesan → Tugas didistribusikan ke worker secara merata.
-
-✅ Lebih scalable → Bisa dengan mudah menyesuaikan jumlah worker.
+- Membatasi jumlah goroutine → Menghindari overhead dari terlalu banyak goroutine.
+- Efisiensi pemrosesan → Tugas didistribusikan ke worker secara merata.
+- Lebih scalable → Bisa dengan mudah menyesuaikan jumlah worker.
 
 ## Kapan Tidak Menggunakan Worker Pool?
-
-❌ Jika jumlah tugas kecil dan overhead goroutine tidak menjadi masalah.
-❌ Jika setiap pekerjaan membutuhkan sumber daya unik dan tidak bisa dibagikan antar worker.
+- Jika jumlah tugas kecil dan overhead goroutine tidak menjadi masalah.
+- Jika setiap pekerjaan membutuhkan sumber daya unik dan tidak bisa dibagikan antar worker.
 
 ## Best Practise Menentukan Jumlah Jobs dan Worker
 
@@ -192,10 +189,10 @@ func main() {
 
 ### Kesimpulan Best Practice
 
-✅ CPU-Bound → Worker ≈ Jumlah Core CPU
-✅ I/O-Bound → Worker bisa lebih banyak (Core CPU * 2 atau lebih)
-✅ Jumlah Jobs ≥ Jumlah Worker, tetapi tidak terlalu besar untuk menghindari bottleneck
-✅ Gunakan Benchmarking & Profiling untuk menentukan jumlah optimal
+- CPU-Bound → Worker ≈ Jumlah Core CPU
+- I/O-Bound → Worker bisa lebih banyak (Core CPU * 2 atau lebih)
+- Jumlah Jobs ≥ Jumlah Worker, tetapi tidak terlalu besar untuk menghindari bottleneck
+- Gunakan Benchmarking & Profiling untuk menentukan jumlah optimal
 
 ## Jebakan Goroutine
 Ya, kita sudah mengimplementasikan pattern worker pool untuk mencegah overhead, kita sudah memperkirakan jumlah worker dengan baik. Tapi bagaimana jika ada developer lain (tanpa kordinasi) membuat goroutine juga di fungsi lain? Ini mengakibatkan perhitungan jumlah worker yang kita buat menjadi tidak valid, dan berpotensi tinggi untuk mengalamai overhead. Ini karena jumlah total goroutine bisa melampaui kapasitas optimal, yang dapat menyebabkan beberapa masalah seperti:
