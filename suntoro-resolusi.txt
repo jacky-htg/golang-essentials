@@ -1,0 +1,3 @@
+Hallo Mas, salam kenal nama saya Suntoro dari Nganjuk Jawa Timur
+- belajar lms dengan Golang
+- Belajar Cloud computing
