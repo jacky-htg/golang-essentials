@@ -1,0 +1,142 @@
+body {
+  margin: 0;
+  padding: 0;
+}
+
+header, nav .active, footer, section button, section .pagination a.active {
+  background: #000080;
+  color: #eee;
+}
+
+header {
+  width: 100vw;
+  height: 70px;
+}
+header h1 {
+  padding: 30px;
+}
+
+nav ul {
+  border-top: 1px solid white;
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #333;
+}
+
+nav li {
+  float: left;
+}
+
+nav li a {
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+nav li a:hover:not(.active) {
+  background-color: #111;
+}
+
+section {
+  width: 100vw;
+  min-height: calc(100vh - 184px);
+  padding: 16px;
+}
+
+section div.box {
+  padding: 20px;
+  display:block;
+  border:1px solid black;
+  background: #ccc;
+  height: 40px;
+  width: 90px; 
+  text-align:center;
+  margin: 1%;
+}
+
+section div.box:hover {
+  background: #eee;
+}
+
+div.box a {
+  color: black;
+  text-decoration: none;
+}
+
+section table {
+  min-width: 50%;
+}
+
+section a.header {
+  color: black;
+  text-decoration: none;
+}
+
+section .pagination {
+  display: inline-block;
+}
+
+section .pagination a, section .pagination div {
+  color: black;
+  float: left;
+  padding: 8px 16px;
+  text-decoration: none;
+  transition: background-color .3s;
+  border: 1px solid #ddd;
+}
+
+section .pagination a:hover:not(.active) {background-color: #ddd;}
+
+section button {
+  border: 1px solid #000;
+  padding: 6px;
+}
+
+section .form div {
+  padding: 4px;
+}
+section .form label {
+  min-width: 150px;
+  display: inline-block;
+}
+
+section .alert-red {
+  background-color: #f44336;
+}
+
+section .alert-green {
+  background-color: #04AA6D;
+}
+
+section .alert {
+  padding: 20px;
+  color: white;
+  margin-bottom: 15px;
+  width: calc(100% - 70px);
+}
+
+section .closebtn {
+  margin-left: 15px;
+  color: white;
+  font-weight: bold;
+  float: right;
+  font-size: 22px;
+  line-height: 20px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+section .closebtn:hover {
+  color: black;
+}
+
+footer {
+  width: 100vw;
+  height: 25px;
+  text-align: center;
+  padding: 5px;
+}
