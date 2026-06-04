@@ -44,23 +44,31 @@ func main() {
     // Mengontrol penerimaan data dari channel,
     // jika ada error saat listenAndServe server maupun ada sinyal shutdown yang diterima
     select {
-    case err := <-serverErrors:
-        log.Fatalf("error: listening and serving: %s", err)
+    case err, ok := <-serverErrors:
+        if ok && err != nil {
+			log.Fatalf("error: listening and serving: %s", err)
+		}
 
     case <-shutdown:
-        log.Println("caught signal, shutting down")
+        log.Printf("received shutdown signal: %s", sig)
 
-        // Jika ada shutdown, meminta tambahan waktu 5 detik untuk menyelesaikan proses yang sedang berjalan.
-        const timeout = 5 * time.Second
-        ctx, cancel := context.WithTimeout(context.Background(), timeout)
-        defer cancel()
+		// Give more time for graceful shutdown
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		defer cancel()
 
-        if err := server.Shutdown(ctx); err != nil {
-            log.Printf("error: gracefully shutting down server: %s", err)
-            if err := server.Close(); err != nil {
-                log.Printf("error: closing server: %s", err)
+		// Attempt graceful shutdown
+		if err := server.Shutdown(ctx); err != nil {
+			log.Printf("error during graceful shutdown: %v", err)
+
+			// Force close if graceful shutdown fails
+			if err := server.Close(); err != nil && err != http.ErrServerClosed {
+				log.Printf("error during force close: %v", err)
+			} else {
+                log.Printf("server close complete")
             }
-        }
+		} else {
+			log.Printf("server gracefully shutdown complete")
+		}
     }
 
     log.Println("done")
@@ -72,3 +80,20 @@ func helloworld(w http.ResponseWriter, r *http.Request) {
 }
 ```
 
+Perbedaan server.Close() vs server.Shutdown()
+
+| Aspek | `server.Close()` | `server.Shutdown(ctx)` |
+|-------|------------------|------------------------|
+| **Menutup listener** | ✅ Langsung | ✅ Setelah graceful |
+| **Koneksi aktif** | ❌ Diputus paksa (reset) | ✅ Ditunggu selesai |
+| **Request dalam proses** | ❌ Terputus, client dapat error | ✅ Diberi waktu selesai |
+| **Keep-Alive connections** | ❌ Ditutup paksa | ✅ Ditutup setelah idle |
+| **HTTP/2 streams** | ❌ Diputus | ✅ Ditunggu selesai |
+| **Menerima request baru** | ✅ Langsung ditolak | ✅ Langsung ditolak |
+| **Idle connections** | ❌ Diputus paksa | ✅ Ditutup normal |
+| **Context support** | ❌ Tidak ada timeout | ✅ Bisa pakai timeout |
+| **Error return** | ✅ Selalu return error (biasanya `http.ErrServerClosed`) | ✅ Return error jika timeout atau gagal |
+| **Blocking behavior** | ✅ Non-blocking, langsung return | ✅ Blocking sampai semua koneksi selesai atau timeout |
+| **Use case** | Force shutdown, testing, atau saat graceful gagal | Production graceful shutdown |
+| **Client experience** | 🔴 Connection reset / EOF | 🟢 Mendapat response lengkap |
+| **Risk** | ⚠️ Data loss, corrupted state | ✅ Aman untuk data integrity |

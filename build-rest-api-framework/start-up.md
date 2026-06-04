@@ -92,7 +92,7 @@ func main() {
         serverErrors <- server.ListenAndServe()
     }()
 
-    if err, ok := <-serverErrors; ok {
+    if err, ok := <-serverErrors; ok && err != nil {
         log.Fatalf("error: listening and serving: %s", err)
     }
 }
