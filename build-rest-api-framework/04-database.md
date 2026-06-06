@@ -16,7 +16,7 @@ func openDB() (*sql.DB, error) {
 ## Migration
 
 * Ada banyak library yang mengerjakan proses migration. Kali ini saya akan menggunakan library [go-libs](https://github.com/jacky-htg/go-libs) karena cukup simple.
-* Buat folder migrations. Kemudian buatlah file 1_0001_users.sql
+* Buat folder migration. Kemudian buatlah file 1_0001_users.sql
 * Konsensus penamaan file adalah prefix 1_ untuk create tabel, 2_ untuk alter tabel, dan 3_ untuk seed tabel. Kemudian diikuti dengan nomor urut file beserta nama file.
 * File  1_0001_users.sql digunakan untuk membuat tabel users, yang berisi query sebagai berikut :
 
@@ -145,7 +145,7 @@ func main() {
 	flag.Parse()
 
 	if len(flag.Args()) > 0 && flag.Arg(0) == "migrate" {
-		if err := migration.Migrate(db, "migrations"); err != nil {
+		if err := migration.Migrate(db, "migration"); err != nil {
 			log.Fatalf("error: running migrations: %s", err)
 		}
 		log.Printf("migrations completed successfully")
@@ -358,7 +358,7 @@ func main() {
 	flag.Parse()
 
 	if len(flag.Args()) > 0 && flag.Arg(0) == "migrate" {
-		if err := migration.Migrate(db, "migrations"); err != nil {
+		if err := migration.Migrate(db, "migration"); err != nil {
 			log.Fatalf("error: running migrations: %s", err)
 		}
 		log.Printf("migrations completed successfully")
