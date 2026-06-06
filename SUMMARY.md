@@ -28,7 +28,7 @@
 * [Database](build-rest-api-framework/04-database.md)
 * [Clean architecture](build-rest-api-framework/05-clean-architecture.md)
 * [Configuration](build-rest-api-framework/06-configuration.md)
-* [Fatal](build-rest-api-framework/fatal.md)
+* [Fatal](build-rest-api-framework/07-fatal.md)
 * [Logging](build-rest-api-framework/logging.md)
 * [Routing](build-rest-api-framework/routing.md)
 * [CRUD](build-rest-api-framework/crud.md)
