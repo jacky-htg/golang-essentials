@@ -52,6 +52,7 @@ Di materi sebelumnya, kita telah membuat project melalui perintah `go mod init e
 * [Clean architecture](build-rest-api-framework/05-clean-architecture.md)
 * [Configuration](build-rest-api-framework/06-configuration.md)
 * [Fatal](build-rest-api-framework/07-fatal.md)
+* [Bootstrap](build-rest-api-framework/08-bootstrap.md)
 * [Logging](build-rest-api-framework/logging.md)
 * [Routing](build-rest-api-framework/routing.md)
 * [CRUD](build-rest-api-framework/crud.md)
