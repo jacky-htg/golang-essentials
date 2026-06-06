@@ -59,6 +59,7 @@ func main() {
 		// Attempt graceful shutdown
 		if err := server.Shutdown(ctx); err != nil {
 			log.Printf("error during graceful shutdown: %v", err)
+            log.Printf("attempting force close due to graceful shutdown failure")
 
 			// Force close if graceful shutdown fails
 			if err := server.Close(); err != nil && err != http.ErrServerClosed {
@@ -79,6 +80,21 @@ func helloworld(w http.ResponseWriter, r *http.Request) {
     fmt.Fprint(w, "Hello World!")
 }
 ```
+
+Yang perlu dipahami :
+* Graceful shutdown hanya berfungsi untuk sinyal OS (SIGINT, SIGTERM)
+* Signal handler tidak jalan saat listrik mati atau kill -9
+* Listrik mati = server mati instan - tidak ada kode Go yang sempat jalan
+
+Perbandingan Berbagai Skenario Shutdown:
+| Skenario | Graceful Shutdown | `server.Close()` | Data Loss Risk |
+|----------|-------------------|------------------|----------------|
+| **Listrik mati** | ❌ Tidak jalan | ❌ Tidak jalan | 🔴 Tinggi |
+| **Kill -9 (SIGKILL)** | ❌ Tidak jalan | ❌ Tidak jalan | 🔴 Tinggi |
+| **Ctrl+C (SIGINT)** | ✅ Jalan (jika di-handle) | Bisa dipanggil | 🟢 Rendah |
+| **Kill / systemctl stop (SIGTERM)** | ✅ Jalan (jika di-handle) | Bisa dipanggil | 🟢 Rendah |
+| **Docker stop (SIGTERM)** | ✅ Jalan (jika di-handle) | Bisa dipanggil | 🟢 Rendah |
+
 
 Perbedaan server.Close() vs server.Shutdown()
 

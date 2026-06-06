@@ -22,10 +22,10 @@
 ## Build Rest API Framework
 
 * [Pengenalan Rest API](build-rest-api-framework/pengenalan-rest-api.md)
-* [Start up](build-rest-api-framework/start-up.md)
-* [Shutdown](build-rest-api-framework/shutdown.md)
-* [Json](build-rest-api-framework/json.md)
-* [Database](build-rest-api-framework/database.md)
+* [Start up](build-rest-api-framework/01-start-up.md)
+* [Shutdown](build-rest-api-framework/02-shutdown.md)
+* [Json](build-rest-api-framework/03-json.md)
+* [Database](build-rest-api-framework/04-database.md)
 * [Clean architecture](build-rest-api-framework/clean-architecture.md)
 * [Configuration](build-rest-api-framework/configuration.md)
 * [Fatal](build-rest-api-framework/fatal.md)
