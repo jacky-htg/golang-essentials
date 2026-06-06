@@ -137,7 +137,7 @@ func main() {
 	flag.Parse()
 
 	if len(flag.Args()) > 0 && flag.Arg(0) == "migrate" {
-		if err := migration.Migrate(db, "migrations"); err != nil {
+		if err := migration.Migrate(db, "migration"); err != nil {
 			log.Fatalf("error: running migrations: %s", err)
 		}
 		log.Printf("migrations completed successfully")
