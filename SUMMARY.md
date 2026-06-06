@@ -30,7 +30,7 @@
 * [Configuration](build-rest-api-framework/06-configuration.md)
 * [Fatal](build-rest-api-framework/07-fatal.md)
 * [Bootstrap](build-rest-api-framework/08-bootstrap.md)
-* [Logging](build-rest-api-framework/logging.md)
+* [Logging](build-rest-api-framework/09-logging.md)
 * [Routing](build-rest-api-framework/routing.md)
 * [CRUD](build-rest-api-framework/crud.md)
 * [Request Response Helper](build-rest-api-framework/request-response-helper.md)
