@@ -33,7 +33,7 @@
 * [Logging](build-rest-api-framework/09-logging.md)
 * [Routing](build-rest-api-framework/10-routing.md)
 * [CRUD](build-rest-api-framework/11-crud.md)
-* [Request Response Helper](build-rest-api-framework/12-standard-response.md)
+* [Standard Response](build-rest-api-framework/12-standard-response.md)
 * [Error Handler](build-rest-api-framework/error-handler.md)
 * [Unit Testing](build-rest-api-framework/unit-testing.md)
 * [API Testing](build-rest-api-framework/api-testing.md)

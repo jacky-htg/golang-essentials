@@ -1,4 +1,4 @@
-# Request Response Helper
+# Standard Response
 
 * Saat ini aplikasi kita akan mengembalikan response berupa text ketika terjadi error, dan mengembalikan json ketika sukses.
 * Sering ada permintaan untuk membuat standard response yang sama ketika terjadi error maupun sukses.
