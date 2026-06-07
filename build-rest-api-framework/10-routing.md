@@ -4,7 +4,7 @@
 * Sejak go 1.22, net/http sudah menyediakan routing yang sangat mudah digunakan, dan mengenali path regex sehingga bisa menerapkan pretty url. 
 * Untuk Cli, kita bisa memanfaatkan switch case untuk routing
 
-## Routig Cli
+## Routing Cli
 
 * Buat file `internal/router/cli.go` tang berisi :
 
