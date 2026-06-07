@@ -2,7 +2,7 @@
 
 Mempelajari pemrograman golang untuk pemula. Materi akan dibahas step by step dari basic sampai mahir. Ruang lingkup pembelajaran meliputi :
 
-## [Basic](golang-fundamental/basic.md)
+## [Basic](01-golang-fundamental/01-basic.md)
 
 * Install golang
 * Hello world
@@ -10,14 +10,14 @@ Mempelajari pemrograman golang untuk pemula. Materi akan dibahas step by step da
 * Flow controll : if, else, switch, for, defer
 * Array : array, slice, map
 
-## [Psuedo OOP](golang-fundamental/pseudo_oop.md)
+## [Struktur Data](01-golang-fundamental/02-struktur-data.md)
 
 * struct
 * Method
 * Interface
 * Encapsulation, inheritance and polymorphism
 
-## [Konkurensi](golang-fundamental/konkurensi.md)
+## [Konkurensi](01-golang-fundamental/03-konkurensi.md)
 
 * Go routine
 * Channel
@@ -34,37 +34,37 @@ Mempelajari pemrograman golang untuk pemula. Materi akan dibahas step by step da
 * Singleton
 * Abstract factory
 * Dependency injection
-* [Concurrency pattern](design-pattern/concurrency-pattern.md)
-    - [Worker Pool](design-pattern/worker-pool.md)
-    - [Future / Promise](design-pattern/future-promise.md)
-    - [Rate Limit](design-pattern/rate-limit.md)
-    - [Semaphore](design-pattern/sempahore.md)
-    - [Single Flight](design-pattern/single-flight.md)
+* [Concurrency pattern](02-design-pattern/03-concurrency-pattern.md)
+    - [Worker Pool](02-design-pattern/04-worker-pool.md)
+    - [Future / Promise](02-design-pattern/08-future-promise.md)
+    - [Rate Limit](02-design-pattern/09-rate-limit.md)
+    - [Semaphore](02-design-pattern/10-sempahore.md)
+    - [Single Flight](02-design-pattern/12-single-flight.md)
 
-## Build Rest API Framework
+## Build API Framework
 
-Di materi sebelumnya, kita telah membuat project melalui perintah `go mod init essentials`. Jadi dalam project pembuatan framework API ini, kita memakai 'essentials' sebagai nama project.
+Step by step membuat golang API framework, baik rest api maunpun grpc, baik monolith maupun microservices, baik monorepo maupun multirepo.
 
-* [Start up](build-rest-api-framework/01-start-up.md)
-* [Shutdown](build-rest-api-framework/02-shutdown.md)
-* [Json](build-rest-api-framework/03-json.md)
-* [Database](build-rest-api-framework/04-database.md)
-* [Clean architecture](build-rest-api-framework/05-clean-architecture.md)
-* [Configuration](build-rest-api-framework/06-configuration.md)
-* [Fatal](build-rest-api-framework/07-fatal.md)
-* [Bootstrap](build-rest-api-framework/08-bootstrap.md)
-* [Logging](build-rest-api-framework/09-logging.md)
-* [Routing](build-rest-api-framework/10-routing.md)
-* [CRUD](build-rest-api-framework/11-crud.md)
-* [Standard Response](build-rest-api-framework/12-standard-response.md)
-* [Error handler](build-rest-api-framework/error-handler.md)
-* [Unit testing](build-rest-api-framework/unit-testing.md)
-* [API testing](build-rest-api-framework/api-testing.md)
-* [Context](build-rest-api-framework/context.md)
-* [Validation](build-rest-api-framework/validation.md)
-* [Middleware](build-rest-api-framework/middleware.md)
-* [Token](build-rest-api-framework/token.md)
-* [RBAC](build-rest-api-framework/rbac.md)
+* [Start up](03-build-api-framework/01-start-up.md)
+* [Shutdown](03-build-api-framework/02-shutdown.md)
+* [Json](03-build-api-framework/03-json.md)
+* [Database](03-build-api-framework/04-database.md)
+* [Clean architecture](03-build-api-framework/05-clean-architecture.md)
+* [Configuration](03-build-api-framework/06-configuration.md)
+* [Fatal](03-build-api-framework/07-fatal.md)
+* [Bootstrap](03-build-api-framework/08-bootstrap.md)
+* [Logging](03-build-api-framework/09-logging.md)
+* [Routing](03-build-api-framework/10-routing.md)
+* [CRUD](03-build-api-framework/11-crud.md)
+* [Standard Response](03-build-api-framework/12-standard-response.md)
+* [Error handler](03-build-api-framework/error-handler.md)
+* [Unit testing](03-build-api-framework/unit-testing.md)
+* [API testing](03-build-api-framework/api-testing.md)
+* [Context](03-build-api-framework/context.md)
+* [Validation](03-build-api-framework/validation.md)
+* [Middleware](03-build-api-framework/middleware.md)
+* [Token](03-build-api-framework/token.md)
+* [RBAC](03-build-api-framework/rbac.md)
 
 ## Build gRPC API Framework
 
