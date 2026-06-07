@@ -55,7 +55,7 @@ Di materi sebelumnya, kita telah membuat project melalui perintah `go mod init e
 * [Bootstrap](build-rest-api-framework/08-bootstrap.md)
 * [Logging](build-rest-api-framework/09-logging.md)
 * [Routing](build-rest-api-framework/10-routing.md)
-* [CRUD](build-rest-api-framework/crud.md)
+* [CRUD](build-rest-api-framework/11-crud.md)
 * [Request-Response helper](build-rest-api-framework/request-response-helper.md)
 * [Error handler](build-rest-api-framework/error-handler.md)
 * [Unit testing](build-rest-api-framework/unit-testing.md)
