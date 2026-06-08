@@ -34,7 +34,7 @@
 * [Routing](03-build-api-framework/10-routing.md)
 * [CRUD](03-build-api-framework/11-crud.md)
 * [Standard Response](03-build-api-framework/12-standard-response.md)
-* [Error Handler](03-build-api-framework/error-handler.md)
+* [Error Handler](03-build-api-framework/13-error-handler.md)
 * [Context](03-build-api-framework/context.md)
 * [Validation](03-build-api-framework/validation.md)
 * [Middleware](03-build-api-framework/middleware.md)
