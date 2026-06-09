@@ -1,120 +1,81 @@
-# Clean architecture
+# Bab 5: Clean Architecture
+
+Setelah kita memiliki API yang terhubung ke database, sekarang saatnya memikirkan struktur kode. Tanpa arsitektur yang jelas, kode akan sulit di-maintain, sulit di-test, dan sulit dikembangkan oleh tim.
+
+Clean Architecture (diperkenalkan oleh Robert C. Martin) adalah pendekatan yang memisahkan kode ke dalam lapisan-lapisan (layer) berdasarkan tanggung jawabnya.
+
+## 5.1 Tiga Layer Utama
 
 ![](../.gitbook/assets/clean-architecture.jpg)
 
-* Terdiri dari 3 layer: presentation layer, domain layer, dan data layer.
-* Presentation layer meliputi : routing, payload request dan payload response.
-* Domain layer meliputi : use case yang berisi interaction dan logic
-* Data layer meliputi : entity / model 
-* Untuk mengadopsi clean architecture, dibuat struktur direktori aplikasi sebagai berikut :
+
+PRESENTATION LAYER (HTTP Handler, Routing, Request/Response DTO) :
+- Menerima input dari user
+- Memformat output ke user
+- TIDAK boleh mengandung logika bisnis
+
+DOMAIN LAYER (Service / UseCase) :
+- Logika bisnis aplikasi
+- Aturan bisnis & validasi
+- Tidak peduli dari mana data berasal
+
+DATA LAYER (Repository, Model) :
+- Akses database / API eksternal
+- Mapping data dari storage ke struct
+- Hanya operasi CRUD sederhana
+
+**Prinsip utama:** Ketergantungan hanya mengarah ke dalam (inward). Layer dalam (Domain) tidak boleh tahu tentang layer luar (Presentation/Data).
+
+## 5.2 Struktur Direktori
+
+Berikut struktur direktori yang akan kita bangun:
 
 ```text
-> cmd
-    > cli
-        > main.go
-    > server
-        > main.go
-> internal
-    > dto
-        > user_response.go
-    > handler
-        > user_handler.go
-    > model
-        > user.go
-    > repository
-        > user_repository.go
-    > service
-        > users.go
-> migration
-    1_0001_users.sql
-    3_0001_users.sql
-> pkg
-    > database
-        > postgre.go
-> go.mod
-> go.sum
+workshop/
+├── cmd/
+│   ├── cli/
+│   │   └── main.go          # Perintah CLI (migrate, seed, dll)
+│   └── server/
+│       └── main.go          # Entry point server HTTP
+├── internal/                 # Kode inti (tidak boleh diimport dari luar)
+│   ├── dto/                  # Data Transfer Object (response)
+│   │   └── user_response.go
+│   ├── handler/              # Presentation layer
+│   │   └── user_handler.go
+│   ├── model/                # Data layer - entity
+│   │   └── user.go
+│   ├── repository/           # Data layer - akses database
+│   │   └── user_repository.go
+│   └── service/              # Domain layer - logika bisnis
+│       └── users.go
+├── migration/                # File SQL migration
+│   ├── 1_0001_users.sql
+│   └── 3_0001_users.sql
+├── pkg/                      # Library publik (bisa diimport proyek lain)
+│   └── database/
+│       └── postgre.go
+├── go.mod
+└── go.sum
 ```
 
-* Untuk command kita pecah menjadi 2, yaitu command untuk cli dan command untuk server.
-* Buat folder pkg yang berisi library/tool/helper. Dalam kontek sekarang baru ada 1 paket yaitu pakat database.
-* Folder migrations sudah ada dari bab sebelumnya.
-* Folder internal berisi kode-kode project yang kita buat, kode inti (core) meliputi kode untuk layer presentation, domain dan data.
-* Layer presentation kita taruh di folder handler, dan dto.
-* Layer domain kita taruh di folder service (dan jika dibutuhkan kita buat folder usecase). Dalam kontek sekarang, kita hanya perlu folder service saja. 
-* Layer data kita taruh di folder model dan repository.
+**Catatan tentang folder `internal` dan `pkg`: **
+- `internal/` – Kode yang hanya boleh digunakan oleh proyek ini. Go compiler akan melarang import dari luar.
+- `pkg/` – Kode yang boleh diimport oleh proyek lain (library publik).
 
-## Dependency Injection
+## 5.3 Memisahkan Entry Points (Server vs CLI)
 
-* Untuk mendukung konsep clean architecture, kita akan melengkapi dengan design pattern: dependency injection
-* Dependency injection digunakan untuk memastikan satu object hanya dibuat 1x (singleton) dan disuntikkan kepada paket-paket yang membutuhkan.
-* Kita sudah mempraktekkan dependency injection ketika membuat koneksi database. 
-* Dependency injection dilakukan dengan membuat struct berisi dependency dan fungsi kontruktor untuk menyuntikkan dependency-nya.
+Sebelumnya, kita mencampur logika server HTTP dan migration dalam satu main.go. Sekarang kita pisahkan:
+
+### `cmd/server/main.go` – Entry Point untuk API Server
+
+Menjalankan HTTP server, graceful shutdown, dan injeksi dependency.
+
+### `cmd/cli/main.go` – Entry Point untuk Command Line
+
+Menjalankan perintah administrasi seperti migration.
 
 ```go
-type UserRepository struct {
-	db *sql.DB
-}
-
-func NewUserRepository(db *sql.DB) UserRepository {
-	return &UserRepository{db: db}
-}
-```
-
-## Interface dan Dependency Injection
-
-* Interface biasa digunakan untuk membuat signature dari sebuah paket. Berisi signature dari behavior yang dimiliki oleh interface tersebut. Memastikan semua implmentor mempunyai behavior yang seragam.
-* Interface dan dependency injection juga sangat bermanfaat nanti ketika kita sudah mulai membuat unit test.
-* Konvensi penamaan interface biasanya jika sesuai behavior maka diberikan akhiran `er`, jika tidak sesuai behavior nama interface PascalCase dan nama implementor camelCase.
-
-```go
-type Writer interface {
-}
-
-type Reader interface {
-}
-
-type UserRepository interface {
-    FindByID(ctx context.Context, id int) (*User, error)
-}
-
-type userRepository struct {
-}
-
-func (u *userRepository) FindByID(ctx context.Context, id int) (*User, error) {
-    return nil, nil
-}
-```
-
-## Implementasi Dependency Injection dan Clean Architecture
-
-* Kita akan memecah kode di file main.go di bab sebelumnya menjadi 8 file yaitu :
-
-```text
-cmd/server/main.go -> berisi kode untuk handling start up dan shutdown 
-cmd/cli/main.go -> berisi kode untuk handling console command, yaitu migrate
-pkg/database/postgre.go -> berisi kode untuk membuat koneksi database
-internal/dto/user_response.go -> dto (data transform object) adalah presentation layer yang menentukan field-field apa saja yang akan ditampilkan, berisi struct UserResponse dan method Transform dari entity model database ke UserResponse
-internal/hanlder/user_handler.go -> presentation layer untuk menghandle entry point, dengan menerima request, meneruskan ke layer domain, kemudian hasil dari layer domain ditranform menajdi response melalui dto.
-internal/service/users.go -> domain layer yang bertugas untuk mengelola logika bisnis, jika membutuhkan data akan meminta ke layer repository.  
-internal/models/user.go -> layer data yang berisi struct User yang mencerminkan struktur database (maupun struktur api third pihak ketiga, struktur file, dll).
-internal/repository/user_repository.go -> layer data yang berisi behavior dari data
-```
-
-* Berikut isi dari file `pkg/database/postgre.go`
-
-```go
-package database
-
-import "database/sql"
-
-func OpenDB() (*sql.DB, error) {
-	return sql.Open("postgres", "postgres://postgres:1234@localhost:5432/workshop?sslmode=disable")
-}
-```
-
-* Berikut isi dari file `cmd/cli/main.go`
-
-```go
+// cmd/cli/main.go
 package main
 
 import (
@@ -145,8 +106,34 @@ func main() {
 	}
 }
 ```
+## 5.4 Dependency Injection dengan Interface 
 
-* Berikut isi dari file `internal/model/user.go`
+Dependency Injection (DI) memastikan setiap object hanya dibuat sekali (singleton) dan disuntikkan ke komponen yang membutuhkan. Kita sudah mempraktekkannya sebelumnya dengan `NewUsers(db)`.
+
+Sekarang kita tingkatkan dengan interface. Interface mendefinisikan kontrak behavior — apa yang bisa dilakukan, bukan bagaimana cara melakukannya.
+
+```go
+type UserRepository interface {
+    List() ([]model.User, error)
+    FindByID(ctx context.Context, id string) (*model.User, error)
+    Create(user *model.User) error
+}
+```
+
+Konvensi penamaan interface:
+- Jika berisi satu behavior → akhiri dengan `-er` (contoh: `Reader`, `Writer`)
+- Jika berisi banyak behavior → `PascalCase` (contoh: `UserRepository`)
+
+Mengapa interface penting untuk DI?
+- Memungkinkan kita mengganti implementasi (misal: dari PostgreSQL ke MongoDB) tanpa mengubah kode lain
+- Memudahkan unit testing dengan mock object
+
+
+## 5.5 Implementasi Layer per Layer
+
+### Layer Data – Model (`internal/model/user.go`)
+
+Model adalah representasi struktur data dari database. Tidak mengandung tag JSON karena ini murni untuk layer data.
 
 ```go
 package model
@@ -161,7 +148,9 @@ type User struct {
 }
 ```
 
-* Berikut adalah isi dari file `internal/repository/user_repository.go`
+### Layer Data – Repository (`internal/repository/user_repository.go`)
+
+Repository bertanggung jawab untuk operasi database. Hanya berisi query sederhana — tanpa logika bisnis.
 
 ```go
 package repository
@@ -213,7 +202,12 @@ func (u *userRepository) List() ([]model.User, error) {
 }
 ```
 
-* Berikut isi file internal/service/users.go
+
+* Berikut isi dari file `pkg/database/postgre.go`
+
+### Layer Domain – Service (`internal/service/users.go`)
+
+Service berisi logika bisnis. Di contoh sederhana ini, service hanya meneruskan ke repository. Namun nanti di sinilah validasi, perhitungan, dan aturan bisnis lainnya berada.
 
 ```go
 package service
@@ -236,11 +230,15 @@ func NewUsers(repo repository.UserRepository) Users {
 }
 
 func (u *users) List() ([]model.User, error) {
+	// Logika bisnis bisa ditambahkan di sini
+    // Contoh: filter, sorting, validasi, dll.
 	return u.repo.List()
 }
 ```
 
-* Berikut isi dari file `internal/dto/user_response.go`
+### Layer Presentation – DTO (`internal/dto/user_response.go`)
+
+DTO (Data Transfer Object) adalah representasi data yang dikirim ke client. Tidak semua field dari model harus diekspos — misalnya, field Password tidak boleh dikirim ke response.
 
 ```go
 package dto
@@ -264,7 +262,12 @@ func (u *UserResponse) Transform(user model.User) {
 }
 ```
 
-* Berikut isi dari file `internal/handler/user_handler.go`
+**Perhatikan:** Field Password tidak ada di UserResponse — ini sengaja agar password tidak bocor ke client.
+
+### Layer Presentation – Handler (`internal/handler/user_handler.go`)
+
+Handler menerima HTTP request, memanggil service, lalu mengubah hasil menjadi JSON response.
+
 
 ```go
 package handler
@@ -318,7 +321,23 @@ func (u *userHandler) List(w http.ResponseWriter, r *http.Request) {
 }
 ```
 
-* Dan isi dari file `cmd/server/main.go` adalah :
+### Library Pendukung – Database (`pkg/database/postgre.go`)
+
+Kode ini bisa dijadikan library karena tidak spesifik untuk proyek ini.
+
+```go
+package database
+
+import "database/sql"
+
+func OpenDB() (*sql.DB, error) {
+	return sql.Open("postgres", "postgres://postgres:1234@localhost:5432/workshop?sslmode=disable")
+}
+```
+
+### Entry Point Server (`cmd/server/main.go`)
+
+Ini adalah tempat perakitan semua komponen (dependency injection). Urutan inisialisasi: database → repository → service → handler.
 
 ```go
 package main
@@ -402,3 +421,44 @@ func main() {
 }
 
 ```
+
+## 5.6 Menjalankan Aplikasi
+
+```bash
+# Migration
+go run cmd/cli/main.go migrate
+
+# Jalankan server
+go run cmd/server/main.go
+
+# Uji endpoint
+curl http://localhost:9000/
+```
+
+## Ringkasan Bab 5
+
+Di bab ini kita telah belajar:
+
+| Komponen | Folder | Tanggung Jawab |
+|----------|--------|----------------|
+| **Model** | `internal/model` | Struktur data dari database |
+| **Repository** | `internal/repository` | Operasi database (CRUD) |
+| **Service** | `internal/service` | Logika bisnis |
+| **DTO** | `internal/dto` | Format response ke client |
+| **Handler** | `internal/handler` | Menerima request, mengembalikan response |
+| **Library** | `pkg` | Kode yang bisa digunakan ulang |
+| **Entry point** | `cmd` | Server HTTP dan CLI tools |
+
+Manfaat Clean Architecture yang sudah kita rasakan:
+- ✅ Pemisahan tanggung jawab yang jelas
+- ✅ Model data tidak terikat dengan format JSON
+- ✅ Password tidak bocor ke response (karena dipisah di DTO)
+- ✅ Repository bisa diganti tanpa mengubah service/handler
+- ✅ CLI dan server berbagi kode yang sama
+
+Yang akan datang:
+- ❌ Belum ada konfigurasi (database URL masih hardcoded)
+- ❌ Belum ada error handling yang terstruktur
+- ❌ Belum ada validasi input
+
+Pada bab berikutnya, kita akan membahas Configuration — bagaimana mengelola konfigurasi aplikasi (database URL, port, timeout) tanpa hardcode.
