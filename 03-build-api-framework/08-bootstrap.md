@@ -27,12 +27,12 @@ type App struct {
 func NewApp() (App, error) {
 	cfg, err := config.LoadConfig()
 	if err != nil {
-		return App{}, fmt.Errorf("error: loading config: %s", err)
+		return App{}, fmt.Errorf("error: loading config: %w", err)
 	}
 
 	db, err := database.OpenDB(cfg)
 	if err != nil {
-		return App{}, fmt.Errorf("error: opening database: %s", err)
+		return App{}, fmt.Errorf("error: opening database: %w", err)
 	}
 
 	return App{
@@ -76,7 +76,7 @@ func main() {
 func run() error {
 	app, err := bootstrap.NewApp()
 	if err != nil {
-		return fmt.Errorf("error: initializing app: %s", err)
+		return fmt.Errorf("error: initializing app: %w", err)
 	}
 	defer app.Cleanup()
 
@@ -98,7 +98,7 @@ func run() error {
 	go func() {
 		log.Printf("starting server on %s", server.Addr)
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			serverErrChan <- fmt.Errorf("error: listening and serving: %s", err)
+			serverErrChan <- fmt.Errorf("error: listening and serving: %w", err)
 		}
 		close(serverErrChan)
 	}()
@@ -109,13 +109,13 @@ func run() error {
 	select {
 	case err, ok := <-serverErrChan:
 		if ok && err != nil {
-			log.Fatalf("error: server error: %s", err)
+			return fmt.Errorf("server error: %w", err)
 		}
 	case sig := <-shutdownChan:
 		log.Printf("received shutdown signal: %s", sig)
 
 		// Give more time for graceful shutdown
-		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), app.Config.Server.GracefulShutdownTimeout)
 		defer cancel()
 
 		// Attempt graceful shutdown
@@ -125,7 +125,7 @@ func run() error {
 
 			// Force close if graceful shutdown fails
 			if err := server.Close(); err != nil && err != http.ErrServerClosed {
-				log.Printf("error during force close: %v", err)
+				return fmt.Errorf("error during force close: %w", err)
 			}
 		} else {
 			log.Printf("server gracefully shutdown complete")

@@ -1,14 +1,95 @@
-# Fatal
+# Bab 7: Fatal
 
-* log.Fatal menyebabkan program berhenti setelah mencetak sebuah pesan error
-* log.Fatal memanggil fungsi os.Exit\(1\) untuk memaksa program berhenti
-* Penggunaan log.Fatal untuk menghentikan program sedini mungkin jika ada suatu kesalahan yang menyebabkan suatu kode selanjutnya tidak perlu dieksekusi sama sekali, atau kesalahan yang tidak dapat dipulihkan.
-* log.Fatal biasanya hanya ada di dalam func init\(\) atau func main\(\)
-* Dalam bab ini, kita akan memastikan bahwa log.Fatal hanya dipanggil di fungsi main, dan hanya dipanggil 1x. Hal ini dimaksudkan agar lebih mudah dalam mengelola kode dan memeriksa kesalahan-kesalahan fatal.
-* Pindahkan semua kode main ke `func run() error{}`. 
-* Hapus seluruh call log.Fatal dan diganti dengan return error
-* Panggil fungsi run\(\) di main\(\), jika terjadi error eksekusi log.Fatal
-* Pada file `cmd/cli/main.go` ubah menjadi : 
+Dalam pengembangan aplikasi Go, kita sering melihat log.Fatal digunakan untuk menghentikan program ketika terjadi error. Namun, penggunaan log.Fatal yang tersebar di berbagai tempat dapat membuat kode sulit diuji dan dikelola. Bab ini akan membahas pola penggunaan log.Fatal yang disiplin dan terpusat.
+
+## 7.1 Memahami log.Fatal
+
+Fungsi log.Fatal di Go melakukan dua hal sekaligus:
+1. Mencetak pesan error ke log
+2. Memanggil `os.Exit(1)` untuk menghentikan program secara paksa
+
+```go
+log.Fatal("something went wrong")
+// Sama seperti:
+// log.Print("something went wrong")
+// os.Exit(1)
+```
+
+Karakteristik penting:
+- `defer` tidak akan dieksekusi setelah `log.Fatal`
+- Kode setelah `log.Fatal` tidak akan pernah berjalan
+- Tidak ada kesempatan untuk melakukan cleanup (menutup koneksi database, dll)
+
+## 7.2 Kapan Menggunakan log.Fatal
+
+`log.Fatal` sebaiknya hanya digunakan untuk error yang:
+- Terjadi di awal program (belum ada resource yang perlu dibersihkan)
+- Tidak mungkin dipulihkan (unrecoverable)
+- Membuat state program tidak valid untuk melanjutkan eksekusi
+
+Contoh penggunaan yang tepat:
+- File konfigurasi tidak ditemukan
+- Port server sudah digunakan oleh proses lain
+- Koneksi database gagal sama sekali
+
+Lokasi yang tepat untuk log.Fatal:
+- `func init()` – inisialisasi package-level variable
+- `func main()` – entry point aplikasi
+
+## 7.3 Masalah dengan log.Fatal yang Tersebar
+
+Pada bab-bab sebelumnya, kita memiliki log.Fatal di berbagai tempat:
+
+```go
+// Di dalam server goroutine
+if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+    serverErrChan <- fmt.Errorf("error: listening and serving: %s", err)
+}
+// Lalu di select:
+case err, ok := <-serverErrChan:
+    if ok && err != nil {
+        log.Fatalf("error: server error: %s", err)  // ← log.Fatal di luar main?
+    }
+```
+
+Masalah dengan pendekatan ini:
+- Sulit diuji – `log.Fatal` akan menghentikan test
+- Cleanup tidak berjalan – `defer db.Close()` tidak terpanggil
+- Tidak jelas aliran error – bercampur antara return error dan fatal
+
+## 7.4 Pola: Memisahkan logika dari eksekusi
+
+Solusi yang direkomendasikan adalah memindahkan semua logika ke fungsi run() error, lalu hanya main() yang memanggil log.Fatal jika run() mengembalikan error.
+
+Pola ini memiliki keuntungan:
+- Semua error dikembalikan sebagai nilai biasa (`return error`)
+- `defer` tetap berjalan dengan benar
+- Fungsi `run()` bisa diuji secara unit
+- Hanya satu `log.Fatal` di seluruh program (di `main`)
+
+```text
+┌─────────────────────────────────────────────────────────┐
+│                       func main()                       │
+│                                                         │
+│   if err := run(); err != nil {                         │
+│       log.Fatalf("error: %s", err)  ← SATU-SATUNYA      │
+│   }                                                     │
+└─────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────┐
+│                    func run() error                     │
+│                                                         │
+│   - Load config (return error jika gagal)               │
+│   - Open database (return error jika gagal)             │
+│   - Start server (return error jika gagal)              │
+│   - Wait for signal (return nil jika normal)            │
+└─────────────────────────────────────────────────────────┘
+```
+
+7.5 Implementasi: CLI
+
+Berikut implementasi pola `run() error` pada `cmd/cli/main.go`:
 
 ```go
 package main
@@ -34,12 +115,12 @@ func run() error {
 
 	cfg, err := config.LoadConfig()
 	if err != nil {
-		return fmt.Errorf("error: loading config: %s", err)
+		return fmt.Errorf("error: loading config: %w", err)
 	}
 
 	db, err := database.OpenDB(cfg)
 	if err != nil {
-		return fmt.Errorf("error: opening database: %s", err)
+		return fmt.Errorf("error: opening database: %w", err)
 	}
 	defer db.Close()
 
@@ -47,7 +128,7 @@ func run() error {
 
 	if len(flag.Args()) > 0 && flag.Arg(0) == "migrate" {
 		if err := migration.Migrate(db, "migration"); err != nil {
-			return fmt.Errorf("error: running migrations: %s", err)
+			return fmt.Errorf("error: running migrations: %w", err)
 		}
 		log.Printf("migrations completed successfully")
 	}
@@ -56,7 +137,14 @@ func run() error {
 }
 ```
 
-* File cmd/server/main.go berubah menjadi seperti berikut :
+Perhatikan perubahan:
+- `log.Fatalf` dihapus dari dalam `run()`, diganti dengan `return fmt.Errorf(...)`
+- Hanya `main()` yang memiliki `log.Fatalf`
+- Menggunakan `%w` untuk wrapping error (mempertahankan rantai error)
+
+## 7.6 Implementasi: Server
+
+`cmd/server/main.go` juga mengikuti pola yang sama:
 
 ```go
 package main
@@ -69,7 +157,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 	"workshop/config"
 	"workshop/internal/handler"
 	"workshop/internal/repository"
@@ -88,12 +175,12 @@ func main() {
 func run() error {
 	cfg, err := config.LoadConfig()
 	if err != nil {
-		return fmt.Errorf("error: loading config: %s", err)
+		return fmt.Errorf("error: loading config: %w", err)
 	}
 
 	db, err := database.OpenDB(cfg)
 	if err != nil {
-		return fmt.Errorf("error: opening database: %s", err)
+		return fmt.Errorf("error: opening database: %w", err)
 	}
 	defer db.Close()
 
@@ -115,7 +202,7 @@ func run() error {
 	go func() {
 		log.Printf("starting server on %s", server.Addr)
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			serverErrChan <- fmt.Errorf("error: listening and serving: %s", err)
+			serverErrChan <- fmt.Errorf("error: listening and serving: %w", err)
 		}
 		close(serverErrChan)
 	}()
@@ -126,13 +213,13 @@ func run() error {
 	select {
 	case err, ok := <-serverErrChan:
 		if ok && err != nil {
-			log.Fatalf("error: server error: %s", err)
+			return fmt.Errorf("server error: %w", err)
 		}
 	case sig := <-shutdownChan:
 		log.Printf("received shutdown signal: %s", sig)
 
 		// Give more time for graceful shutdown
-		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), cfg.Server.GracefulShutdownTimeout)
 		defer cancel()
 
 		// Attempt graceful shutdown
@@ -142,7 +229,7 @@ func run() error {
 
 			// Force close if graceful shutdown fails
 			if err := server.Close(); err != nil && err != http.ErrServerClosed {
-				log.Printf("error during force close: %v", err)
+				return fmt.Errorf("error during force close: %w", err)
 			}
 		} else {
 			log.Printf("server gracefully shutdown complete")
@@ -153,3 +240,50 @@ func run() error {
 }
 ```
 
+Perhatikan perubahan penting:
+- `log.Fatalf` di dalam `select` diubah menjadi `return fmt.Errorf(...)`
+- Server error sekarang dikembalikan sebagai nilai error dari `run()`
+- `main()` tetap hanya memiliki SATU `log.Fatalf`
+
+## 7.7 Perbandingan Sebelum dan Sesudah
+
+| Aspek | Sebelum | Sesudah |
+|-------|---------|---------|
+| Jumlah `log.Fatal` | 2+ (tersebar) | 1 (hanya di main()) |
+| Error handling | Campuran (return & fatal) | Konsisten (return error) |
+| Testability | Sulit (fatal hentikan test) | Mudah (`run()` bisa di-test) |
+| Cleanup (`defer`) | Tidak jalan setelah fatal | Jalan selalu |
+| Error wrapping | Tidak konsisten | Menggunakan `%w` |
+
+## 7.8 Error Wrapping dengan `%w`
+
+Perhatikan penggunaan `%w` (bukan `%v`) saat membungkus error:
+
+```go
+// Sebelum (kehilangan informasi error asli)
+return fmt.Errorf("loading config: %s", err)
+
+// Sesudah (mempertahankan rantai error)
+return fmt.Errorf("loading config: %w", err)
+```
+
+Dengan `%w`, kita bisa menggunakan `errors.Is()` dan `errors.As()` nantinya untuk memeriksa tipe error tertentu.
+
+## Ringkasan Bab 7
+
+Di bab ini kita telah belajar:
+1. Apa itu `log.Fatal` – Mencetak log + `os.Exit(1)`
+2. Kapan menggunakannya – Hanya di `init()` atau `main()`, untuk error yang tidak bisa dipulihkan
+3. Pola `run() error` – Memisahkan logika dari eksekusi
+4. Satu `log.Fatal` – Hanya di `main()`, memanggil `run()` dan handle error
+5. Error wrapping – Menggunakan `%w` untuk mempertahankan rantai error
+
+Manfaat yang kita peroleh:
+- ✅ Semua error ditangani secara konsisten (`return error`)
+- ✅ `defer` selalu berjalan (koneksi database tertutup dengan benar)
+- ✅ Fungsi `run()` bisa diuji secara unit
+- ✅ Aliran kode lebih jelas dan mudah dilacak
+
+Yang akan datang:
+- Saat ini `run()` sudah cukup rapi, tapi masih bisa dikelompokkan lagi
+- Bab selanjutnya: Bootstrap – mengorganisir inisialisasi aplikasi (config, database, dependency injection) dalam satu tempat yang terstruktur
