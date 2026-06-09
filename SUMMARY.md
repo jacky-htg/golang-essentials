@@ -19,9 +19,9 @@
     - [Semaphore](02-design-pattern/10-semaphore.md)
     - [Single Flight](02-design-pattern/12-single-flight.md)
 
-## Build Rest API Framework
+## Build API Framework
 
-* [Pengenalan Rest API](03-build-api-framework/00-pengenalan-api.md)
+* [Pengenalan API](03-build-api-framework/00-pengenalan-api.md)
 * [Start up](03-build-api-framework/01-start-up.md)
 * [Shutdown](03-build-api-framework/02-shutdown.md)
 * [Json](03-build-api-framework/03-json.md)
