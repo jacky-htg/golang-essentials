@@ -58,7 +58,7 @@ workshop/
 └── go.sum
 ```
 
-**Catatan tentang folder `internal` dan `pkg`: **
+**Catatan tentang folder `internal` dan `pkg`:**
 - `internal/` – Kode yang hanya boleh digunakan oleh proyek ini. Go compiler akan melarang import dari luar.
 - `pkg/` – Kode yang boleh diimport oleh proyek lain (library publik).
 

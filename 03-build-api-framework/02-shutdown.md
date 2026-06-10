@@ -172,7 +172,7 @@ Go menyediakan dua metode berbeda untuk menutup server. Pilih berdasarkan kebutu
 **Praktik terbaik:** Gunakan Shutdown sebagai cara utama, dan simpan Close sebagai fallback jika graceful gagal (seperti pada contoh kode di atas).
 
 
-Ringkasan Bab 2
+## Ringkasan Bab 2
 
 Di bab ini kita telah belajar:
 1. Mendengarkan sinyal OS (SIGINT, SIGTERM) menggunakan signal.Notify

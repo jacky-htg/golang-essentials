@@ -87,7 +87,7 @@ Pola ini memiliki keuntungan:
 └─────────────────────────────────────────────────────────┘
 ```
 
-7.5 Implementasi: CLI
+## 7.5 Implementasi: CLI
 
 Berikut implementasi pola `run() error` pada `cmd/cli/main.go`:
 

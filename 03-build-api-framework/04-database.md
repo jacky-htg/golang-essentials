@@ -77,12 +77,12 @@ CREATE UNIQUE INDEX idx_users_email_unique
 ON users(email) 
 WHERE deleted_at IS NULL;
 
--- 3. Index untuk pagination/sorting (sering diperlukan)
+-- 3. Index untuk pagination/sorting
 CREATE INDEX idx_users_created_at_active 
 ON users(created_at DESC) 
 WHERE deleted_at IS NULL;
 
--- 4. Partial index untuk filter is_active (kecil dan murah)
+-- 4. Partial index untuk filter is_active
 CREATE INDEX idx_users_is_active 
 ON users(is_active) 
 WHERE deleted_at IS NULL AND is_active = true;
@@ -108,28 +108,6 @@ CREATE TRIGGER trigger_update_users_updated_at
     BEFORE UPDATE ON users
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
-
--- =====================================================
--- KOMENTAR TABEL & KOLOM
--- =====================================================
-
-COMMENT ON TABLE users IS 'Table untuk menyimpan data user dengan soft delete';
-
-COMMENT ON COLUMN users.id IS 'Primary key UUID v7, dibuat di Golang';
-COMMENT ON COLUMN users.name IS 'Nama lengkap user';
-COMMENT ON COLUMN users.username IS 'Username untuk login, harus unik (hanya untuk yang belum terhapus)';
-COMMENT ON COLUMN users.password IS 'Password yang sudah di-hash (bcrypt/argon2)';
-COMMENT ON COLUMN users.email IS 'Email user, harus unik (hanya untuk yang belum terhapus)';
-COMMENT ON COLUMN users.is_active IS 'Status aktif user (true = aktif, false = non-aktif)';
-COMMENT ON COLUMN users.created_at IS 'Waktu pembuatan record (UTC)';
-COMMENT ON COLUMN users.updated_at IS 'Waktu terakhir update record (UTC), otomatis terupdate via trigger';
-COMMENT ON COLUMN users.deleted_at IS 'Waktu soft delete (NULL = tidak terhapus, terisi = sudah dihapus)';
-
-COMMENT ON INDEX idx_users_username_unique IS 'Menjamin username unik untuk data yang belum dihapus, juga mempercepat query login';
-COMMENT ON INDEX idx_users_email_unique IS 'Menjamin email unik untuk data yang belum dihapus, juga mempercepat query by email';
-COMMENT ON INDEX idx_users_created_at_active IS 'Mempercepat query dengan sorting created_at DESC untuk data aktif';
-COMMENT ON INDEX idx_users_is_active IS 'Mempercepat query filter user aktif (partial index kecil)';
-COMMENT ON INDEX idx_users_name_trgm IS 'Mempercepat pencarian name dengan partial match (LIKE) untuk data aktif';
 ```
 
 ### Langkah 3: Integrasi Migration ke main.go
