@@ -1,32 +1,214 @@
-# Context
+# Bab 14: Context
 
-[Context](https://blog.golang.org/context) adalah salah satu konkuresi pattern yang bertujuan untuk mengcancel jika menemui sebuah routine yang waktu eksekusinya lama. Karena operasi yang berjalan lama memang seharusnya diberi deadline. Jalan untuk meng-handle pembatalan adalah dengan melempar context.Context to fungsi yang mengetahui proses untuk mengecek pembatalan terminasi dini.
+Dalam aplikasi web, setiap request memiliki siklus hidupnya sendiri. Jika suatu request memakan waktu terlalu lama (misal karena database lambat atau koneksi jaringan bermasalah), kita perlu kemampuan untuk membatalkan proses tersebut.
 
-* Tambahkan argumen context.Context ke semua fungsi, taruh sebagi argumen pertama, misalnya `List() ([]model.User, error)` diubah menjadi `List(ctx context.Context) ([]model.User, error)`
+Package `context` di Go menyediakan mekanisme standar untuk:
+- Mengirim sinyal pembatalan (cancellation)
+- Memberikan batas waktu (deadline)
+- Menyimpan nilai yang spesifik untuk request (request-scoped values)
 
-* Passing ctx variable ke db.QueryContext, db.QueryRowContext, db.PrepareContext and stmt.ExecContext di repository (file `internal/repository/user_repository.go`)
+## 14.1 Mengapa Context Penting?
 
-* Di setiap fungsi yang sekiranya mengambil waktu lama, seperti heavy io, tambahkan select case untuk membaca apakah context sudah berakhir.
+Bayangkan skenario berikut:
+1. Client melakukan request `GET /users`
+2. Database sedang sibuk, query butuh 30 detik
+3. Client sudah timeout setelah 10 detik dan menutup koneksi
+
+**Tanpa context:** Server tetap menjalankan query selama 30 detik, membuang resource.
+
+**Dengan context:** Begitu koneksi client tertutup, context otomatis dibatalkan, dan query database bisa dihentikan.
+
+## 14.2 Prinsip Dasar Context
 
 ```go
-    select {
-	case <-ctx.Done():
-		return nil, ctx.Err()
-	default:
-	}
+type Context interface {
+    Deadline() (deadline time.Time, ok bool)
+    Done() <-chan struct{}
+    Err() error
+    Value(key any) any
+}
 ```
 
- * Fungsi yang memerlukan select dengan ctx.Done() adalah :
-    1. Operasi I/O yang lama (database query, HTTP request, file I/O)
-    2. Operasi yang memanggil external service (API call, RPC)
-    3. Fungsi dengan goroutine/channel (waiting for result)
-    4. Operasi yang bisa di-cancel/timed out
+| Method | Kegunaan |
+|--------|----------|
+| `Done()` | Mengembalikan channel yang ditutup saat context selesai/batal |
+| `Err()` | Mengembalikan alasan pembatalan (`Canceled` atau `DeadlineExceeded`) |
+| `Deadline()` | Waktu kapan context akan otomatis batal |
+| `Value()` | Mengambil nilai yang tersimpan di context |
 
-* Dalam contoh fitur saat ini, kita hanya membuat simple CRUD yang mana tidak perlu dihandle melalui select dengan ctx.Done(). Potongan kode di atas hanya contoh saja, dan tidak akan diguankan dalam  project ini. Namun sebagai antisipasi jika suatu saat kita menumkan case yang membutuhkan handling Select context, kita oerlu menambahkan bisnis error kita dengan Gateway Timeout, mengingat error context ini paling tepat mengembalikan response 504 gateway Timeout.  
+## 14.3 Aturan Emas Penggunaan Context
 
-* Semua `context.Background()` dalam pemanggilan log, diubah untuk meneruskan context yang dikirim dari argumen, misalnya `u.log.Error(context.Background(), "error: querying users", slog.Any("error", err))` diubah menjadi `u.log.Error(ctx, "error: querying users", slog.Any("error", err))` 
+1. Context adalah parameter pertama setiap fungsi yang melakukan operasi I/O atau berpotensi lama
+2. Jangan menyimpan context di struct – context harus di-passing sebagai parameter
+3. Gunakan `context.Background()` hanya di level tertinggi (main, test, init)
+4. Jangan gunakan nil context – gunakan `context.TODO()` jika belum tahu
+5. Context di HTTP handler berasal dari `r.Context()`
 
-* Ubah file `internal/repository/user_repository.go` untuk mengimpmentasikan context
+
+## 14.4 Implementasi Context di Repository
+
+Semua method database harus menerima `context.Context` dan menggunakan method ...Context-nya:
+
+```go
+// internal/repository/user_repository.go
+func (u *userRepository) List(ctx context.Context) ([]model.User, error) {
+    query := `SELECT ... FROM users WHERE deleted_at IS NULL`
+    
+    // Gunakan QueryContext, bukan Query
+    rows, err := u.db.QueryContext(ctx, query)
+    if err != nil {
+        u.log.Error(ctx, "error: querying users", slog.Any("error", err))
+        return nil, err
+    }
+    defer rows.Close()
+    
+    // ... scan rows ...
+}
+
+func (u *userRepository) FindById(ctx context.Context, id string) (*model.User, error) {
+    // Gunakan QueryRowContext
+    row := u.db.QueryRowContext(ctx, query, id)
+    // ...
+}
+
+func (u *userRepository) Create(ctx context.Context, user *model.User) error {
+    // Gunakan ExecContext
+    _, err := u.db.ExecContext(ctx, query, ...)
+    // ...
+}
+```
+
+Method database yang mendukung context:
+- `QueryContext()`
+- `QueryRowContext()`
+- `ExecContext()`
+- `PrepareContext()`
+
+## 14.5 Propagasi Context ke Semua Layer
+
+### Service Layer
+
+```go
+// internal/service/users.go
+type Users interface {
+    List(ctx context.Context) ([]model.User, *errors.BusinessError)
+    Create(ctx context.Context, user *model.User) *errors.BusinessError
+    FindById(ctx context.Context, id string) (*model.User, *errors.BusinessError)
+    Update(ctx context.Context, user *model.User) *errors.BusinessError
+    Delete(ctx context.Context, id string) *errors.BusinessError
+}
+
+func (u *users) List(ctx context.Context) ([]model.User, *errors.BusinessError) {
+    // Context diteruskan ke repository
+    users, err := u.repo.List(ctx)
+    if err != nil {
+        return nil, errors.InternalServerErrorWrap(err, "error listing users")
+    }
+    return users, nil
+}
+```
+
+### Handler Layer
+
+```go
+// internal/handler/user_handler.go
+func (u *userHandler) List(w http.ResponseWriter, r *http.Request) {
+    // Context diambil dari HTTP request
+    ctx := r.Context()
+    
+    users, err := u.service.List(ctx)
+    if err != nil {
+        u.log.Error(ctx, "error: listing users", slog.Any("error", err))
+        response.SetError(ctx, u.log, w, err)
+        return
+    }
+    
+    // ...
+}
+```
+
+## 14.6 Context di Logger
+
+Logger juga perlu menerima context agar bisa menambahkan informasi request-specific (seperti request_id nantinya):
+
+```go
+// Sebelumnya
+u.log.Error(context.Background(), "error", slog.Any("error", err))
+
+// Sesudah
+u.log.Error(ctx, "error", slog.Any("error", err))
+```
+
+## 14.7 Context Cancellation Pattern (Referensi)
+
+Untuk operasi yang benar-benar berat dan ingin mendukung pembatalan manual, gunakan pattern select dengan `ctx.Done()`:
+
+```go
+func (u *userRepository) HeavyOperation(ctx context.Context) error {
+    select {
+    case <-ctx.Done():
+        // Context dibatalkan (timeout atau manual cancel)
+        return ctx.Err()
+    default:
+        // Lanjutkan eksekusi
+    }
+    
+    // Lakukan operasi berat di sini
+    // ...
+}
+```
+
+Contoh error yang mungkin dihasilkan:
+- `context.Canceled` – ketika `cancel()` dipanggil
+- `context.DeadlineExceeded` – ketika melebihi deadline
+
+## 14.8 Handling Context Error dengan Gateway Timeout
+
+Untuk operasi yang membutuhkan `select` dengan `ctx.Done()`, kita perlu mengembalikan error yang sesuai:
+
+```go
+// pkg/errors/errors.go (tambahan)
+const GatewayTimeoutCode = "E005"
+const GatewayTimeoutMessage = "Gateway Timeout"
+
+func GatewayTimeout(message ...string) *BusinessError {
+    finalMessage := GatewayTimeoutMessage
+    if len(message) > 0 && message[0] != "" {
+        finalMessage = message[0]
+    }
+    return ErrNew(GatewayTimeoutCode, finalMessage, http.StatusGatewayTimeout)
+}
+```
+
+## 14.9 Aliran Context dalam Satu Request
+
+```text
+Client Request
+    │
+    ▼
+┌─────────────────────────────────────────────────────────────┐
+│  Handler: ctx := r.Context()                                │
+│  - Context berasal dari HTTP server                         │
+│  - Otomatis dibatalkan jika client menutup koneksi          │
+└─────────────────────────────────────────────────────────────┘
+    │
+    ▼
+┌─────────────────────────────────────────────────────────────┐
+│  Service: u.repo.List(ctx)                                  │
+│  - Meneruskan context tanpa perubahan                       │
+└─────────────────────────────────────────────────────────────┘
+    │
+    ▼
+┌─────────────────────────────────────────────────────────────┐
+│  Repository: u.db.QueryContext(ctx, query)                  │
+│  - Database driver mendeteksi pembatalan                    │
+│  - Query dihentikan jika context dibatalkan                 │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## 14.10 Kode Lengkap yang Diubah
+
+### `internal/repository/user_repository.go`
 
 ```go
 package repository
@@ -136,7 +318,7 @@ func (u *userRepository) Delete(ctx context.Context, id string) error {
 }
 ```
 
-* Ubah file `internal/service/users.go` untuk mengimplmentasikan contaxt
+### `internal/service/users.go`
 
 ```go
 package service
@@ -237,7 +419,7 @@ func (u *users) Delete(ctx context.Context, id string) *errors.BusinessError {
 }
 ```
 
-* Ubah file `internal/handler/user_handler.go` untuk mengimpmentasikan contaxt
+### `internal/handler/user_handler.go`
 
 ```go
 package handler
@@ -381,7 +563,7 @@ func (u *userHandler) Delete(w http.ResponseWriter, r *http.Request) {
 }
 ```
 
-* Ubah file `pkg/response/response.go` untuk mengimplmentasikan context
+### `pkg/response/response.go`
 
 ```go
 package response
@@ -450,7 +632,7 @@ func SetCreated(ctx context.Context, log logger.Logger, w http.ResponseWriter, d
 }
 ```
 
-* Ubah file `pkg/errors/error.go` untuk menambahkan error Gateway Timeout
+### `pkg/errors/error.go`
 
 ```go
 package errors
@@ -610,3 +792,45 @@ func GetBusinessError(err error) (*BusinessError, bool) {
 }
 ```
 
+## 14.11 Perbandingan Sebelum dan Sesudah
+
+| Aspek | Sebelum | Sesudah |
+|-------|---------|---------|
+| Parameter pertama | Tidak ada context | ctx context.Context |
+| Database query | Query() / Exec() | QueryContext() / ExecContext() |
+| Logger call | context.Background() | Meneruskan ctx |
+| Timeout handling | Tidak ada (infinite) | Bisa dibatalkan via context |
+| Request-scoped values | Tidak ada | Bisa pakai ctx.Value() |
+
+## 14.12 Catatan Penting
+
+Untuk CRUD sederhana seperti di buku ini, kita tidak perlu menambahkan select dengan ctx.Done() secara manual karena:
+- Database driver sudah mendukung context cancellation
+- `QueryContext()` dan `ExecContext()` sudah internal mengecek `ctx.Done()`
+
+Yang perlu diingat untuk masa depan:
+- Operasi I/O yang tidak punya dukungan context bawaan (file I/O, channel, goroutine manual) perlu `select` dengan `ctx.Done()`
+- Jika menemui kasus seperti itu, kembalikan `errors.GatewayTimeout()` agar client mendapat response 504
+
+## Ringkasan Bab 14
+
+Di bab ini kita telah belajar:
+
+| Konsep | Implementasi |
+|--------|--------------|
+| Context parameter | Parameter pertama di semua fungsi I/O |
+| HTTP context | r.Context() sebagai sumber context |
+| Database context | QueryContext(), ExecContext(), QueryRowContext() |
+| Logger context | Semua log menerima context |
+| Context propagation | Handler → Service → Repository |
+
+Manfaat yang kita peroleh:
+- ✅ Request dapat dibatalkan jika client disconnected
+- ✅ Database query berhenti ketika context batal (hemat resource)
+- ✅ Timeout bisa diatur di level HTTP server
+- ✅ Request-scoped values (seperti request_id) bisa di-passing
+- ✅ Siap untuk tracing (OpenTelemetry) yang membutuhkan context
+
+Yang akan datang:
+- Saat ini input user masih diterima mentah-mentah
+- Bab selanjutnya: Validation – memvalidasi input sebelum diproses
