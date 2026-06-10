@@ -1,18 +1,34 @@
-# Error Handler
+# Bab 13: Error Handler
 
-Tidak semua error adalah "internal server error". Kita harus menghandle berbagai jenis error yang muncul. Pada bab ini kita akan menghandle semua jenis error dengan mengikuti standar rsponse seperti dibahas di bab sebelumnya :
+Setelah memiliki standard response, langkah selanjutnya adalah menyempurnakan cara kita menangani error. Tidak semua error adalah "Internal Server Error". Client perlu tahu apakah error terjadi karena:
+- Input tidak valid (Bad Request)
+- Data tidak ditemukan (Not Found)
+- Tidak punya akses (Forbidden)
+- Belum login (Unauthorized)
+
+Bab ini akan membangun sistem error handling yang konsisten dan informatif.
+
+## 13.1 Masalah dengan Error Handling Saat Ini
+
+Saat ini, semua error dari service langsung dibungkus menjadi InternalServerError:
 
 ```go
-{
-    "status": "E000",
-    "message": "error finding user",
-    "data": {}
+// Sebelumnya
+if err != nil {
+    response.SetError(u.log, w, http.StatusInternalServerError, 
+        response.AppBusinessStatusError, err, "Failed to list users")
+    return
 }
 ```
 
-## Custome Error
+Masalah:
+- Error "user not found" juga dianggap Internal Server Error (seharusnya 404)
+- Client tidak bisa membedakan jenis error
+- Tidak ada kode error standar untuk frontend
 
-* Buat custome error yang mengimplementasikan error interface. Custome error yang dibuat mempunyai field :
+## 13.2 Desain Custom Error
+
+Kita akan membuat custom error type yang mengimplementasikan interface error bawaan Go:
 
 ```go
 type BusinessError struct {
@@ -23,20 +39,18 @@ type BusinessError struct {
 }
 ```
 
-* Karena mengimplementasikan interface error, maka custome error yang dibuat harus mengimplementasikan method `func Error() string`
+Contoh error yang akan dihasilkan:
 
-```go
-// Error implements error interface
-func (err *BusinessError) Error() string {
-	if err.Err != nil {
-		return fmt.Sprintf("[%s] %s: %v", err.Code, err.Message, err.Err)
-	}
-	return fmt.Sprintf("[%s] %s", err.Code, err.Message)
-}
-```
+| Skenario | Code | HTTP Status | Message |
+| Input tidak valid | E001 | 400 | "Invalid input" |
+| Data tidak ditemukan | E002 | 404 | "Resource not found" |
+| Akses ditolak | E003 | 403 | "Forbidden" |
+| Belum login | E004 | 401 | "Unauthorized" |
+| Error internal | E000 | 500 | "Internal Server Error" |
 
-* Untuk mempermudah saat pembuatan custome error, kita akan melengkapi fungsi dengan fungsi Error BadRequest, Error NotFound, Error Forbidden dan lain-lain.
-* Berikut file baru `pkg/errors/error.go` yang berisi :
+## 13.3 Implementasi Custom Error
+
+Buat file `pkg/errors/errors.go`:
 
 ```go
 package errors
@@ -47,6 +61,7 @@ import (
 	"net/http"
 )
 
+// Business error codes
 const (
 	InternalServerErrorCode = "E000"
 	InvalidInputCode        = "E001"
@@ -64,6 +79,7 @@ const (
 	UnauthorizedMessage        = "Unauthorized"
 )
 
+// BusinessError adalah custom error untuk business logic
 type BusinessError struct {
 	Err        error
 	Code       string
@@ -98,7 +114,9 @@ func ErrWrap(err error, bErr *BusinessError) {
 	bErr.Err = err
 }
 
-// Quick constructors tanpa wrap
+
+// ============= Constructor tanpa wrapping =============
+
 func InvalidInput(message ...string) *BusinessError {
 	finalMessage := InvalidInputMessage
 	if len(message) > 0 && len(message[0]) > 0 {
@@ -139,7 +157,9 @@ func InternalServerError(message ...string) *BusinessError {
 	return ErrNew(InternalServerErrorCode, finalMessage, http.StatusInternalServerError)
 }
 
-// Wrapped constructors
+
+// ============= Constructor dengan wrapping =============
+
 func InvalidInputWrap(err error, message ...string) *BusinessError {
 	bErr := InvalidInput(message...)
 	ErrWrap(err, bErr)
@@ -170,6 +190,8 @@ func InternalServerErrorWrap(err error, message ...string) *BusinessError {
 	return bErr
 }
 
+// ============= Utility untuk ekstraksi error =============
+
 // GetBusinessError extracts BusinessError from error chain
 func GetBusinessError(err error) (*BusinessError, bool) {
 	var bizErr *BusinessError
@@ -179,9 +201,13 @@ func GetBusinessError(err error) (*BusinessError, bool) {
 	return nil, false
 }
 ```
-* Kita perlu sesuaikan SetError di file `pkg/response/response.go` agar lebih sederhana
+
+## 13.4 Update Response Helper
+
+Sederhanakan SetError untuk menerima *BusinessError langsung:
 
 ```go
+// pkg/response/response.go
 package response
 
 import (
@@ -248,11 +274,14 @@ func SetCreated(log logger.Logger, w http.ResponseWriter, data any) {
 }
 ```
 
-* Kemudian setiap error harus didefinisikan dengan jelas merupakan error custome apa. Untuk setiap error di repository bisa dipertahankan karena error di repository tidak akan ditampilkan sebagai reponse dan hanya disimpan dalam log. Namun error di level service dan handler harus diubah mengikuti bisnis error yang telah ditentukan.
+## 13.5 Update Service Layer dengan BusinessError
 
-* Ubah file `internal/service/users.go` untuk implmentasi bisnis error
+Setiap error di repository bisa dipertahankan karena error di repository tidak akan ditampilkan sebagai reponse dan hanya disimpan dalam log. Namun error di level service dan handler harus diubah mengikuti bisnis error yang telah ditentukan.
+
+Service layer sekarang mengembalikan *errors.BusinessError:
 
 ```go
+// internal/service/users.go
 package service
 
 import (
@@ -352,9 +381,12 @@ func (u *users) Delete(id string) *errors.BusinessError {
 }
 ```
 
-* Ubah file `internal/handler/user_handler.go` untuk mengimplementasikan bisnis error
+## 13.6 Update Handler Layer
+
+Handler sekarang jauh lebih bersih:
 
 ```go
+// internal/handler/user_handler.go
 package handler
 
 import (
@@ -491,3 +523,63 @@ func (u *userHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	response.SetOk(u.log, w, struct{}{})
 }
 ```
+
+## 13.7 Aliran Error dari Repository ke Client
+
+Berikut diagram aliran error:
+
+![](../.gitbook/assets/error-flow-diagram.svg)
+
+## 13.8 Contoh Response Error Setelah Implementasi
+
+### Error Not Found (404)
+
+```json
+{
+    "status": "E002",
+    "message": "user not found",
+    "data": {}
+}
+```
+
+### Error Invalid Input (400)
+
+```json
+{
+    "status": "E001",
+    "message": "Invalid input",
+    "data": {}
+}
+```
+
+### Error Internal Server (500)
+
+```json
+{
+    "status": "E000",
+    "message": "Internal Server Error",
+    "data": {}
+}
+```
+
+## Ringkasan Bab 13
+
+Di bab ini kita telah belajar:
+
+| Konsep | Implementasi |
+| Custom Error Type | BusinessError dengan Code, Message, HTTPStatus |
+| Error Wrapping | Menggunakan `%w` dan `Unwrap()` |
+| Error Constructors | `InvalidInput()`, `NotFound()`, `Forbidden()`, dll |
+| Error Extraction | `GetBusinessError()` dengan `errors.As()` |
+| Handler Simplification | Handler hanya panggil `SetError(w, err)` |
+
+Manfaat yang kita peroleh:
+- ✅ Client bisa membedakan jenis error berdasarkan status code dan kode error
+- ✅ Pesan error konsisten dan user-friendly
+- ✅ Error handling logic terpusat (tidak tersebar)
+- ✅ Mudah menambahkan jenis error baru
+- ✅ Error original tetap terjaga untuk logging (via Unwrap())
+
+Yang akan datang:
+- Saat ini context hanya menggunakan `context.Background()`
+- Bab selanjutnya: Context – memanfaatkan context untuk request-scoped values, timeout, dan cancellation
