@@ -42,6 +42,7 @@ type BusinessError struct {
 Contoh error yang akan dihasilkan:
 
 | Skenario | Code | HTTP Status | Message |
+|----------|------|-------------|---------|
 | Input tidak valid | E001 | 400 | "Invalid input" |
 | Data tidak ditemukan | E002 | 404 | "Resource not found" |
 | Akses ditolak | E003 | 403 | "Forbidden" |
@@ -567,6 +568,7 @@ Berikut diagram aliran error:
 Di bab ini kita telah belajar:
 
 | Konsep | Implementasi |
+|--------|--------------|
 | Custom Error Type | BusinessError dengan Code, Message, HTTPStatus |
 | Error Wrapping | Menggunakan `%w` dan `Unwrap()` |
 | Error Constructors | `InvalidInput()`, `NotFound()`, `Forbidden()`, dll |
