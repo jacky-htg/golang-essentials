@@ -1,112 +1,59 @@
-# CRUD
+# Bab 11: CRUD
 
-Pada bab ini kita akan melengkapi method Users.Create, Users.View, Users.Update dan Users.Delete
+Setelah memiliki routing yang rapi, kini saatnya melengkapi operasi CRUD (Create, Read, Update, Delete) untuk resource User. Bab ini akan membangun kelima endpoint REST API yang umum:
 
-## Create
+| Method | Endpoint | Deskripsi |
+|--------|----------|-----------|
+| GET | /users` | Mendaftar semua user |
+| POST | /users | Membuat user baru |
+| GET | /users/{id} | Membaca detail user |
+| PUT | /users/{id} | Mengupdate user |
+| DELETE | /users/{id} | Menghapus user (soft delete) |
 
-* Saat create ada logic hashing password dan genrate id dengan uuid7.
-* Pertama kita update file `internal/repository/user_repository.go` dan tambahkan method Create.
+## 11.1 Create User
+
+Operasi Create adalah yang paling kompleks karena melibatkan:
+1. Hashing password – menggunakan bcrypt (tidak boleh disimpan plain text)
+2. Generate ID – menggunakan UUID v7 (terurut berdasarkan waktu)
+3. Validasi input – akan dibahas di bab terpisah
+
+### 11.1.1 Repository Layer – Create
+
+Tambahkan method Create ke UserRepository interface dan implementasinya:
 
 ```go
-package repository
-
-import (
-	"context"
-	"database/sql"
-	"log/slog"
-	"workshop/internal/model"
-
-	"github.com/jacky-htg/go-libs/logger"
-)
-
+// internal/repository/user_repository.go
 type UserRepository interface {
-	List() ([]model.User, error)
-	Create(*model.User) error
-}
-
-type userRepository struct {
-	db  *sql.DB
-	log logger.Logger
-}
-
-func NewUserRepository(db *sql.DB, log logger.Logger) UserRepository {
-	return &userRepository{db: db, log: log}
-}
-
-// List : http handler for returning list of users
-func (u *userRepository) List() ([]model.User, error) {
-	query := `SELECT id, name, username, password, email, is_active FROM users`
-	rows, err := u.db.Query(query)
-	if err != nil {
-		u.log.Error(context.Background(), "error: querying users", slog.Any("error", err))
-		return nil, err
-	}
-	defer rows.Close()
-
-	var users []model.User
-	for rows.Next() {
-		var user model.User
-		if err := rows.Scan(&user.ID, &user.Name, &user.Username, &user.Password, &user.Email, &user.IsActive); err != nil {
-
-			u.log.Error(context.Background(), "error: scanning user row", slog.Any("error", err))
-			return nil, err
-		}
-		users = append(users, user)
-	}
-
-	if err := rows.Err(); err != nil {
-		u.log.Error(context.Background(), "error: iterating user rows", slog.Any("error", err))
-		return nil, err
-	}
-
-	return users, nil
+    List() ([]model.User, error)
+    Create(*model.User) error  // ← tambahan
+    // ... method lainnya
 }
 
 func (u *userRepository) Create(user *model.User) error {
-	query := `INSERT INTO users (id, name, username, password, email, is_active) VALUES ($1, $2, $3, $4, $5, $6)`
-	_, err := u.db.Exec(query, user.ID, user.Name, user.Username, user.Password, user.Email, user.IsActive)
-	if err != nil {
-		u.log.Error(context.Background(), "error: inserting user", slog.Any("error", err))
-		return err
-	}
-
-	return nil
+    query := `INSERT INTO users (id, name, username, password, email, is_active) 
+              VALUES ($1, $2, $3, $4, $5, $6)`
+    _, err := u.db.Exec(query, user.ID, user.Name, user.Username, 
+                        user.Password, user.Email, user.IsActive)
+    if err != nil {
+        u.log.Error(context.Background(), "error: inserting user", slog.Any("error", err))
+        return err
+    }
+    return nil
 }
 ```
 
-* Ubah file `internal/service/users.go` untuk menambahkan method Create
+### 11.1.2 Service Layer – Create dengan Business Logic
+
+Service layer bertanggung jawab untuk hashing password dan generate ID:
 
 ```go
+// internal/service/users.go
 package service
 
 import (
-	"context"
-	"log/slog"
-	"workshop/internal/model"
-	"workshop/internal/repository"
-
-	"github.com/jacky-htg/go-libs/logger"
 	"github.com/jacky-htg/go-libs/uuid7"
 	"golang.org/x/crypto/bcrypt"
 )
-
-type Users interface {
-	List() ([]model.User, error)
-	Create(*model.User) error
-}
-
-type users struct {
-	log  logger.Logger
-	repo repository.UserRepository
-}
-
-func NewUsers(repo repository.UserRepository, log logger.Logger) Users {
-	return &users{repo: repo, log: log}
-}
-
-func (u *users) List() ([]model.User, error) {
-	return u.repo.List()
-}
 
 func (u *users) Create(user *model.User) error {
 
@@ -127,9 +74,14 @@ func (u *users) Create(user *model.User) error {
 }
 ```
 
-* Selanjutnya kita buat file `internal/dto/user_request.go` yang berisi:
+**Catatan:** `bcrypt.DefaultCost` adalah nilai 10. Untuk keamanan lebih tinggi, bisa ditingkatkan (dengan konsekuensi performa lebih lambat).
+
+### 11.1.3 DTO – UserRequest (Input)
+
+Buat DTO khusus untuk menerima input dari client. Ini memisahkan struktur request dari model database:
 
 ```go
+// internal/dto/user_request.go
 package dto
 
 import "workshop/internal/model"
@@ -151,66 +103,12 @@ func (u *UserRequest) Transform(user *model.User) {
 }
 ```
 
-* Selanjutnya ubah file `internal/handler/user_handler.go` untuk menmbahkan method Create
+### 11.1.4 Handler Layer – Create
+
+Handler bertugas menerima request, memparsing JSON, memanggil service, dan mengembalikan response:
 
 ```go
-package handler
-
-import (
-	"context"
-	"encoding/json"
-	"log/slog"
-	"net/http"
-	"workshop/internal/dto"
-	"workshop/internal/service"
-
-	"github.com/jacky-htg/go-libs/logger"
-)
-
-type UserHandler interface {
-	List(w http.ResponseWriter, r *http.Request)
-	Create(w http.ResponseWriter, r *http.Request)
-}
-
-type userHandler struct {
-	log     logger.Logger
-	service service.Users
-}
-
-func NewUserHandler(service service.Users, log logger.Logger) UserHanlder {
-	return &userHandler{service: service, log: log}
-}
-
-// List : http handler for returning list of users
-func (u *userHandler) List(w http.ResponseWriter, r *http.Request) {
-	users, err := u.service.List()
-	if err != nil {
-		u.log.Error(context.Background(), "error: listing users", slog.Any("error", err))
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
-
-	var response []dto.UserResponse
-	for _, user := range users {
-		var ur dto.UserResponse
-		ur.Transform(user)
-		response = append(response, ur)
-	}
-
-	data, err := json.Marshal(response)
-	if err != nil {
-		u.log.Error(context.Background(), "error: marshaling users to JSON", slog.Any("error", err))
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	if _, err := w.Write(data); err != nil {
-		u.log.Error(context.Background(), "error: writing response", slog.Any("error", err))
-	}
-}
-
-// Create : http handler for creating a new user
+// internal/handler/user_handler.go
 func (u *userHandler) Create(w http.ResponseWriter, r *http.Request) {
 	var req dto.UserRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -245,125 +143,15 @@ func (u *userHandler) Create(w http.ResponseWriter, r *http.Request) {
 }
 ```
 
-* Selanjutnya tambahkan routing `POST /users` di file `internal/router/api.go`
+**Status code:** 201 Created adalah status yang tepat untuk operasi Create.
+
+
+## 11.2 Read (Get by ID)
+
+### 11.2.1 Repository – FindById
 
 ```go
-package router
-
-import (
-	"database/sql"
-	"net/http"
-	"workshop/config"
-	"workshop/internal/handler"
-	"workshop/internal/repository"
-	"workshop/internal/service"
-
-	"github.com/jacky-htg/go-libs/logger"
-)
-
-func Api(
-	cfg config.Config,
-	db *sql.DB,
-	log logger.Logger,
-) http.Handler {
-	mux := http.NewServeMux()
-
-	userRepository := repository.NewUserRepository(db, log)
-	userService := service.NewUsers(userRepository, log)
-	userHandler := handler.NewUserHandler(userService, log)
-	mux.HandleFunc("GET /users", userHandler.List)
-	mux.HandleFunc("POST /users", userHandler.Create)
-
-	return mux
-}
-```
-
-* Untuk mengetes, api bisa dipanggil melalui postman atau curl
-
-```bash
-curl --location 'localhost:9000/users' \
---header 'Content-Type: application/json' \
---data-raw '{
-    "name": "jet",
-    "username": "jet",
-    "email": "jet@example.com",
-    "password": "1234",
-    "is_active": true
-}'
-```
-
-## Read
-
-* Kita sudah punya endpoint `GET /users` untuk membaca seluruh data users. Sekarang kita akan menambahkan routing `GET /users/{id}`
-* Ubah file `internal/repository/user_repository.go` untuk menambahkan method FindById
-
-```go
-package repository
-
-import (
-	"context"
-	"database/sql"
-	"log/slog"
-	"workshop/internal/model"
-
-	"github.com/jacky-htg/go-libs/logger"
-)
-
-type UserRepository interface {
-	List() ([]model.User, error)
-	Create(*model.User) error
-	FindById(id string) (*model.User, error)
-}
-
-type userRepository struct {
-	db  *sql.DB
-	log logger.Logger
-}
-
-func NewUserRepository(db *sql.DB, log logger.Logger) UserRepository {
-	return &userRepository{db: db, log: log}
-}
-
-// List : http handler for returning list of users
-func (u *userRepository) List() ([]model.User, error) {
-	query := `SELECT id, name, username, password, email, is_active FROM users`
-	rows, err := u.db.Query(query)
-	if err != nil {
-		u.log.Error(context.Background(), "error: querying users", slog.Any("error", err))
-		return nil, err
-	}
-	defer rows.Close()
-
-	var users []model.User
-	for rows.Next() {
-		var user model.User
-		if err := rows.Scan(&user.ID, &user.Name, &user.Username, &user.Password, &user.Email, &user.IsActive); err != nil {
-
-			u.log.Error(context.Background(), "error: scanning user row", slog.Any("error", err))
-			return nil, err
-		}
-		users = append(users, user)
-	}
-
-	if err := rows.Err(); err != nil {
-		u.log.Error(context.Background(), "error: iterating user rows", slog.Any("error", err))
-		return nil, err
-	}
-
-	return users, nil
-}
-
-func (u *userRepository) Create(user *model.User) error {
-	query := `INSERT INTO users (id, name, username, password, email, is_active) VALUES ($1, $2, $3, $4, $5, $6)`
-	_, err := u.db.Exec(query, user.ID, user.Name, user.Username, user.Password, user.Email, user.IsActive)
-	if err != nil {
-		u.log.Error(context.Background(), "error: inserting user", slog.Any("error", err))
-		return err
-	}
-
-	return nil
-}
-
+// internal/repository/user_repository.go
 func (u *userRepository) FindById(id string) (*model.User, error) {
 	query := `SELECT id, name, username, password, email, is_active FROM users WHERE id = $1`
 	row := u.db.QueryRow(query, id)
@@ -381,159 +169,23 @@ func (u *userRepository) FindById(id string) (*model.User, error) {
 }
 ```
 
-* Ubah file `internal/service/users.go` untuk menambahkan method FindById
+### 11.2.2 Service – FindById
 
 ```go
-package service
-
-import (
-	"context"
-	"log/slog"
-	"workshop/internal/model"
-	"workshop/internal/repository"
-
-	"github.com/jacky-htg/go-libs/logger"
-	"github.com/jacky-htg/go-libs/uuid7"
-	"golang.org/x/crypto/bcrypt"
-)
-
-type Users interface {
-	List() ([]model.User, error)
-	Create(*model.User) error
-	FindById(id string) (*model.User, error)
-}
-
-type users struct {
-	log  logger.Logger
-	repo repository.UserRepository
-}
-
-func NewUsers(repo repository.UserRepository, log logger.Logger) Users {
-	return &users{repo: repo, log: log}
-}
-
-func (u *users) List() ([]model.User, error) {
-	return u.repo.List()
-}
-
-func (u *users) Create(user *model.User) error {
-
-	pass, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-	if err != nil {
-		u.log.Error(context.Background(), "error generate password", slog.Any("error", err))
-		return err
-	}
-
-	user.ID = uuid7.New()
-	user.Password = string(pass)
-
-	if err := u.repo.Create(user); err != nil {
-		return err
-	}
-
-	return nil
-}
-
+// internal/service/users.go
 func (u *users) FindById(id string) (*model.User, error) {
 	return u.repo.FindById(id)
 }
 ```
 
+### 11.2.3 Handler – FindById dengan Path Parameter
+
+Go 1.22+ menyediakan `r.PathValue("id")` untuk mengambil parameter dari URL:
+
 * Ubah file `internal/handler/user_handler.go` untuk menambhakan method FindById
 
 ```go
-package handler
-
-import (
-	"context"
-	"encoding/json"
-	"log/slog"
-	"net/http"
-	"workshop/internal/dto"
-	"workshop/internal/service"
-
-	"github.com/jacky-htg/go-libs/logger"
-)
-
-type UserHandler interface {
-	List(w http.ResponseWriter, r *http.Request)
-	Create(w http.ResponseWriter, r *http.Request)
-	FindById(w http.ResponseWriter, r *http.Request)
-}
-
-type userHandler struct {
-	log     logger.Logger
-	service service.Users
-}
-
-func NewUserHandler(service service.Users, log logger.Logger) UserHandler {
-	return &userHandler{service: service, log: log}
-}
-
-// List : http handler for returning list of users
-func (u *userHandler) List(w http.ResponseWriter, r *http.Request) {
-	users, err := u.service.List()
-	if err != nil {
-		u.log.Error(context.Background(), "error: listing users", slog.Any("error", err))
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
-
-	var response []dto.UserResponse
-	for _, user := range users {
-		var ur dto.UserResponse
-		ur.Transform(user)
-		response = append(response, ur)
-	}
-
-	data, err := json.Marshal(response)
-	if err != nil {
-		u.log.Error(context.Background(), "error: marshaling users to JSON", slog.Any("error", err))
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	if _, err := w.Write(data); err != nil {
-		u.log.Error(context.Background(), "error: writing response", slog.Any("error", err))
-	}
-}
-
-// Create : http handler for creating a new user
-func (u *userHandler) Create(w http.ResponseWriter, r *http.Request) {
-	var req dto.UserRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		u.log.Error(context.Background(), "error: decoding user request", slog.Any("error", err))
-		http.Error(w, "Bad Request", http.StatusBadRequest)
-		return
-	}
-
-	user := model.User{}
-	req.Transform(&user)
-	err := u.service.Create(&user)
-	if err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
-
-	var response dto.UserResponse
-	response.Transform(user)
-
-	data, err := json.Marshal(response)
-	if err != nil {
-		u.log.Error(context.Background(), "error: marshaling user to JSON", slog.Any("error", err))
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(http.StatusCreated)
-	if _, err := w.Write(data); err != nil {
-		u.log.Error(context.Background(), "error: writing response", slog.Any("error", err))
-	}
-}
-
-// FindById : http handler for finding a user by ID
+// internal/handler/user_handler.go
 func (u *userHandler) FindById(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 	if id == "" {
@@ -568,128 +220,28 @@ func (u *userHandler) FindById(w http.ResponseWriter, r *http.Request) {
 }
 ```
 
-* Ubah file `internal/router/api.go` untuk menambahkan route `GET /users/{id}`
+## 11.3 Update
+### 11.3.1 DTO – UserUpdateRequest
+
+Untuk update, kita hanya mengizinkan field tertentu yang bisa diubah:
 
 ```go
-package router
+// internal/dto/user_request.go
+type UserUpdateRequest struct {
+	Name     string `json:"name"`
+	IsActive bool   `json:"is_active"`
+}
 
-import (
-	"database/sql"
-	"net/http"
-	"workshop/config"
-	"workshop/internal/handler"
-	"workshop/internal/repository"
-	"workshop/internal/service"
-
-	"github.com/jacky-htg/go-libs/logger"
-)
-
-func Api(
-	cfg config.Config,
-	db *sql.DB,
-	log logger.Logger,
-) http.Handler {
-	mux := http.NewServeMux()
-
-	userRepository := repository.NewUserRepository(db, log)
-	userService := service.NewUsers(userRepository, log)
-	userHandler := handler.NewUserHandler(userService, log)
-	mux.HandleFunc("GET /users", userHandler.List)
-	mux.HandleFunc("POST /users", userHandler.Create)
-	mux.HandleFunc("GET /users/{id}", userHandler.FindById)
-
-	return mux
+func (u *UserUpdateRequest) Transform(user *model.User) {
+	user.Name = u.Name
+	user.IsActive = u.IsActive
 }
 ```
 
-## Update
-
-* Ubah file `internal/repository/user_repository.go` untuk menambahkan method Update
+### 11.3.2 Repository – Update dengan RETURNING
 
 ```go
-package repository
-
-import (
-	"context"
-	"database/sql"
-	"log/slog"
-	"workshop/internal/model"
-
-	"github.com/jacky-htg/go-libs/logger"
-)
-
-type UserRepository interface {
-	List() ([]model.User, error)
-	Create(*model.User) error
-	FindById(id string) (*model.User, error)
-	Update(*model.User) error
-}
-
-type userRepository struct {
-	db  *sql.DB
-	log logger.Logger
-}
-
-func NewUserRepository(db *sql.DB, log logger.Logger) UserRepository {
-	return &userRepository{db: db, log: log}
-}
-
-// List : http handler for returning list of users
-func (u *userRepository) List() ([]model.User, error) {
-	query := `SELECT id, name, username, password, email, is_active FROM users`
-	rows, err := u.db.Query(query)
-	if err != nil {
-		u.log.Error(context.Background(), "error: querying users", slog.Any("error", err))
-		return nil, err
-	}
-	defer rows.Close()
-
-	var users []model.User
-	for rows.Next() {
-		var user model.User
-		if err := rows.Scan(&user.ID, &user.Name, &user.Username, &user.Password, &user.Email, &user.IsActive); err != nil {
-
-			u.log.Error(context.Background(), "error: scanning user row", slog.Any("error", err))
-			return nil, err
-		}
-		users = append(users, user)
-	}
-
-	if err := rows.Err(); err != nil {
-		u.log.Error(context.Background(), "error: iterating user rows", slog.Any("error", err))
-		return nil, err
-	}
-
-	return users, nil
-}
-
-func (u *userRepository) Create(user *model.User) error {
-	query := `INSERT INTO users (id, name, username, password, email, is_active) VALUES ($1, $2, $3, $4, $5, $6)`
-	_, err := u.db.Exec(query, user.ID, user.Name, user.Username, user.Password, user.Email, user.IsActive)
-	if err != nil {
-		u.log.Error(context.Background(), "error: inserting user", slog.Any("error", err))
-		return err
-	}
-
-	return nil
-}
-
-func (u *userRepository) FindById(id string) (*model.User, error) {
-	query := `SELECT id, name, username, password, email, is_active FROM users WHERE id = $1`
-	row := u.db.QueryRow(query, id)
-
-	var user model.User
-	if err := row.Scan(&user.ID, &user.Name, &user.Username, &user.Password, &user.Email, &user.IsActive); err != nil {
-		if err == sql.ErrNoRows {
-			return nil, nil
-		}
-		u.log.Error(context.Background(), "error: scanning user row", slog.Any("error", err))
-		return nil, err
-	}
-
-	return &user, nil
-}
-
+// internal/repository/user_repository.go
 func (u *userRepository) Update(user *model.User) error {
 	query := `UPDATE users SET name = $1, is_active = $2 WHERE id = $3 RETURNING username, email`
 	err := u.db.QueryRow(query, user.Name, user.IsActive, user.ID).Scan(&user.Username, &user.Email)
@@ -702,65 +254,12 @@ func (u *userRepository) Update(user *model.User) error {
 }
 ```
 
-* Ubah file `internal/service/users.go` untuk menambahkan method Update
+**RETURNING clause:** Mengambil field yang tidak diubah (username, email) untuk mempertahankan nilainya di struct user.
+
+### 11.3.3 Service – Update dengan Validasi Keberadaan
 
 ```go
-package service
-
-import (
-	"context"
-	"fmt"
-	"log/slog"
-	"workshop/internal/model"
-	"workshop/internal/repository"
-
-	"github.com/jacky-htg/go-libs/logger"
-	"github.com/jacky-htg/go-libs/uuid7"
-	"golang.org/x/crypto/bcrypt"
-)
-
-type Users interface {
-	List() ([]model.User, error)
-	Create(*model.User) error
-	FindById(id string) (*model.User, error)
-	Update(*model.User) error
-}
-
-type users struct {
-	log  logger.Logger
-	repo repository.UserRepository
-}
-
-func NewUsers(repo repository.UserRepository, log logger.Logger) Users {
-	return &users{repo: repo, log: log}
-}
-
-func (u *users) List() ([]model.User, error) {
-	return u.repo.List()
-}
-
-func (u *users) Create(user *model.User) error {
-
-	pass, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-	if err != nil {
-		u.log.Error(context.Background(), "error generate password", slog.Any("error", err))
-		return err
-	}
-
-	user.ID = uuid7.New()
-	user.Password = string(pass)
-
-	if err := u.repo.Create(user); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (u *users) FindById(id string) (*model.User, error) {
-	return u.repo.FindById(id)
-}
-
+// internal/service/users.go
 func (u *users) Update(user *model.User) error {
 	existUser, err := u.repo.FindById(user.ID)
 	if err != nil {
@@ -773,169 +272,10 @@ func (u *users) Update(user *model.User) error {
 }
 ```
 
-* Ubah file `internal/dto/user_request.go` untuk menambahkan struct UserUpdateRequest
+### 11.3.4 Handler – Update
 
 ```go
-package dto
-
-import "workshop/internal/model"
-
-type UserRequest struct {
-	Name     string `json:"name"`
-	Username string `json:"username"`
-	Password string `json:"password"`
-	Email    string `json:"email"`
-	IsActive bool   `json:"is_active"`
-}
-
-func (u *UserRequest) Transform(user *model.User) {
-	user.Name = u.Name
-	user.Username = u.Username
-	user.Password = u.Password
-	user.Email = u.Email
-	user.IsActive = u.IsActive
-}
-
-type UserUpdateRequest struct {
-	Name     string `json:"name"`
-	IsActive bool   `json:"is_active"`
-}
-
-func (u *UserUpdateRequest) Transform(user *model.User) {
-	user.Name = u.Name
-	user.IsActive = u.IsActive
-}
-```
-
-* Ubah file `internal/handler/user_handler.go` untuk menambahkan method Update
-
-```go
-package handler
-
-import (
-	"context"
-	"encoding/json"
-	"log/slog"
-	"net/http"
-	"workshop/internal/dto"
-	"workshop/internal/model"
-	"workshop/internal/service"
-
-	"github.com/jacky-htg/go-libs/logger"
-)
-
-type UserHandler interface {
-	List(w http.ResponseWriter, r *http.Request)
-	Create(w http.ResponseWriter, r *http.Request)
-	FindById(w http.ResponseWriter, r *http.Request)
-	Update(w http.ResponseWriter, r *http.Request)
-}
-
-type userHandler struct {
-	log     logger.Logger
-	service service.Users
-}
-
-func NewUserHandler(service service.Users, log logger.Logger) UserHandler {
-	return &userHandler{service: service, log: log}
-}
-
-// List : http handler for returning list of users
-func (u *userHandler) List(w http.ResponseWriter, r *http.Request) {
-	users, err := u.service.List()
-	if err != nil {
-		u.log.Error(context.Background(), "error: listing users", slog.Any("error", err))
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
-
-	var response []dto.UserResponse
-	for _, user := range users {
-		var ur dto.UserResponse
-		ur.Transform(user)
-		response = append(response, ur)
-	}
-
-	data, err := json.Marshal(response)
-	if err != nil {
-		u.log.Error(context.Background(), "error: marshaling users to JSON", slog.Any("error", err))
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	if _, err := w.Write(data); err != nil {
-		u.log.Error(context.Background(), "error: writing response", slog.Any("error", err))
-	}
-}
-
-// Create : http handler for creating a new user
-func (u *userHandler) Create(w http.ResponseWriter, r *http.Request) {
-	var req dto.UserRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		u.log.Error(context.Background(), "error: decoding user request", slog.Any("error", err))
-		http.Error(w, "Bad Request", http.StatusBadRequest)
-		return
-	}
-	user := model.User{}
-	req.Transform(&user)
-	err := u.service.Create(&user)
-	if err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
-
-	var response dto.UserResponse
-	response.Transform(user)
-
-	data, err := json.Marshal(response)
-	if err != nil {
-		u.log.Error(context.Background(), "error: marshaling user to JSON", slog.Any("error", err))
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(http.StatusCreated)
-	if _, err := w.Write(data); err != nil {
-		u.log.Error(context.Background(), "error: writing response", slog.Any("error", err))
-	}
-}
-
-// FindById : http handler for finding a user by ID
-func (u *userHandler) FindById(w http.ResponseWriter, r *http.Request) {
-	id := r.PathValue("id")
-	if id == "" {
-		http.Error(w, "Bad Request: missing id parameter", http.StatusBadRequest)
-		return
-	}
-
-	user, err := u.service.FindById(id)
-	if err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
-	if user == nil {
-		http.Error(w, "Not Found", http.StatusNotFound)
-		return
-	}
-
-	var response dto.UserResponse
-	response.Transform(*user)
-
-	data, err := json.Marshal(response)
-	if err != nil {
-		u.log.Error(context.Background(), "error: marshaling user to JSON", slog.Any("error", err))
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	if _, err := w.Write(data); err != nil {
-		u.log.Error(context.Background(), "error: writing response", slog.Any("error", err))
-	}
-}
-
+// internal/handler/user_handler.go
 func (u *userHandler) Update(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 	if id == "" {
@@ -978,144 +318,29 @@ func (u *userHandler) Update(w http.ResponseWriter, r *http.Request) {
 }
 ```
 
-* Ubah file `internal/router/api.go` untuk menambahkan routing `PUT /users/{id}`
+## 11.4 Delete (Soft Delete)
+
+### 11.4.1 Konsep Soft Delete
+
+Soft delete berarti data tidak dihapus secara fisik, hanya ditandai sebagai terhapus dengan mengisi field deleted_at. Keuntungan:
+- Data bisa dipulihkan
+- Audit trail (kapan dihapus)
+- Referensi integritas tetap terjaga
+
+Perubahan pada query `List` dan `FindById` (hanya menampilkan data yang belum terhapus):
 
 ```go
-package router
+// List: tambah WHERE deleted_at IS NULL
+query := `SELECT ... FROM users WHERE deleted_at IS NULL`
 
-import (
-	"database/sql"
-	"net/http"
-	"workshop/config"
-	"workshop/internal/handler"
-	"workshop/internal/repository"
-	"workshop/internal/service"
-
-	"github.com/jacky-htg/go-libs/logger"
-)
-
-func Api(
-	cfg config.Config,
-	db *sql.DB,
-	log logger.Logger,
-) http.Handler {
-	mux := http.NewServeMux()
-
-	userRepository := repository.NewUserRepository(db, log)
-	userService := service.NewUsers(userRepository, log)
-	userHandler := handler.NewUserHandler(userService, log)
-	mux.HandleFunc("GET /users", userHandler.List)
-	mux.HandleFunc("POST /users", userHandler.Create)
-	mux.HandleFunc("GET /users/{id}", userHandler.FindById)
-	mux.HandleFunc("PUT /users/{id}", userHandler.Update)
-
-	return mux
-}
+// FindById: tambah kondisi yang sama
+query := `SELECT ... FROM users WHERE id = $1 AND deleted_at IS NULL`
 ```
 
-## Delete
-
-* Untuk operasi delete kita menggunakan soft delete, dimana data tidak benar-benar dihapus secara fisik, melainkan hanya diupdate deleted_at-nya.
-* Karena soft delete, kita akan merubah repository untuk get list dan Find bya id dengan menambahkan kondisi deleted_at is null
-* Untuk response, jika sukses kita akan mengembalikan http status 204 (no content) tanpa ada body payload.
-* Ubah file `internal/repository/user_repository.go` untuk menambahkan method delete yang mengupdate method List dan FindById
+### 11.4.2 Repository – Delete (Soft)
 
 ```go
-package repository
-
-import (
-	"context"
-	"database/sql"
-	"log/slog"
-	"workshop/internal/model"
-
-	"github.com/jacky-htg/go-libs/logger"
-)
-
-type UserRepository interface {
-	List() ([]model.User, error)
-	Create(*model.User) error
-	FindById(id string) (*model.User, error)
-	Update(*model.User) error
-	Delete(id string) error
-}
-
-type userRepository struct {
-	db  *sql.DB
-	log logger.Logger
-}
-
-func NewUserRepository(db *sql.DB, log logger.Logger) UserRepository {
-	return &userRepository{db: db, log: log}
-}
-
-// List : http handler for returning list of users
-func (u *userRepository) List() ([]model.User, error) {
-	query := `SELECT id, name, username, password, email, is_active FROM users WHERE deleted_at IS NULL`
-	rows, err := u.db.Query(query)
-	if err != nil {
-		u.log.Error(context.Background(), "error: querying users", slog.Any("error", err))
-		return nil, err
-	}
-	defer rows.Close()
-
-	var users []model.User
-	for rows.Next() {
-		var user model.User
-		if err := rows.Scan(&user.ID, &user.Name, &user.Username, &user.Password, &user.Email, &user.IsActive); err != nil {
-
-			u.log.Error(context.Background(), "error: scanning user row", slog.Any("error", err))
-			return nil, err
-		}
-		users = append(users, user)
-	}
-
-	if err := rows.Err(); err != nil {
-		u.log.Error(context.Background(), "error: iterating user rows", slog.Any("error", err))
-		return nil, err
-	}
-
-	return users, nil
-}
-
-func (u *userRepository) Create(user *model.User) error {
-	query := `INSERT INTO users (id, name, username, password, email, is_active) VALUES ($1, $2, $3, $4, $5, $6)`
-	_, err := u.db.Exec(query, user.ID, user.Name, user.Username, user.Password, user.Email, user.IsActive)
-	if err != nil {
-		u.log.Error(context.Background(), "error: inserting user", slog.Any("error", err))
-		return err
-	}
-
-	return nil
-}
-
-func (u *userRepository) FindById(id string) (*model.User, error) {
-	query := `SELECT id, name, username, password, email, is_active FROM users WHERE id = $1 AND deleted_at IS NULL`
-	row := u.db.QueryRow(query, id)
-
-	var user model.User
-	if err := row.Scan(&user.ID, &user.Name, &user.Username, &user.Password, &user.Email, &user.IsActive); err != nil {
-		if err == sql.ErrNoRows {
-			return nil, nil
-		}
-		u.log.Error(context.Background(), "error: scanning user row", slog.Any("error", err))
-		return nil, err
-	}
-
-	return &user, nil
-}
-
-func (u *userRepository) Update(user *model.User) error {
-	query := `UPDATE users SET name = $1, is_active = $2 WHERE id = $3 RETURNING username, email`
-	err := u.db.QueryRow(query, user.Name, user.IsActive, user.ID).Scan(&user.Username, &user.Email)
-	if err != nil {
-		u.log.Error(context.Background(), "error: updating user", slog.Any("error", err))
-		return err
-	}
-
-	return nil
-}
-
+// internal/repository/user_repository.go
 func (u *userRepository) Delete(id string) error {
 	query := `UPDATE users SET deleted_at = timezone('utc', now()) WHERE id = $1`
 	_, err := u.db.Exec(query, id)
@@ -1128,77 +353,10 @@ func (u *userRepository) Delete(id string) error {
 }
 ```
 
-* Ubah file `internal/service/users.go` untuk menambahkan method delete
+### 11.4.3 Service – Delete
 
 ```go
-package service
-
-import (
-	"context"
-	"fmt"
-	"log/slog"
-	"workshop/internal/model"
-	"workshop/internal/repository"
-
-	"github.com/jacky-htg/go-libs/logger"
-	"github.com/jacky-htg/go-libs/uuid7"
-	"golang.org/x/crypto/bcrypt"
-)
-
-type Users interface {
-	List() ([]model.User, error)
-	Create(*model.User) error
-	FindById(id string) (*model.User, error)
-	Update(*model.User) error
-	Delete(id string) error
-}
-
-type users struct {
-	log  logger.Logger
-	repo repository.UserRepository
-}
-
-func NewUsers(repo repository.UserRepository, log logger.Logger) Users {
-	return &users{repo: repo, log: log}
-}
-
-func (u *users) List() ([]model.User, error) {
-	return u.repo.List()
-}
-
-func (u *users) Create(user *model.User) error {
-
-	pass, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-	if err != nil {
-		u.log.Error(context.Background(), "error generate password", slog.Any("error", err))
-		return err
-	}
-
-	user.ID = uuid7.New()
-	user.Password = string(pass)
-
-	if err := u.repo.Create(user); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (u *users) FindById(id string) (*model.User, error) {
-	return u.repo.FindById(id)
-}
-
-func (u *users) Update(user *model.User) error {
-	existUser, err := u.repo.FindById(user.ID)
-	if err != nil {
-		return err
-	}
-	if existUser == nil {
-		return fmt.Errorf("user not found")
-	}
-	return u.repo.Update(user)
-}
-
+// internal/service/users.go
 func (u *users) Delete(id string) error {
 	existUser, err := u.repo.FindById(id)
 	if err != nil {
@@ -1211,177 +369,10 @@ func (u *users) Delete(id string) error {
 }
 ```
 
-* Ubah file `internal/handler/user_handler.go` untuk menambahkan method Delete
+### 11.4.4 Handler – Delete (No Content)
 
 ```go
-package handler
-
-import (
-	"context"
-	"encoding/json"
-	"log/slog"
-	"net/http"
-	"workshop/internal/dto"
-	"workshop/internal/model"
-	"workshop/internal/service"
-
-	"github.com/jacky-htg/go-libs/logger"
-)
-
-type UserHandler interface {
-	List(w http.ResponseWriter, r *http.Request)
-	Create(w http.ResponseWriter, r *http.Request)
-	FindById(w http.ResponseWriter, r *http.Request)
-	Update(w http.ResponseWriter, r *http.Request)
-	Delete(w http.ResponseWriter, r *http.Request)
-}
-
-type userHandler struct {
-	log     logger.Logger
-	service service.Users
-}
-
-func NewUserHandler(service service.Users, log logger.Logger) UserHandler {
-	return &userHandler{service: service, log: log}
-}
-
-// List : http handler for returning list of users
-func (u *userHandler) List(w http.ResponseWriter, r *http.Request) {
-	users, err := u.service.List()
-	if err != nil {
-		u.log.Error(context.Background(), "error: listing users", slog.Any("error", err))
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
-
-	var response []dto.UserResponse
-	for _, user := range users {
-		var ur dto.UserResponse
-		ur.Transform(user)
-		response = append(response, ur)
-	}
-
-	data, err := json.Marshal(response)
-	if err != nil {
-		u.log.Error(context.Background(), "error: marshaling users to JSON", slog.Any("error", err))
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	if _, err := w.Write(data); err != nil {
-		u.log.Error(context.Background(), "error: writing response", slog.Any("error", err))
-	}
-}
-
-// Create : http handler for creating a new user
-func (u *userHandler) Create(w http.ResponseWriter, r *http.Request) {
-	var req dto.UserRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		u.log.Error(context.Background(), "error: decoding user request", slog.Any("error", err))
-		http.Error(w, "Bad Request", http.StatusBadRequest)
-		return
-	}
-	user := model.User{}
-	req.Transform(&user)
-	err := u.service.Create(&user)
-	if err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
-
-	var response dto.UserResponse
-	response.Transform(user)
-
-	data, err := json.Marshal(response)
-	if err != nil {
-		u.log.Error(context.Background(), "error: marshaling user to JSON", slog.Any("error", err))
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(http.StatusCreated)
-	if _, err := w.Write(data); err != nil {
-		u.log.Error(context.Background(), "error: writing response", slog.Any("error", err))
-	}
-}
-
-// FindById : http handler for finding a user by ID
-func (u *userHandler) FindById(w http.ResponseWriter, r *http.Request) {
-	id := r.PathValue("id")
-	if id == "" {
-		http.Error(w, "Bad Request: missing id parameter", http.StatusBadRequest)
-		return
-	}
-
-	user, err := u.service.FindById(id)
-	if err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
-	if user == nil {
-		http.Error(w, "Not Found", http.StatusNotFound)
-		return
-	}
-
-	var response dto.UserResponse
-	response.Transform(*user)
-
-	data, err := json.Marshal(response)
-	if err != nil {
-		u.log.Error(context.Background(), "error: marshaling user to JSON", slog.Any("error", err))
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	if _, err := w.Write(data); err != nil {
-		u.log.Error(context.Background(), "error: writing response", slog.Any("error", err))
-	}
-}
-
-func (u *userHandler) Update(w http.ResponseWriter, r *http.Request) {
-	id := r.PathValue("id")
-	if id == "" {
-		http.Error(w, "Bad Request: missing id parameter", http.StatusBadRequest)
-		return
-	}
-
-	var req dto.UserUpdateRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		u.log.Error(context.Background(), "error: decoding user request", slog.Any("error", err))
-		http.Error(w, "Bad Request", http.StatusBadRequest)
-		return
-	}
-	user := model.User{ID: id}
-	req.Transform(&user)
-	err := u.service.Update(&user)
-	if err != nil {
-		if err.Error() == "user not found" {
-			http.Error(w, "Not Found", http.StatusNotFound)
-		} else {
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		}
-		return
-	}
-
-	var response dto.UserResponse
-	response.Transform(user)
-
-	data, err := json.Marshal(response)
-	if err != nil {
-		u.log.Error(context.Background(), "error: marshaling user to JSON", slog.Any("error", err))
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	if _, err := w.Write(data); err != nil {
-		u.log.Error(context.Background(), "error: writing response", slog.Any("error", err))
-	}
-}
-
+// internal/handler/user_handler.go
 func (u *userHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 	if id == "" {
@@ -1403,7 +394,11 @@ func (u *userHandler) Delete(w http.ResponseWriter, r *http.Request) {
 }
 ```
 
-* Ubah file `internal/router/api.go` untuk menambahkan routing `DELETE /users/{id}`
+**Status code:** 204 No Content adalah response yang tepat untuk DELETE karena tidak ada data yang dikembalikan.
+
+## 11.5 Routing Lengkap
+
+Update `internal/router/api.go` dengan semua endpoint:
 
 ```go
 package router
@@ -1438,3 +433,71 @@ func Api(
 	return mux
 }
 ```
+
+## 11.6 Testing CRUD dengan cURL
+
+### Create User
+
+```bash
+curl -X POST localhost:9000/users \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "John Doe",
+    "username": "johndoe",
+    "email": "john@example.com",
+    "password": "secret123",
+    "is_active": true
+  }'
+  ```
+
+**Response:** 201 Created + data user (tanpa password)
+
+### List Users
+
+```bash
+curl localhost:9000/users
+```
+
+### Get User by ID
+
+```bash
+curl localhost:9000/users/{id}
+```
+
+### Update User
+
+```bash
+curl -X PUT localhost:9000/users/{id} \
+  -H "Content-Type: application/json" \
+  -d '{"name": "John Updated", "is_active": false}'
+```
+
+### Delete User
+
+```bash
+curl -X DELETE localhost:9000/users/{id}
+```
+
+## Ringkasan Bab 11
+
+Di bab ini kita telah melengkapi semua operasi CRUD:
+
+| Operasi | Method | Endpoint | Status Code |
+|---------|--------|----------|-------------|
+| Create | POST | /users | 201 Created |
+| List | GET | /users | 200 OK |
+| Read | GET | /users/{id} | 200 OK / 404 Not Found |
+| Update | PUT | /users/{id} | 200 OK / 404 Not Found |
+| Delete | DELETE | /users/{id} | 204 No Content / 404 Not Found |
+
+Penting yang dipelajari:
+- ✅ Hashing password dengan bcrypt
+- ✅ Generate UUID v7 untuk ID terurut
+- ✅ Soft delete pattern dengan deleted_at
+- ✅ Path parameter dengan r.PathValue()
+- ✅ RETURNING clause untuk mengambil data setelah update
+- ✅ DTO terpisah untuk Create (full) vs Update (partial)
+
+Yang akan datang:
+- Saat ini error handling masih sederhana (http.Error)
+- Bab selanjutnya: Standard Response – membangun format response JSON yang konsisten di seluruh API
