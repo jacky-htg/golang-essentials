@@ -1,64 +1,61 @@
-# Logging
+# Bab 9: Logging
 
-* Ada dua issue log yang kita gunakan saat ini, yaitu menggunakan variabel global dan hanya support teks (bukan log terstruktur).
-* Saat ini log menggunakan sebuah variabel di level paket. Kita akan mengubahnya menjadi variabel lokal yang kita suntikkan ke paket-paket yang membutuhkan dengan pattern dependency injection.
-* log.Logger merupakan log berbasis teks yang ramah untuk dibaca mata manusia, namun tool monioring lebih mudah membaca log terstruktur, misalnya  dalam format json. 
-* Kita akan mengganti penggunaan log.Logger dengan slog.Logger karena mempunyai kelebihan bisa digunakan dalam format teks maupun terstruktur. slog.Logger juga mempunyai fitur yang lebih kaya seperti fitur leveling log (Debug, Info, Warning, Error).
-* Untuk kemudahan penggunaan slog.Logger, saya sudah membuat library untuk wrapping slog.Logger di [slog-library](https://github.com/jacky-htg/go-libs/blob/main/logger/logger.go)  
-* Ubah file `cmd/cli/main.go` menjadi seperti berikut:
+Logging adalah mata dan telinga aplikasi kita di production. Tanpa log yang baik, kita buta terhadap apa yang terjadi: error tidak terdeteksi, performa tidak terukur, dan debugging menjadi mimpi buruk.
 
-```go
-package main
+Di bab ini kita akan meningkatkan sistem logging dari `log.Printf` biasa menjadi structured logging dengan `slog.Logger`.
 
-import (
-	"context"
-	"flag"
-	"fmt"
-	"log/slog"
-	"os"
-	"workshop/config"
-	"workshop/pkg/database"
+## 9.1 Masalah dengan Logging Saat Ini
 
-	"github.com/jacky-htg/go-libs/logger"
-	"github.com/jacky-htg/go-libs/migration"
-	_ "github.com/lib/pq"
-)
+Sejauh ini kita menggunakan `log.Printf` dan `log.Fatalf` dari package log standar. Pendekatan ini memiliki dua kelemahan utama:
 
-func main() {
-	log := logger.InitLogger(nil)
-	if err := run(log); err != nil {
-		log.Debug(context.Background(), "application error", slog.Any("error", err))
-		os.Exit(1)
-	}
-}
+| Masalah | Penjelasan | Dampak |
+|---------|------------|--------|
+| Variabel global | `log` package menggunakan logger global | Sulit di-test, tidak bisa disuntikkan (dependency injection) |
+| Hanya teks | Output berupa string tidak terstruktur | Tool monitoring (Loki, Elasticsearch) sulit memparsing |
 
-func run(log logger.Logger) error {
+Paket log standard bisa secara mudah dibuat menjadi variabel lokal, namun sulit untuk mendukung format struktured log.
 
-	cfg, err := config.LoadConfig()
-	if err != nil {
-		return fmt.Errorf("error: loading config: %s", err)
-	}
+Contoh log teks (sulit diparsing):
 
-	db, err := database.OpenDB(cfg)
-	if err != nil {
-		return fmt.Errorf("error: opening database: %s", err)
-	}
-	defer db.Close()
-
-	flag.Parse()
-
-	if len(flag.Args()) > 0 && flag.Arg(0) == "migrate" {
-		if err := migration.Migrate(db, "migration"); err != nil {
-			return fmt.Errorf("error: running migrations: %s", err)
-		}
-		log.Info(context.Background(), "migrations completed successfully")
-	}
-
-	return nil
-}
+```text
+2024/01/15 10:30:45 error: querying users: connection refused
 ```
 
-* Log akan kita inisiasi di bootstrap, ubah file `internal/bootstrap/app.go` menjadi:
+Contoh log terstruktur (mudah diparsing):
+
+```json
+{"time":"2024-01-15T10:30:45Z","level":"ERROR","msg":"error: querying users","error":"connection refused","component":"repository"}
+```
+
+## 9.2 Mengenal `slog.Logger`
+
+Go 1.21+ memperkenalkan package `log/slog` (Structured Logging) yang menjadi standar bawaan. Keunggulannya:
+- Multiple output formats – Teks (human-friendly) atau JSON (machine-friendly)
+- Log levels – Debug, Info, Warn, Error
+- Structured fields – Menambahkan key-value pairs ke setiap log
+- Context-aware – Bisa mengambil nilai dari context.Context
+
+Kita akan menggunakan library wrapper dari [go-libs/logger](https://github.com/jacky-htg/go-libs/blob/main/logger/logger.go) untuk kemudahan:
+
+```go
+// Inisialisasi logger
+log := logger.InitLogger(nil)
+
+// Log dengan level dan field terstruktur
+log.Info(ctx, "user created", slog.String("user_id", user.ID))
+log.Error(ctx, "database error", slog.Any("error", err))
+```
+
+## 9.3 Dependency Injection untuk Logger
+
+Prinsip penting: Logger juga harus di-inject, bukan global. Mengapa?
+- Testing bisa menggunakan logger mock
+- Setiap komponen bisa memiliki konteks sendiri (misal: menambahkan component field)
+- Tidak ada hidden dependency
+
+### Langkah 1: Update Bootstrap
+
+Tambahkan Log field ke struct App dan inisialisasi di `NewApp()`:
 
 ```go
 package bootstrap
@@ -84,12 +81,12 @@ type App struct {
 func NewApp() (App, error) {
 	cfg, err := config.LoadConfig()
 	if err != nil {
-		return App{}, fmt.Errorf("error: loading config: %s", err)
+		return App{}, fmt.Errorf("error: loading config: %w", err)
 	}
 
 	db, err := database.OpenDB(cfg)
 	if err != nil {
-		return App{}, fmt.Errorf("error: opening database: %s", err)
+		return App{}, fmt.Errorf("error: opening database: %w", err)
 	}
 
 	log := logger.InitLogger(nil)
@@ -107,9 +104,11 @@ func NewApp() (App, error) {
 }
 ```
 
-* Semua pemakaian log akan menggunakan logger.Logger yang telah dibuat.
-* Lewatkan logger.Logger ke service yang membutuhkan dengan pattern dependency injection
-* Ubah file `cmd/server/main.go` menjadi:
+### Langkah 2: Propagasikan Logger ke Semua Layer
+
+Logger harus di-passing dari `main()` → bootstrap → handler → service → repository.
+
+Update `cmd/server/main.go`:
 
 ```go
 package main
@@ -139,7 +138,7 @@ func main() {
 func run() error {
 	app, err := bootstrap.NewApp()
 	if err != nil {
-		return fmt.Errorf("error: initializing app: %s", err)
+		return fmt.Errorf("error: initializing app: %w", err)
 	}
 	defer app.Cleanup()
 
@@ -161,7 +160,7 @@ func run() error {
 	go func() {
 		app.Log.Info(context.Background(), "starting server", slog.String("addr", server.Addr))
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			serverErrChan <- fmt.Errorf("error: listening and serving: %s", err)
+			serverErrChan <- fmt.Errorf("error: listening and serving: %w", err)
 		}
 		close(serverErrChan)
 	}()
@@ -173,12 +172,13 @@ func run() error {
 	case err, ok := <-serverErrChan:
 		if ok && err != nil {
 			app.Log.Error(context.Background(), "error: server error", slog.Any("error", err))
+			return err
 		}
 	case sig := <-shutdownChan:
 		app.Log.Info(context.Background(), "received shutdown signal", slog.String("signal", sig.String()))
 
 		// Give more time for graceful shutdown
-		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), app.Config.Server.GracefulShutdownTimeout)
 		defer cancel()
 
 		// Attempt graceful shutdown
@@ -189,6 +189,7 @@ func run() error {
 			// Force close if graceful shutdown fails
 			if err := server.Close(); err != nil && err != http.ErrServerClosed {
 				app.Log.Error(context.Background(), "error during force close", slog.Any("error", err))
+				return err
 			}
 		} else {
 			app.Log.Info(context.Background(), "server gracefully shutdown complete")
@@ -199,7 +200,94 @@ func run() error {
 }
 ```
 
-* File `internal/handler/user_handler.go` berubah menjadi 
+### Langkah 3: Update Repository Layer
+
+```go
+package repository
+
+import (
+	"context"
+	"database/sql"
+	"log/slog"
+	"workshop/internal/model"
+
+	"github.com/jacky-htg/go-libs/logger"
+)
+
+type UserRepository interface {
+	List() ([]model.User, error)
+}
+
+type userRepository struct {
+	db  *sql.DB
+	log logger.Logger
+}
+
+func NewUserRepository(db *sql.DB, log logger.Logger) UserRepository {
+	return &userRepository{db: db, log: log}
+}
+
+// List : http handler for returning list of users
+func (u *userRepository) List() ([]model.User, error) {
+	query := `SELECT id, name, username, password, email, is_active FROM users`
+	rows, err := u.db.Query(query)
+	if err != nil {
+		u.log.Error(context.Background(), "error: querying users", slog.Any("error", err))
+		return nil, err
+	}
+	defer rows.Close()
+
+	var users []model.User
+	for rows.Next() {
+		var user model.User
+		if err := rows.Scan(&user.ID, &user.Name, &user.Username, &user.Password, &user.Email, &user.IsActive); err != nil {
+
+			u.log.Error(context.Background(), "error: scanning user row", slog.Any("error", err))
+			return nil, err
+		}
+		users = append(users, user)
+	}
+
+	if err := rows.Err(); err != nil {
+		u.log.Error(context.Background(), "error: iterating user rows", slog.Any("error", err))
+		return nil, err
+	}
+
+	return users, nil
+}
+```
+
+### Langkah 4: Update Service Layer
+
+```go
+package service
+
+import (
+	"workshop/internal/model"
+	"workshop/internal/repository"
+
+	"github.com/jacky-htg/go-libs/logger"
+)
+
+type Users interface {
+	List() ([]model.User, error)
+}
+
+type users struct {
+	log  logger.Logger
+	repo repository.UserRepository
+}
+
+func NewUsers(repo repository.UserRepository, log logger.Logger) Users {
+	return &users{repo: repo, log: log}
+}
+
+func (u *users) List() ([]model.User, error) {
+	return u.repo.List()
+}
+```
+
+### Langkah 5: Update Handler Layer
 
 ```go
 package handler
@@ -258,90 +346,114 @@ func (u *userHandler) List(w http.ResponseWriter, r *http.Request) {
 }
 ```
 
-* File `internal/service/users.go` berubah menjadi 
+### Langkah 6: Update CLI Main
 
 ```go
-package service
-
-import (
-	"workshop/internal/model"
-	"workshop/internal/repository"
-
-	"github.com/jacky-htg/go-libs/logger"
-)
-
-type Users interface {
-	List() ([]model.User, error)
-}
-
-type users struct {
-	log  logger.Logger
-	repo repository.UserRepository
-}
-
-func NewUsers(repo repository.UserRepository, log logger.Logger) Users {
-	return &users{repo: repo, log: log}
-}
-
-func (u *users) List() ([]model.User, error) {
-	return u.repo.List()
-}
-```
-
-* File `internal/repository/user_repository.go` berubah menjadi:
-
-```go
-package repository
+package main
 
 import (
 	"context"
-	"database/sql"
+	"flag"
+	"fmt"
 	"log/slog"
-	"workshop/internal/model"
+	"os"
+	"workshop/config"
+	"workshop/pkg/database"
 
 	"github.com/jacky-htg/go-libs/logger"
+	"github.com/jacky-htg/go-libs/migration"
+	_ "github.com/lib/pq"
 )
 
-type UserRepository interface {
-	List() ([]model.User, error)
+func main() {
+	log := logger.InitLogger(nil)
+	if err := run(log); err != nil {
+		log.Debug(context.Background(), "application error", slog.Any("error", err))
+		os.Exit(1)
+	}
 }
 
-type userRepository struct {
-	db  *sql.DB
-	log logger.Logger
-}
+func run(log logger.Logger) error {
 
-func NewUserRepository(db *sql.DB, log logger.Logger) UserRepository {
-	return &userRepository{db: db, log: log}
-}
-
-// List : http handler for returning list of users
-func (u *userRepository) List() ([]model.User, error) {
-	query := `SELECT id, name, username, password, email, is_active FROM users`
-	rows, err := u.db.Query(query)
+	cfg, err := config.LoadConfig()
 	if err != nil {
-		u.log.Error(context.Background(), "error: querying users", slog.Any("error", err))
-		return nil, err
+		return fmt.Errorf("error: loading config: %w", err)
 	}
-	defer rows.Close()
 
-	var users []model.User
-	for rows.Next() {
-		var user model.User
-		if err := rows.Scan(&user.ID, &user.Name, &user.Username, &user.Password, &user.Email, &user.IsActive); err != nil {
+	db, err := database.OpenDB(cfg)
+	if err != nil {
+		return fmt.Errorf("error: opening database: %w", err)
+	}
+	defer db.Close()
 
-			u.log.Error(context.Background(), "error: scanning user row", slog.Any("error", err))
-			return nil, err
+	flag.Parse()
+
+	if len(flag.Args()) > 0 && flag.Arg(0) == "migrate" {
+		if err := migration.Migrate(db, "migration"); err != nil {
+			return fmt.Errorf("error: running migrations: %w", err)
 		}
-		users = append(users, user)
+		log.Info(context.Background(), "migrations completed successfully")
 	}
 
-	if err := rows.Err(); err != nil {
-		u.log.Error(context.Background(), "error: iterating user rows", slog.Any("error", err))
-		return nil, err
-	}
-
-	return users, nil
+	return nil
 }
 ```
 
+### 9.4 Format Output: Teks vs JSON
+
+`logger.InitLogger(nil)` secara default menghasilkan output teks yang mudah dibaca manusia. Untuk production, kita bisa mengubah ke format JSON:
+
+```go
+// Untuk production (JSON)
+log := logger.InitLogger(&logger.Config{
+    Format: "json",
+    Level:  "info",
+})
+
+// Untuk development (teks dengan warna)
+log := logger.InitLogger(&logger.Config{
+    Format: "text",
+    Level:  "debug",
+})
+```
+
+Contoh output JSON:
+
+```json
+{"time":"2024-01-15T10:30:45Z","level":"INFO","msg":"starting server","addr":"0.0.0.0:9000"}
+{"time":"2024-01-15T10:30:46Z","level":"DEBUG","msg":"listing users"}
+{"time":"2024-01-15T10:30:46Z","level":"INFO","msg":"users listed successfully","count":2}
+```
+
+## 9.5 Hierarki Log Levels
+
+`slog.Logger` mendukung level logging yang bisa dikonfigurasi:
+
+| Level | Penggunaan |
+|-------|------------|
+| Debug | Informasi detail untuk debugging (hanya di development) |
+| Info | Informasi normal (server started, user created, dll) |
+| Warn | Kejadian tidak normal tapi tidak fatal (retry, timeout) |
+| Error | Error yang perlu diinvestigasi |
+
+### Ringkasan Bab 9
+
+Di bab ini kita telah belajar:
+
+| Konsep | Implementasi |
+|--------|--------------|
+| Structured logging | Menggunakan `slog.Logger` dengan format JSON |
+| Dependency injection | Logger di-passing dari main() ke semua layer |
+| Log levels | Debug, Info, Warn, Error |
+| Context fields | Menambahkan field terstruktur ke setiap log |
+| Bootstrap integration | Logger menjadi bagian dari struct App |
+
+Manfaat yang kita peroleh:
+- ✅ Log terstruktur (JSON) → mudah diintegrasikan dengan tool monitoring
+- ✅ Logger di-inject → mudah di-test dan diganti implementasinya
+- ✅ Log levels → bisa filter sesuai kebutuhan (debug di dev, info/warn di prod)
+- ✅ Konteks yang kaya → setiap log bisa membawa field tambahan (user_id, request_id, dll)
+
+Yang akan datang:
+- Saat ini semua log menggunakan context.Background()
+- Bab selanjutnya: Routing – membangun router HTTP sendiri untuk mendukung multiple endpoints dengan method (GET, POST, PUT, DELETE) dan path parameters
