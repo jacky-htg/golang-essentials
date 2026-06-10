@@ -1,11 +1,60 @@
-# Standard Response
+# Bab 12: Standard Response
 
-* Saat ini aplikasi kita akan mengembalikan response berupa text ketika terjadi error, dan mengembalikan json ketika sukses.
-* Sering ada permintaan untuk membuat standard response yang sama ketika terjadi error maupun sukses.
-* Saat ini set/write response adalah suatu kode yang ditulis berulang-ulang karena sering dipanggil. Untuk efisiensi dan memudahkan pemeliharaan kode, serta memenuhi best practice standrd response kita akan membuat helper standard response.
-* response akan distandrdkan dengan mengembalikan json berisi status (kode status versi busnis), message dan data.
-* Buat file `pkg/respnse/response.go` yang berisi :
+Saat ini, API kita mengembalikan response yang tidak konsisten:
+- Saat sukses → mengembalikan JSON data mentah (array user atau object user)
+- Saat error → mengembalikan teks biasa melalui http.Error()
 
+Hal ini menyulitkan client (mobile, frontend) dalam memproses response karena struktur yang selalu berubah. Bab ini akan membangun standard response yang seragam untuk semua endpoint.
+
+## 12.1 Masalah dengan Response Tidak Terstandar
+
+Response sukses saat ini:
+
+```json
+// GET /users
+[
+    {"id": "123", "name": "John", ...}
+]
+
+// POST /users
+{"id": "456", "name": "Jane", ...}
+```
+
+Response error saat ini:
+
+```text
+Internal Server Error
+```
+
+| Masalah | Dampak |
+|---------|--------|
+| Tipe data berbeda | Sukses → array/object, Error → string |
+| Tidak ada status business logic | Client tidak tahu apakah operasi benar-benar sukses |
+| Tidak ada pesan yang konsisten | Frontend sulit menampilkan error message |
+
+## 12.2 Desain Standard Response
+
+Kita akan mendefinisikan format response JSON yang seragam:
+
+```json
+{
+    "status": "B1",
+    "message": "Success",
+    "data": { ... }
+}
+```
+
+| Field | Deskripsi | Contoh Nilai |
+|-------|-----------|--------------|
+| status | Status business logic (bukan HTTP status) | "B1" (sukses), "B0" (error) |
+| message | Pesan yang ramah untuk user | "User created successfully" |
+| data | Payload data (bisa object, array, atau null) | {"id": "123", ...} atau [] atau {} |
+
+**Mengapa status business logic?** HTTP status code (200, 400, 500) untuk infrastruktur. Status "B1"/"B0" untuk logika bisnis. Contoh: login gagal karena password salah → HTTP 200 (request berhasil diproses) tapi status "B0" (business error).
+
+## 12.3 Implementasi Response Helper
+
+Buat file `pkg/response/response.go`:
 ```go
 package response
 
@@ -71,9 +120,66 @@ func SetCreated(log logger.Logger, w http.ResponseWriter, data any) {
 }
 ```
 
-* Update file `internal/handler/user_handler.go` menjadi :
+## 12.4 Refactor Handler Menggunakan Response Helper
+
+Sekarang semua handler diubah menggunakan helper di atas. Kode menjadi lebih bersih dan konsisten.
+
+### UserHandler.List
+
+Sebelum:
 
 ```go
+data, err := json.Marshal(response)
+w.Header().Set("Content-Type", "application/json")
+w.Write(data)
+```
+
+Sesudah:
+
+```go
+response.SetOk(u.log, w, resp)
+```
+
+### UserHandler.Create
+
+Sebelum:
+
+```go
+w.WriteHeader(http.StatusCreated)
+w.Write(data)
+```
+
+Sesudah
+
+```go
+response.SetCreated(u.log, w, resp)
+```
+
+### UserHandler.FindById
+
+Sebelum:
+
+```go
+if user == nil {
+    http.Error(w, "Not Found", http.StatusNotFound)
+    return
+}
+```
+
+Sesudah :
+
+```go
+if user == nil {
+    response.SetError(u.log, w, http.StatusNotFound, response.AppBusinessStatusError, 
+                      nil, "User not found")
+    return
+}
+```
+
+## 12.5 Kode Lengkap Handler yang Direfactor
+
+```go
+// internal/handler/user_handler.go
 package handler
 
 import (
@@ -221,3 +327,96 @@ func (u *userHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	response.SetOk(u.log, w, struct{}{})
 }
 ```
+
+## 12.6 Contoh Response Setelah Standardisasi
+
+### Response Sukses (GET /users)
+
+```json
+{
+    "status": "B1",
+    "message": "Success",
+    "data": [
+        {"id": "123", "name": "John Doe", ...},
+        {"id": "456", "name": "Jane Smith", ...}
+    ]
+}
+```
+
+### Response Sukses (GET /users/{id})
+
+```json
+{
+    "status": "B1",
+    "message": "Success",
+    "data": {"id": "123", "name": "John Doe", ...}
+}
+```
+
+### Response Sukses (POST /users)
+
+```json
+{
+    "status": "B1",
+    "message": "Created",
+    "data": {"id": "789", "name": "New User", ...}
+}
+```
+
+### Response Sukses (DELETE /users/{id})
+
+```json
+{
+    "status": "B1",
+    "message": "Success",
+    "data": {}
+}
+```
+
+### Response Error (User Not Found)
+
+```json
+{
+    "status": "B0",
+    "message": "User not found",
+    "data": {}
+}
+```
+
+### Response Error (Invalid Request)
+
+```json
+{
+    "status": "B0",
+    "message": "Invalid request payload",
+    "data": {}
+}
+```
+
+## 12.7 Manfaat yang Diperoleh
+
+| Sebelum | Sesudah |
+|---------|---------|
+| Response tidak konsisten | Semua response memiliki format seragam |
+| Error berupa teks biasa | Error juga dalam format JSON |
+| Kode repetitive (Marshal + Header + Write) | Satu baris SetOk() atau SetError() |
+| Status business logic tidak ada | Status B1/B0 untuk logika bisnis |
+| Perubahan format susah | Cukup ubah satu fungsi SetResponse() |
+
+## Ringkasan Bab 12 
+
+Di bab ini kita telah belajar:
+1. Standard Response Pattern – Format JSON seragam untuk semua endpoint
+2. Business Status Code – B1 (sukses) dan B0 (error)
+3. Helper Functions – SetOk(), SetCreated(), SetError() untuk konsistensi
+4. Refactoring Handler – Kode menjadi lebih bersih dan mudah dipelihara
+
+Manfaat yang kita peroleh:
+- ✅ Frontend bisa memproses semua response dengan cara yang sama
+- ✅ Error message informatif dan terstruktur
+- ✅ Mudah menambahkan field baru ke semua response (misal: request_id)
+- ✅ Mengurangi duplikasi kode (DRY principle)
+
+Yang akan datang:
+- Saat ini error handling masih sederhana (semua error balik ke client dengan status B0)
+- Bab selanjutnya: Error Handler – membangun sistem error handling yang lebih canggih dengan custom error types dan proper error wrapping
