@@ -61,9 +61,9 @@ Step by step membuat golang API framework, baik rest api maunpun grpc, baik mono
 * [Context](03-build-api-framework/14-context.md)
 * [Validation](03-build-api-framework/15-validation.md)
 * [Middleware](03-build-api-framework/16-middleware.md)
+* [Token](03-build-api-framework/17-token.md)
 * [Unit testing](03-build-api-framework/unit-testing.md)
 * [API testing](03-build-api-framework/api-testing.md)
-* [Token](03-build-api-framework/token.md)
 * [RBAC](03-build-api-framework/rbac.md)
 
 ## Build gRPC API Framework

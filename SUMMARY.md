@@ -38,7 +38,7 @@
 * [Context](03-build-api-framework/14-context.md)
 * [Validation](03-build-api-framework/15-validation.md)
 * [Middleware](03-build-api-framework/16-middleware.md)
-* [Token](03-build-api-framework/token.md)
+* [Token](03-build-api-framework/17-token.md)
 * [Role Based Access Controller](03-build-api-framework/rbac.md)
 * [Unit Testing](03-build-api-framework/unit-testing.md)
 * [API Testing](03-build-api-framework/api-testing.md)
