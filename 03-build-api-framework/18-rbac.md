@@ -2644,5 +2644,5 @@ Manfaat yang kita peroleh:
 - ✅ Login response mencakup user info dan permissions
 
 Yang akan datang:
-- Saat ini list users dan roles belum mendukung pagination
+- Saat ini list users belum mendukung pagination
 - Bab selanjutnya: Pagination – membatasi jumlah data per response
