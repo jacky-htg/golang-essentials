@@ -2196,8 +2196,6 @@ func (u *userHandler) Delete(w http.ResponseWriter, r *http.Request) {
 
 Karena kita perlu mendaftarkan semua route ke database untuk keperluan otorisasi, buat struct untuk mendefinisikan route:
 
-* untuk routing, saya ada perubahan karena kebutuhan scan access. Problem utama adalah net/http tidak menyimpan path pattern, pattern yang sudha dibuat di routing hanya digunakan untuk match routing kemduian dibuang. Padahal di chi / httprouter informasi tentang pattern ini dikeep. problem kedua, sistem otorisasi saya menggunakn tree, dari root -> group -> path, karena kebutuhan ini saya perlu memnyimpan informasi grouping path. karena itulah saya membuat helper RouteDefinition, dan merombak routing menggunakan RouteDefinision.
-
 ```go
 // pkg/app/route_definition.go
 package app
