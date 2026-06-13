@@ -176,7 +176,7 @@ Middleware `Auth` diberi kemampuan untuk melakukan otorisasi berdasarkan role-ro
 
 ### ERD
 
-![](../.gitbook/assets/erd.jpg)
+![](../.gitbook/assets/erd.svg)
 
 ### Migration Tabel
 
