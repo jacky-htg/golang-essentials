@@ -346,7 +346,7 @@ type User struct {
 }
 ```
 
-## 18.5 Implementasi DTO (Reques/Responnse)
+## 18.5 Implementasi DTO (Reques/Response)
 
 ### Login Response (diperluas)
 
