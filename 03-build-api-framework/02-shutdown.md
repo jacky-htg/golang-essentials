@@ -10,6 +10,11 @@ Dalam lingkungan produksi, server tidak boleh berhenti secara tiba-tiba. Ada per
 
 Go menyediakan mekanisme graceful shutdown untuk mengatasi masalah ini.
 
+> **📂 Kode Lengkap Bab Ini:**  
+> Seluruh kode yang dibahas di bab ini tersedia di GitHub:
+>
+> 🔗 [github.com/jacky-htg/workshop/tree/main/02-shutdown](https://github.com/jacky-htg/workshop/tree/main/02-shutdown)
+
 ## 2.1 Mendengarkan Sinyal dari OS
 
 Langkah pertama adalah mengetahui kapan sistem operasi ingin mematikan aplikasi kita. Di Linux/Unix, proses menerima sinyal seperti:

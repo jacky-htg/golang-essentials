@@ -4,6 +4,11 @@ Logging adalah mata dan telinga aplikasi kita di production. Tanpa log yang baik
 
 Di bab ini kita akan meningkatkan sistem logging dari `log.Printf` biasa menjadi structured logging dengan `slog.Logger`.
 
+> **📂 Kode Lengkap Bab Ini:**  
+> Seluruh kode yang dibahas di bab ini tersedia di GitHub:
+>
+> 🔗 [github.com/jacky-htg/workshop/tree/main/09-logging](https://github.com/jacky-htg/workshop/tree/main/09-logging)
+
 ## 9.1 Masalah dengan Logging Saat Ini
 
 Sejauh ini kita menggunakan `log.Printf` dan `log.Fatalf` dari package log standar. Pendekatan ini memiliki dua kelemahan utama:

@@ -4,6 +4,11 @@ Seiring berkembangnya framework, kita akan menambahkan berbagai komponen: Redis,
 
 **Bootstrap** adalah pola untuk memusatkan semua inisialisasi aplikasi dalam satu tempat, sehingga `run()` hanya fokus pada **orchestration** (mengatur alur) bukan **construction** (membangun komponen).
 
+> **📂 Kode Lengkap Bab Ini:**  
+> Seluruh kode yang dibahas di bab ini tersedia di GitHub:
+>
+> 🔗 [github.com/jacky-htg/workshop/tree/main/08-bootstrap](https://github.com/jacky-htg/workshop/tree/main/08-bootstrap)
+
 ## 8.1 Masalah dengan Inisialisasi Langsung
 
 Saat ini, `run()` melakukan dua tanggung jawab sekaligus:

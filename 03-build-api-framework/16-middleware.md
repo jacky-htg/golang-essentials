@@ -4,6 +4,11 @@ Dalam pengembangan web, ada kebutuhan lintas endpoint yang harus dipenuhi: loggi
 
 Middleware adalah solusi elegant: fungsi yang membungkus handler dan dieksekusi sebelum handler utama dipanggil.
 
+> **📂 Kode Lengkap Bab Ini:**  
+> Seluruh kode yang dibahas di bab ini tersedia di GitHub:
+>
+> 🔗 [github.com/jacky-htg/workshop/tree/main/16-middleware](https://github.com/jacky-htg/workshop/tree/main/16-middleware)
+
 ## 16.1 Konsep Middleware
 
 Secara matematis, middleware adalah fungsi dengan tipe:

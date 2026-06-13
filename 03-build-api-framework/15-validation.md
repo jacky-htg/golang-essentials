@@ -8,6 +8,11 @@ Validasi terdiri dari dua jenis:
 
 Bab ini akan fokus pada input validation menggunakan library `go-playground/validator/v10`.
 
+> **📂 Kode Lengkap Bab Ini:**  
+> Seluruh kode yang dibahas di bab ini tersedia di GitHub:
+>
+> 🔗 [github.com/jacky-htg/workshop/tree/main/15-validation](https://github.com/jacky-htg/workshop/tree/main/15-validation)
+
 ## 15.1 Jenis Validasi yang Dibutuhkan
 
 Untuk endpoint User, kita memiliki aturan validasi berikut:

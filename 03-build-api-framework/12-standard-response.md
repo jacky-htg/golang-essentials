@@ -6,6 +6,11 @@ Saat ini, API kita mengembalikan response yang tidak konsisten:
 
 Hal ini menyulitkan client (mobile, frontend) dalam memproses response karena struktur yang selalu berubah. Bab ini akan membangun standard response yang seragam untuk semua endpoint.
 
+> **📂 Kode Lengkap Bab Ini:**  
+> Seluruh kode yang dibahas di bab ini tersedia di GitHub:
+>
+> 🔗 [github.com/jacky-htg/workshop/tree/main/12-standard-response](https://github.com/jacky-htg/workshop/tree/main/12-standard-response)
+
 ## 12.1 Masalah dengan Response Tidak Terstandar
 
 Response sukses saat ini:

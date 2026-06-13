@@ -4,6 +4,11 @@ Setelah server bisa menyala dan mati dengan aman, sekarang saatnya membangun isi
 
 Di bab ini kita akan mengubah handler HelloWorld menjadi endpoint API yang sesungguhnya: **mengembalikan daftar pengguna dalam format JSON**.
 
+> **📂 Kode Lengkap Bab Ini:**  
+> Seluruh kode yang dibahas di bab ini tersedia di GitHub:
+>
+> 🔗 [github.com/jacky-htg/workshop/tree/main/03-json](https://github.com/jacky-htg/workshop/tree/main/03-json)
+
 ## 3.1 Menyiapkan Proyek
 
 Sebelum mulai, kita buat proyek Go dengan module system:

@@ -8,6 +8,11 @@ Selama ini kita menulis konfigurasi seperti port server dan koneksi database sec
 
 Solusinya adalah membaca konfigurasi dari environment variable dan file `.env`.
 
+> **📂 Kode Lengkap Bab Ini:**  
+> Seluruh kode yang dibahas di bab ini tersedia di GitHub:
+>
+> 🔗 [github.com/jacky-htg/workshop/tree/main/06-configuration](https://github.com/jacky-htg/workshop/tree/main/06-configuration)
+
 ## 6.1 Strategi Konfigurasi
 
 | Lingkungan | Sumber Konfigurasi | Contoh |

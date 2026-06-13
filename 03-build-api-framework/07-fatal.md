@@ -2,6 +2,11 @@
 
 Dalam pengembangan aplikasi Go, kita sering melihat log.Fatal digunakan untuk menghentikan program ketika terjadi error. Namun, penggunaan log.Fatal yang tersebar di berbagai tempat dapat membuat kode sulit diuji dan dikelola. Bab ini akan membahas pola penggunaan log.Fatal yang disiplin dan terpusat.
 
+> **📂 Kode Lengkap Bab Ini:**  
+> Seluruh kode yang dibahas di bab ini tersedia di GitHub:
+>
+> 🔗 [github.com/jacky-htg/workshop/tree/main/07-fatal](https://github.com/jacky-htg/workshop/tree/main/07-fatal)
+
 ## 7.1 Memahami log.Fatal
 
 Fungsi log.Fatal di Go melakukan dua hal sekaligus:

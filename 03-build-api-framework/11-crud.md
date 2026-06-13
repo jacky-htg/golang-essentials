@@ -10,6 +10,11 @@ Setelah memiliki routing yang rapi, kini saatnya melengkapi operasi CRUD (Create
 | PUT | /users/{id} | Mengupdate user |
 | DELETE | /users/{id} | Menghapus user (soft delete) |
 
+> **📂 Kode Lengkap Bab Ini:**  
+> Seluruh kode yang dibahas di bab ini tersedia di GitHub:
+>
+> 🔗 [github.com/jacky-htg/workshop/tree/main/11-crud](https://github.com/jacky-htg/workshop/tree/main/11-crud)
+
 ## 11.1 Create User
 
 Operasi Create adalah yang paling kompleks karena melibatkan:

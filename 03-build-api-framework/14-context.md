@@ -7,6 +7,11 @@ Package `context` di Go menyediakan mekanisme standar untuk:
 - Memberikan batas waktu (deadline)
 - Menyimpan nilai yang spesifik untuk request (request-scoped values)
 
+> **📂 Kode Lengkap Bab Ini:**  
+> Seluruh kode yang dibahas di bab ini tersedia di GitHub:
+>
+> 🔗 [github.com/jacky-htg/workshop/tree/main/14-context](https://github.com/jacky-htg/workshop/tree/main/14-context)
+
 ## 14.1 Mengapa Context Penting?
 
 Bayangkan skenario berikut:

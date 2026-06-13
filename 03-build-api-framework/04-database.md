@@ -7,6 +7,11 @@ Pembahasan dibagi menjadi tiga bagian:
 2. Seed – Mengisi data awal
 3. ListUsers – Mengambil data dari database (bukan hardcode)
 
+> **📂 Kode Lengkap Bab Ini:**  
+> Seluruh kode yang dibahas di bab ini tersedia di GitHub:
+>
+> 🔗 [github.com/jacky-htg/workshop/tree/main/04-database](https://github.com/jacky-htg/workshop/tree/main/04-database)
+
 ## 4.1 Menyiapkan Database
 
 Pertama, buat database di PostgreSQL:

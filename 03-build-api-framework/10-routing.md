@@ -6,6 +6,11 @@ Bab ini akan membangun dua jenis router:
 1. CLI Router – untuk perintah command line (migrate, seed, scheduler dll)
 2. HTTP Router – untuk REST API endpoints
 
+> **📂 Kode Lengkap Bab Ini:**  
+> Seluruh kode yang dibahas di bab ini tersedia di GitHub:
+>
+> 🔗 [github.com/jacky-htg/workshop/tree/main/10-routing](https://github.com/jacky-htg/workshop/tree/main/10-routing)
+
 ## 10.1 Routing di Go 1.22+
 
 Sejak Go 1.22, package `net/http` memiliki kemampuan routing yang jauh lebih baik. Kita tidak perlu lagi library eksternal seperti `gorilla/mux` atau `chi` untuk kebutuhan dasar.

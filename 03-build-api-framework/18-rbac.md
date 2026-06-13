@@ -2,6 +2,11 @@
 
 Setelah memiliki autentikasi (siapa pengguna), langkah selanjutnya adalah otorisasi (apa yang boleh dilakukan pengguna). RBAC adalah pendekatan standar untuk mengelola hak akses berdasarkan peran (role) yang dimiliki pengguna.
 
+> **📂 Kode Lengkap Bab Ini:**  
+> Seluruh kode yang dibahas di bab ini tersedia di GitHub:
+>
+> 🔗 [github.com/jacky-htg/workshop/tree/main/18-rbac](https://github.com/jacky-htg/workshop/tree/main/18-rbac)
+
 ## 18.1 Konsep RBAC
 
 ```text

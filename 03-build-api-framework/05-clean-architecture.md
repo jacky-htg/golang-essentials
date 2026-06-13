@@ -4,6 +4,11 @@ Setelah kita memiliki API yang terhubung ke database, sekarang saatnya memikirka
 
 Clean Architecture (diperkenalkan oleh Robert C. Martin) adalah pendekatan yang memisahkan kode ke dalam lapisan-lapisan (layer) berdasarkan tanggung jawabnya.
 
+> **📂 Kode Lengkap Bab Ini:**  
+> Seluruh kode yang dibahas di bab ini tersedia di GitHub:
+>
+> 🔗 [github.com/jacky-htg/workshop/tree/main/05-clean-architecture](https://github.com/jacky-htg/workshop/tree/main/05-clean-architecture)
+
 ## 5.1 Tiga Layer Utama
 
 ![](../.gitbook/assets/clean-architecture.jpg)

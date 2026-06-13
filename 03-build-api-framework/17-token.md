@@ -2,6 +2,11 @@
 
 Setelah memiliki middleware auth sederhana (hanya cek panjang token), sekarang saatnya mengimplementasikan autentikasi yang sesungguhnya menggunakan JWT (JSON Web Token).
 
+> **📂 Kode Lengkap Bab Ini:**  
+> Seluruh kode yang dibahas di bab ini tersedia di GitHub:
+>
+> 🔗 [github.com/jacky-htg/workshop/tree/main/17-token](https://github.com/jacky-htg/workshop/tree/main/17-token)
+
 ## 17.1 Mengapa JWT?
 
 | Karakteristik | JWT | Session-based |

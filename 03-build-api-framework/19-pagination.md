@@ -9,6 +9,11 @@ Saat jumlah data dalam database membesar (ratusan, ribuan, atau jutaan), mengemb
 
 Pagination adalah solusi untuk memecah data menjadi halaman-halaman kecil.
 
+> **📂 Kode Lengkap Bab Ini:**  
+> Seluruh kode yang dibahas di bab ini tersedia di GitHub:
+>
+> 🔗 [github.com/jacky-htg/workshop/tree/main/19-pagination](https://github.com/jacky-htg/workshop/tree/main/19-pagination)
+
 ## 19.1 Desain Pagination
 
 Query Parameters yang Didukung

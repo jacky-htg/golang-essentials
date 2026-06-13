@@ -8,6 +8,11 @@ Setelah memiliki standard response, langkah selanjutnya adalah menyempurnakan ca
 
 Bab ini akan membangun sistem error handling yang konsisten dan informatif.
 
+> **📂 Kode Lengkap Bab Ini:**  
+> Seluruh kode yang dibahas di bab ini tersedia di GitHub:
+>
+> 🔗 [github.com/jacky-htg/workshop/tree/main/13-error-handler](https://github.com/jacky-htg/workshop/tree/main/13-error-handler)
+
 ## 13.1 Masalah dengan Error Handling Saat Ini
 
 Saat ini, semua error dari service langsung dibungkus menjadi InternalServerError:

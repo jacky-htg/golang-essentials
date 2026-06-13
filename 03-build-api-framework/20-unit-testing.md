@@ -2,6 +2,11 @@
 
 Unit testing adalah praktik menulis kode untuk menguji kode lainnya. Tujuannya adalah memastikan setiap unit (fungsi, method, atau struct) berperilaku sesuai yang diharapkan. Dalam konteks ini, yang menjadi fokus adalah **coverage** — seberapa banyak cabang logika (branch) dan aturan bisnis yang teruji.
 
+> **📂 Kode Lengkap Bab Ini:**  
+> Seluruh kode yang dibahas di bab ini tersedia di GitHub:
+>
+> 🔗 [github.com/jacky-htg/workshop/tree/main/20-unit-testing](https://github.com/jacky-htg/workshop/tree/main/20-unit-testing)
+
 ## 20.1 Mengapa Unit Testing Penting?
 
 | Manfaat | Penjelasan |
