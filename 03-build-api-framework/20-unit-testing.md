@@ -209,7 +209,7 @@ go tool cover -html cover.out
 
 ## 20.5 Test Service
 
-Service bergantung pada repository.RoleRepository (interface). Kita buat **mock repository** untuk mengontrol perilaku yang diinginkan.
+Service bergantung pada `repository.RoleRepository` (interface). Kita buat **mock repository** untuk mengontrol perilaku yang diinginkan.
 
 ### Mock Repository untuk Service
 
@@ -305,7 +305,7 @@ func (m *MockRoleRepo) HasAccess(ctx context.Context, roleID, accessID int) (boo
 
 ### Test Service Update
 
-Kita akan membuat unit tst untuk fungsi `Update()` yang komplektitas-nya sedang. Buat file `internal/service/roles_test.go`
+Kita akan membuat unit test untuk fungsi `Update()` yang komplektitas-nya sedang. Buat file `internal/service/roles_test.go`
 
 ```go
 package service_test
@@ -770,6 +770,7 @@ go tool cover -html=coverage.out
 ## 20.8 Best Practices Unit Testing
 
 | Praktik | Penjelasan |
+|---------|------------|
 | Satu skenario per test | Satu fungsi test hanya menguji satu skenario (success atau satu jenis error) |
 | Nama test deskriptif | TestNamaFungsi_Skenario_Hasil → TestRoleRepository_Create_DuplicateKey_Error |
 | Gunakan table-driven test | Untuk skenario yang mirip dengan input berbeda |
@@ -809,6 +810,7 @@ func TestValidateEmail(t *testing.T) {
 Di bab ini kita telah belajar:
 
 | Komponen | Pendekatan Test | Tools |
+|----------|-----------------|-------|
 | Repository | Mock database | sqlmock |
 | Service | Mock repository | Custom mock struct |
 | Handler | Mock service + HTTP mock | httptest |
