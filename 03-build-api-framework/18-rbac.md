@@ -297,7 +297,7 @@ INSERT INTO roles_users (role_id, user_id) VALUES (1, '019eb960-a27d-73c8-9703-b
 
 ```
 
-## 18.4 Model
+## 18.4 Implementasi Model
 
 ```go
 // internal/model/access.go
@@ -346,7 +346,7 @@ type User struct {
 }
 ```
 
-## 18.5 DTO (Reques/Responnse)
+## 18.5 Implementasi DTO (Reques/Responnse)
 
 ### Login Response (diperluas)
 
@@ -542,7 +542,7 @@ func (u *UserResponse) Transform(user model.User) {
 }
 ```
 
-## 18.6 Repository
+## 18.6 Implementasi Repository
 
 ### Access Repository 
 
@@ -1066,7 +1066,7 @@ func (u *userRepository) HasPermission(ctx context.Context, email, routePath, ro
 }
 ```
 
-## 18.7 Service
+## 18.7 Implementasi Service
 
 ### Access Service
 
@@ -1669,7 +1669,7 @@ func (u *users) Delete(ctx context.Context, id string) *errors.BusinessError {
 }
 ```
 
-## 18.8 Handler
+## 18.8 Implementasi Handler
 
 ### Accesss Handler
 
