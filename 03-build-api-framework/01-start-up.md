@@ -1,6 +1,10 @@
-# Bab 1: Start up
+# Bab 1: Startup
 
 Setiap aplikasi backend API dimulai dari proses startup — saat server mendengarkan permintaan masuk dari pengguna. Di Go, paket [net/http](https://golang.org/pkg/net/http) menyediakan semua yang kita butuhkan untuk membangun server HTTP tanpa bantuan framework eksternal.
+
+> **📂 Kode Lengkap Bab Ini:**  
+> Seluruh kode yang dibahas di bab ini tersedia di GitHub:
+> 🔗 [github.com/jacky-htg/workshop/tree/main/01-startup](https://github.com/jacky-htg/workshop/tree/main/01-startup)
 
 ## 1.1 Server HTTP Pertama
 
