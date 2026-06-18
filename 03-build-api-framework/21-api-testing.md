@@ -726,6 +726,10 @@ Flow E2E Testing untuk RBAC :
 11. Grant access to role (memberi akses ke role yang telah dibuat)
 12. Access /accesses with permission (should succeed, GET /access seharusnya bisa diakses setelah role di-grant)
 
+### Prinsip FailNow
+
+Berbeda dengan api testing yang melakukan asserting, e2e testing yang merajut multiple endpoin dalam satu flow membutuhkan prinsip FailNow yang jika pada suatu titik ada yang tidak sesuai dengan ekspektasi, maka proses pengujian akan dihentikan saat itu juga. Untuk itu, kita akan menggunakan perintah require (bukan assert) dalam membandingkan ekspektasi dengan aktual. 
+
 ### Pembuatan Base Helper
 
 ```go
