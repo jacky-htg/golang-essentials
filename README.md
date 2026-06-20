@@ -29,21 +29,16 @@ Mempelajari pemrograman golang untuk pemula. Materi akan dibahas step by step da
 * Sync Mutex
 * Handling sync group routine
 
-## Design Pattern
-
-* Singleton
-* Abstract factory
-* Dependency injection
-* [Concurrency pattern](02-design-pattern/03-concurrency-pattern.md)
-    - [Worker Pool](02-design-pattern/04-worker-pool.md)
-    - [Future / Promise](02-design-pattern/08-future-promise.md)
-    - [Rate Limit](02-design-pattern/09-rate-limit.md)
-    - [Semaphore](02-design-pattern/10-sempahore.md)
-    - [Single Flight](02-design-pattern/12-single-flight.md)
+## [Concurrency Pattern](02-design-pattern/03-concurrency-pattern.md)
+* [Worker Pool](02-design-pattern/04-worker-pool.md)
+* [Future / Promise](02-design-pattern/08-future-promise.md)
+* [Rate Limit Pattern](02-design-pattern/09-rate-limit.md)
+* [Semaphore](02-design-pattern/10-semaphore.md)
+* [Single Flight](02-design-pattern/12-single-flight.md)
 
 ## Build API Framework
 
-Step by step membuat golang API framework, baik rest api maunpun grpc, baik monolith maupun microservices, baik monorepo maupun multirepo.
+Step by step membuat golang API framework, baik rest api maunpun grpc, baik monolit maupun microservices, baik monorepo maupun multirepo.
 
 * [Start up](03-build-api-framework/01-start-up.md)
 * [Shutdown](03-build-api-framework/02-shutdown.md)
@@ -67,20 +62,6 @@ Step by step membuat golang API framework, baik rest api maunpun grpc, baik mono
 * [Unit testing](03-build-api-framework/20-unit-testing.md)
 * [API testing](03-build-api-framework/21-api-testing.md)
 * [Cache](03-build-api-framework/22-cache.md)
-
-## Build gRPC API Framework
-
-* [Protocol Buffer](grpc-framework/grpc-protobuf.md)
-* [makefile](grpc-framework/makefile.md)
-* [grpc server](grpc-framework/grpc-server.md)
-* [Config](grpc-framework/grpc-config.md)
-* [Database](grpc-framework/grpc-database.md)
-* [Routing](grpc-framework/grpc-routing.md)
-* [Clean Architecture](grpc-framework/grpc-clean-architecture.md)
-* [gRPC Client](grpc-framework/grpc-client.md)
-* [Tracing](grpc-framework/grpc-tracing.md)
-* [Caching](grpc-framework/grpc-caching.md)
-* [Testing](grpc-framework/grpc-testing.md)
 
 ## Referensi Tambahan 
 
