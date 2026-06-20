@@ -43,7 +43,7 @@
 * [Pagination](03-build-api-framework/19-pagination.md)
 * [Unit Testing](03-build-api-framework/20-unit-testing.md)
 * [API Testing](03-build-api-framework/21-api-testing.md)
-* [Cache](03-build-api-framework/cache.md)
+* [Cache](03-build-api-framework/22-cache.md)
 * [Call API Third Party](03-build-api-framework/call-api.md)
 * [Asyncron](03-build-api-framework/asyncron.md)
 * [Open Telemetry](03-build-api-framework/open-telemtry.md)
@@ -52,19 +52,3 @@
 * [Monorepo](03-build-api-framework/monorepo.md)
 * [Performance](03-build-api-framework/performance.md)
 * [Security](03-build-api-framework/security.md)
-
-## gRPC Framework
-
-* [Pengenalan gRPC](grpc-framework/pengenalan-grpc.md)
-* [Protocol Buffer](grpc-framework/grpc-protobuf.md)
-* [makefile](grpc-framework/makefile.md)
-* [gRPC Server](grpc-framework/grpc-server.md)
-* [Config](grpc-framework/grpc-config.md)
-* [Database](grpc-framework/grpc-database.md)
-* [Routing](grpc-framework/grpc-routing.md)
-* [Clean Architecture](grpc-framework/grpc-clean-architecture.md)
-* [gRPC Client](grpc-framework/grpc-client.md)
-* [Tracing](grpc-framework/grpc-tracing.md)
-* [Caching](grpc-framework/grpc-caching.md)
-* [gRPC Testing](grpc-framework/grpc-testing.md)
-
