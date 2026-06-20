@@ -1007,5 +1007,5 @@ Manfaat yang kita peroleh:
 - ✅ Proteksi dari Cache Stampede dan Thundering Herd
 
 Yang akan datang:
-- Saat ini kita belum pernah memanggil API eksternal
+- Saat ini kita belum memanggil API eksternal
 - Bab selanjutnya: Call API Third Party – memanggil service eksternal dengan retry, timeout, dan circuit breaker
