@@ -1,6 +1,6 @@
 # Bab 22: Cache
 
-Dalam pengembangan aplikasi modern, caching adalah salah satu strategi paling efektif untuk meningkatkan performa dan mengurangi beban database. Buku ini akan memandu Anda melalui implementasi caching yang robust menggunakan **Valkey** (fork dari Redis) dengan bahasa Go.
+Dalam pengembangan aplikasi modern, caching adalah salah satu strategi paling efektif untuk meningkatkan performa dan mengurangi beban database. Buku ini akan memandu Anda melalui implementasi caching yang robust menggunakan **Valkey** (fork dari Redis).
 
 > **📂 Kode Lengkap Bab Ini:**  
 > Seluruh kode yang dibahas di bab ini tersedia di GitHub:
