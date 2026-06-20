@@ -21,7 +21,8 @@
     - [Single Flight](02-design-pattern/12-single-flight.md)
 -->
 
-## [Concurrency Pattern](02-design-pattern/03-concurrency-pattern.md)
+## Concurrency Pattern
+* [Concurrency Pattern](02-design-pattern/03-concurrency-pattern.md)
 * [Worker Pool](02-design-pattern/04-worker-pool.md)
 * [Future / Promise](02-design-pattern/08-future-promise.md)
 * [Rate Limit Pattern](02-design-pattern/09-rate-limit.md)
