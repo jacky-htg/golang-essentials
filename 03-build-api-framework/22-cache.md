@@ -54,20 +54,8 @@ docker run -d --name valkey -p 6379:6379 valkey/valkey:9-alpine
 
 | Library | Kelebihan | Kekurangan |
 |---------|-----------|------------|
-| `valkey-glide` | 
-- ✅ Multi-language support (Rust core)
-- ✅ AZ Affinity Routing (optimasi biaya cloud)
-- ✅ Stable dan enterprise-ready
-- ✅ Consisten di semua bahasa | 
-- ⚠️ 1 koneksi multiplex per node
-- ⚠️ Perlu client terpisah untuk operasi besar |
-| `valkey-go` | 
-- ✅ Native Go, sangat cepat
-- ✅ Auto-pipelining
-- ✅ Client-side caching
-- ✅ Connection pool support | 
-- ⚠️ Hanya untuk Go
-- ⚠️ Fitur enterprise terbatas |
+| `valkey-glide` | Multi-language support (Rust core), AZ Affinity Routing (optimasi biaya cloud), Stable dan enterprise-ready, Consisten di semua bahasa | 1 koneksi multiplex per node, Perlu client terpisah untuk operasi besar |
+| `valkey-go` | Native Go, sangat cepat, Auto-pipelining, Client-side caching, Connection pool support | Hanya untuk Go, Fitur enterprise terbatas |
 
 **Rekomendasi**
 - Cloud (AWS/GCP) -> Gunakan `valkey-glide` (AZ Affinity routing menghemat biaya)
@@ -906,7 +894,7 @@ func (u *users) saveListCache(ctx context.Context, cacheKey string, users []mode
 
 **Solusi:** Gunakan Single Flight Pattern (hanya 1 request ke database, sisanya menunggu):
 
-```goi
+```go
 import "golang.org/x/sync/singleflight"
 
 var sf singleflight.Group
@@ -958,7 +946,7 @@ Lebih detail terkait  pattern single flight bisa dibaca di [Single Flight Patter
 
 **Solusi:** 
 - On premise : gunakan valkey-go, dimana koneksi valkey otomatis dijalankan dengan multiplex untuk perintah nonblocking, namun perintah blocking akan dijalankan dengan koneksi pool connection.
-- Cloud AWS/GCP : buat dua koneksi client. Pilihan koneksi diset secara manual di dalam kode agar operasi blocking tidak menghambat operasi nonblocking. Jika operasi nonbliocking gunakan koneksi A, semantara operasi blocking menggunakan koneksi B.
+- Cloud AWS/GCP : buat dua koneksi client. Pilihan koneksi diset secara manual di dalam kode agar operasi blocking tidak menghambat operasi nonblocking. Jika operasi nonblocking gunakan koneksi A, semantara operasi blocking menggunakan koneksi B.
 
 ## 22.10 Update Bootstrap dengan Cache
 
