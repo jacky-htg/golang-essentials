@@ -84,14 +84,16 @@ RPS
 
 1. RPS (Request Per Second)
 
+```text
 Jumlah request yang berhasil diproses per detik.
 
 Contoh:
 - 1.000 request dalam 60 detik = 16.67 RPS
 - 4.500 request dalam 60 detik = 75 RPS
 
-> - ✅ Semakin tinggi RPS → semakin baik
-> - ❌ RPS yang flatten/konstan → ada bottleneck
+✅ Semakin tinggi RPS → semakin baik
+❌ RPS yang flatten/konstan → ada bottleneck
+```
 
 2. Latency / Response Time
 
@@ -104,11 +106,12 @@ Waktu yang dibutuhkan server untuk merespon request.
 | p95 | 95% request lebih cepat dari ini | 510ms |
 | p99 | 99% request lebih cepat dari ini | 890ms |
 
-> - ✅ Semakin rendah → semakin baik
-> - ⚠️ Perhatikan p95/p99 (outlier bisa jadi indikasi masalah)
+- ✅ Semakin rendah → semakin baik
+- ⚠️ Perhatikan p95/p99 (outlier bisa jadi indikasi masalah)
 
 3. Error Rate
 
+```text
 Persentase request yang gagal (status 4xx/5xx).
 
 Error Rate = (Total Error / Total Request) × 100%
@@ -117,19 +120,22 @@ Contoh:
 - 0 error dari 13.461 request = 0% ✅
 - 100 error dari 10.000 request = 1% ❌
 
-> - ✅ Target: < 1% (0% lebih baik)
-> - ❌ Error rate > 1% → perlu investigasi
+✅ Target: < 1% (0% lebih baik)
+❌ Error rate > 1% → perlu investigasi
+```
 
 4. Throughput
 
+```text
 Jumlah data yang ditransfer per detik.
 
 Data Sent: 219 KB/s
 Data Received: 325 KB/s
 Total Throughput: ~544 KB/s
 
-> - ✅ Cek apakah bandwidth cukup
-> - ❌ Throughput flatten → bandwidth bottleneck
+✅ Cek apakah bandwidth cukup
+❌ Throughput flatten → bandwidth bottleneck
+```
 
 ## 2. Tools
 
@@ -393,45 +399,51 @@ running (3m00.8s), 00/80 VUs, 4487 complete and 0 interrupted iterations
 
 1. Throughput / RPS
 
+```text
 HTTP Requests: 13,461 requests
 Duration: 180.8 detik (3m00.8s)
 
 RPS = 13,461 / 180.8 = 74.43 RPS
 
-> - ✅ 74.43 RPS tercapai (target 75 RPS hampir tercapai)
-> - ⚠️ Ada 54 dropped iterations (0.30/s) → VU kurang
+✅ 74.43 RPS tercapai (target 75 RPS hampir tercapai)
+⚠️ Ada 54 dropped iterations (0.30/s) → VU kurang
+```
 
 2. Latency / Response Time
 
-- Average     : 230.45 ms  ✅ Masih bagus
-- Median (p50): 178.21 ms ✅ < 200ms
-- p90         : 405.15 ms  ✅ Masih di bawah 500ms
-- p95         : 509.94 ms  ❌ Melewati threshold 500ms!
-- p99         : 889.61 ms  ✅ < 1000ms
+```text
+Average     : 230.45 ms  ✅ Masih bagus
+Median (p50): 178.21 ms ✅ < 200ms
+p90         : 405.15 ms  ✅ Masih di bawah 500ms
+p95         : 509.94 ms  ❌ Melewati threshold 500ms!
+p99         : 889.61 ms  ✅ < 1000ms
 
 Interpretasi:
 - 90% request masih cepat (< 405ms)
 - 5% request mulai lambat (> 509ms) → mulai ada queueing
 - Masih ada outlier sampai 4.4s → perlu investigasi
+```
 
 3. Error Rate
 
 Error rate: 0% dari 13,461 request
 
-> - ✅ Sempurna! Tidak ada error
-> - ✅ Server masih bisa memproses semua request
+- ✅ Sempurna! Tidak ada error
+- ✅ Server masih bisa memproses semua request
 
 4. Concurrent Users & Iterations
 
-- Iterations              : 4,487 (1 iterasi = 3 request = 3 endpoint)
-- Iterations/s            : 24.81
-- Iteration duration avg  : 773.51ms
+```text
+Iterations              : 4,487 (1 iterasi = 3 request = 3 endpoint)
+Iterations/s            : 24.81
+Iteration duration avg  : 773.51ms
 
 Concurrent Users = (24.81 × 773.51) / 1000 = 19.19 users
 
 Interpretasi:
 - Server mampu menangani ~19 user aktif bersamaan
 - Pada puncak (P95 iteration = 1.26s): ~31 user aktif
+```
 
 ### Threshold & Alert
 
@@ -483,17 +495,19 @@ Alert Level
 
 #### Kapasitas Maksimum
 
+```text
 Dari hasil test, kapasitas maksimum server adalah ~74 RPS
 
-- Kapasitas Stabil (Safe) :  50-55 RPS (P95 < 400ms)
-- Kapasitas Moderate      :  55-65 RPS (P95 400-450ms)
-- Kapasitas Peak          :  65-74 RPS (P95 450-500ms)
-- ⚠️  Overload            :   > 74 RPS (P95 > 500ms)
+Kapasitas Stabil (Safe) :  50-55 RPS (P95 < 400ms)
+Kapasitas Moderate      :  55-65 RPS (P95 400-450ms)
+Kapasitas Peak          :  65-74 RPS (P95 450-500ms)
+⚠️  Overload            :   > 74 RPS (P95 > 500ms)
 
 Saran Production:
 - Target maksimum: 55 RPS (safe)
 - Alert jika > 60 RPS
 - Auto-scaling jika > 65 RPS
+```
 
 ## 5 Ekstrapolasi Staging → Production
 
@@ -541,40 +555,44 @@ Saran Production:
 
 Contoh Perhitungan:
 
+```text
 Staging:
 - Service A (diuji): 74 RPS → 370 QPS (5 queries/request)
 - Service B: OFFLINE
 - Service C: OFFLINE
-- Total DB QPS: 370 QPS
+→ Total DB QPS: 370 QPS
 
 Production:
 - Service A: 50 RPS (aktual)
 - Service B: 40 RPS (aktual)
 - Service C: 30 RPS (aktual)
-- Total DB QPS: (50+40+30) × 5 = 600 QPS
+→ Total DB QPS: (50+40+30) × 5 = 600 QPS
 
-- → Database di production harus handle 600 QPS
-- → Staging hanya handle 370 QPS
-- → Staging test TIDAK valid tanpa memperhitungkan service lain!
+→ Database di production harus handle 600 QPS
+→ Staging hanya handle 370 QPS
+→ Staging test TIDAK valid tanpa memperhitungkan service lain!
+```
 
 2. Connection Pool
 
 DATABASE CONNECTION POOL (Max: 100)
 
+```text
 Staging:
 - Service A: 80 connections
 - Service B: 0 connections
 - Service C: 0 connections
-- → Available: 80 connections ✅
+→ Available: 80 connections ✅
 
 Production:
 - Service A: 40 connections
 - Service B: 30 connections
 - Service C: 25 connections
-- → Total: 95 connections (hampir habis!) ❌
+→ Total: 95 connections (hampir habis!) ❌
 
-- → Service A di production hanya dapat 40 connections
-- → Kapasitas turun drastis!
+→ Service A di production hanya dapat 40 connections
+→ Kapasitas turun drastis!
+```
 
 3. Load Balancer Overhead
 
@@ -595,15 +613,17 @@ Production:
 
 5. Network Bandwidth
 
-- Staging   : 1 Gbps
-- Production: 1 Gbps (sama)
+```text
+Staging   : 1 Gbps
+Production: 1 Gbps (sama)
 
-- Data sent     : 218 KB/s
-- Data received : 323 KB/s
-- Total         : ~544 KB/s
+Data sent     : 218 KB/s
+Data received : 323 KB/s
+Total         : ~544 KB/s
 
-- → Bandwidth masih aman (hanya 0.5% dari 1 Gbps)
-- → Bukan bottleneck
+→ Bandwidth masih aman (hanya 0.5% dari 1 Gbps)
+→ Bukan bottleneck
+```
 
 ### Formula Kalkulasi Ekstrapolasi
 
