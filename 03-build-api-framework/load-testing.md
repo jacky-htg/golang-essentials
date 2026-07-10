@@ -195,10 +195,9 @@ k6 version
 
 ## 3 Skenario Testing (Studi Kasus)
 
-### Studi Kasus: API Motorku X
+### Studi Kasus
 
 ```text
-Aplikasi: Motorku X (Mobile App)
 Endpoint: 
   - /api/config/device
   - /api/user/blocked
@@ -292,7 +291,7 @@ export function _post_burstTraffic(URL, TOKEN, IDENTITY, PAYLOAD) {
 // config-only.js - Test endpoint /api/config
 import { _options, _post_baseline, _post_burstTraffic } from "./scenario.js";
 
-const BASE_URL = __ENV.BASE_URL || 'https://api-motorkux.astra-motor.co.id';
+const BASE_URL = __ENV.BASE_URL || 'https://xxxxxxxxxxxxx.co.id';
 const TOKEN = __ENV.TOKEN || '';
 const URL = `${BASE_URL}/api/config`;
 
@@ -315,7 +314,7 @@ import { _options, _post_baseline, _post_burstTraffic } from "./scenario.js";
 import { configDevicePayload } from "./payload/config-device.js";
 import { userBlockedPayload } from "./payload/user-blocked.js";
 
-const BASE_URL = __ENV.BASE_URL || 'https://api-motorkux.astra-motor.co.id';
+const BASE_URL = __ENV.BASE_URL || 'https://xxxxxxxxxxxxx.co.id';
 const TOKEN = __ENV.TOKEN || '';
 
 const URL_CONFIG = `/api/config`;
@@ -874,10 +873,10 @@ Output:
 Rekomendasi Production:
 
 ```text
-✅ Target Aman: 50 RPS
-🟡 Alert: > 60 RPS
-🔴 Scale: > 65 RPS
-🚨 Emergency: > 70 RPS
+✅ Target Aman: 41 RPS
+🟡 Alert: > 50 RPS
+🔴 Scale: > 55 RPS
+🚨 Emergency: > 59 RPS
 ```
 
 ## 6 Rekomendasi & Action Items
@@ -913,7 +912,7 @@ groups:
 
       # 3. High RPS Alert
       - alert: HighRPS
-        expr: sum(rate(http_requests_total[1m])) > 60
+        expr: sum(rate(http_requests_total[1m])) > 50
         for: 3m
         labels:
           severity: warning
@@ -933,7 +932,7 @@ groups:
 
       # 5. Database Connection Alert
       - alert: DatabaseConnections
-        expr: pg_stat_database_numbackends > 80
+        expr: pg_stat_database_numbackends > 50
         for: 5m
         labels:
           severity: warning
