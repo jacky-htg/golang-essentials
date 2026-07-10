@@ -62,6 +62,7 @@ Step by step membuat golang API framework, baik rest api maunpun grpc, baik mono
 * [Unit testing](03-build-api-framework/20-unit-testing.md)
 * [API testing](03-build-api-framework/21-api-testing.md)
 * [Cache](03-build-api-framework/22-cache.md)
+* [Load Testing](03-build-api-framework/load-testing.md)
 
 ## Referensi Tambahan 
 

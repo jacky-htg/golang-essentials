@@ -503,7 +503,7 @@ Kapasitas Moderate      :  55-65 RPS (P95 400-450ms)
 Kapasitas Peak          :  65-74 RPS (P95 450-500ms)
 ⚠️  Overload            :   > 74 RPS (P95 > 500ms)
 
-Saran Production:
+Jika tidak memperhitungkan bottleneck connection, kita bisa memberi saran Production:
 - Target maksimum: 55 RPS (safe)
 - Alert jika > 60 RPS
 - Auto-scaling jika > 65 RPS
@@ -636,20 +636,39 @@ Prod Capacity = Staging Capacity × Multiplier × Faktor Koreksi
 Faktor Koreksi Lengkap
 
 ```javascript
-function calculateProductionCapacity(stagingData, prodConfig) {
+export function calculateProductionCapacity(stagingData, prodConfig) {
+    // === AMBIL DATA DARI PARAMETER YANG BENAR ===
+    const { stagingMaxRPS, stagingP95AtMax } = stagingData;
+    
     const {
-        stagingMaxRPS,           // 74 RPS
-        stagingP95AtMax,         // 509ms
-        prodServerCount,         // 3
-        dbType,                  // 'single', 'replica', 'sharded'
-        otherServicesRPS,        // 70 RPS (40 + 30)
-        queriesPerRequest,       // 5
-        dbMaxQPS,                // 1000
-        dbPoolSize,              // 100
-        connectionsPerService,   // 10
-        hasLoadBalancer,         // true
-        sessionType,             // 'stateless', 'stateful'
+        prodServerCount,
+        dbType,
+        otherServicesRPS,
+        queriesPerRequest,
+        dbMaxQPS,
+        dbPoolSize,
+        connectionsPerService,
+        hasLoadBalancer,
+        sessionType,
+        conservativeFactor = 0.9,
     } = prodConfig;
+    
+    // === VALIDASI ===
+    if (!stagingMaxRPS || stagingMaxRPS <= 0) {
+        throw new Error('stagingMaxRPS must be positive');
+    }
+    if (!stagingP95AtMax || stagingP95AtMax <= 0) {
+        throw new Error('stagingP95AtMax must be positive');
+    }
+    if (!prodServerCount || prodServerCount <= 0) {
+        throw new Error('prodServerCount must be positive');
+    }
+    if (dbMaxQPS <= 0 || dbPoolSize <= 0) {
+        throw new Error('dbMaxQPS and dbPoolSize must be positive');
+    }
+    if (conservativeFactor <= 0 || conservativeFactor > 1) {
+        throw new Error('conservativeFactor must be between 0 and 1');
+    }
     
     // 1. Base multiplier
     let multiplier = prodServerCount;
@@ -657,11 +676,27 @@ function calculateProductionCapacity(stagingData, prodConfig) {
     // 2. Database QPS capacity
     const otherServiceQPS = otherServicesRPS * queriesPerRequest;
     const availableQPS = dbMaxQPS - otherServiceQPS;
+    
+    if (availableQPS <= 0) {
+        throw new Error(
+            `Database overloaded! Other services already use ${otherServiceQPS} QPS, ` +
+            `leaving only ${availableQPS} QPS for this service.`
+        );
+    }
+    
     const dbCapacity = availableQPS / queriesPerRequest;
     
     // 3. Connection pool capacity
-    const otherConnections = otherServicesRPS / 10 * connectionsPerService;
+    const otherConnections = (otherServicesRPS / 10) * connectionsPerService;
     const availableConnections = dbPoolSize - otherConnections;
+    
+    if (availableConnections <= 0) {
+        throw new Error(
+            `Connection pool exhausted! Other services use ${otherConnections} connections, ` +
+            `leaving ${availableConnections} for this service.`
+        );
+    }
+    
     const connectionCapacity = availableConnections * (1000 / stagingP95AtMax);
     
     // 4. Load balancer factor
@@ -672,7 +707,7 @@ function calculateProductionCapacity(stagingData, prodConfig) {
     // 5. Session factor
     multiplier *= (sessionType === 'stateful') ? 0.85 : 0.95;
     
-    // 6. Database factor (paling besar impactnya)
+    // 6. Database factor
     const dbFactors = {
         'single': 0.6,
         'replica': 0.8,
@@ -681,14 +716,26 @@ function calculateProductionCapacity(stagingData, prodConfig) {
     multiplier *= dbFactors[dbType] || 0.7;
     
     // 7. Conservative factor (safety)
-    multiplier *= 0.9;
+    multiplier *= conservativeFactor;
     
-    // 8. Take the minimum (bottleneck)
+    // 8. Hitung kapasitas
+    const serverCapacity = stagingMaxRPS * multiplier;
+    
+    // 9. Ambil minimum (bottleneck)
     const capacity = Math.min(
-        stagingMaxRPS * multiplier,
+        serverCapacity,
         dbCapacity,
         connectionCapacity
     );
+    
+    if (isNaN(capacity) || !isFinite(capacity)) {
+        throw new Error(
+            `Invalid capacity calculation: ` +
+            `serverCapacity=${serverCapacity}, ` +
+            `dbCapacity=${dbCapacity}, ` +
+            `connectionCapacity=${connectionCapacity}`
+        );
+    }
     
     return {
         estimatedMaxRPS: Math.round(capacity),
@@ -696,6 +743,13 @@ function calculateProductionCapacity(stagingData, prodConfig) {
         multiplier: Math.round(multiplier * 100) / 100,
         dbCapacity: Math.round(dbCapacity),
         connectionCapacity: Math.round(connectionCapacity),
+        breakdown: {
+            serverCapacity: Math.round(serverCapacity),
+            dbCapacity: Math.round(dbCapacity),
+            connectionCapacity: Math.round(connectionCapacity),
+            bottleneck: capacity === serverCapacity ? 'server' :
+                       capacity === dbCapacity ? 'database' : 'connection'
+        }
     };
 }
 ```
@@ -703,15 +757,17 @@ function calculateProductionCapacity(stagingData, prodConfig) {
 Contoh Perhitungan
 
 ```javascript
-const result = calculateProductionCapacity(
+import { calculateProductionCapacity } from './calc_form.js';
+
+const withOtherSvc = calculateProductionCapacity(
     { 
         stagingMaxRPS: 74,
         stagingP95AtMax: 509
     },
     {
         prodServerCount: 3,
-        dbType: 'single',          // 1 database
-        otherServicesRPS: 70,      // 40 + 30 RPS
+        dbType: 'single',
+        otherServicesRPS: 70,
         queriesPerRequest: 5,
         dbMaxQPS: 1000,
         dbPoolSize: 100,
@@ -721,15 +777,87 @@ const result = calculateProductionCapacity(
     }
 );
 
-console.log(result);
+const onlyThisSvc = calculateProductionCapacity(
+    { 
+        stagingMaxRPS: 74,
+        stagingP95AtMax: 509
+    },
+    {
+        prodServerCount: 3,
+        dbType: 'single',
+        otherServicesRPS: 0,
+        queriesPerRequest: 5,
+        dbMaxQPS: 1000,
+        dbPoolSize: 100,
+        connectionsPerService: 10,
+        hasLoadBalancer: true,
+        sessionType: 'stateless',
+    }
+);
+
+const conservative = calculateProductionCapacity(
+    { 
+        stagingMaxRPS: 74,
+        stagingP95AtMax: 509
+    },
+    {
+        prodServerCount: 3,
+        dbType: 'single',
+        otherServicesRPS: 70,
+        queriesPerRequest: 5,
+        dbMaxQPS: 1000,
+        dbPoolSize: 100,
+        connectionsPerService: 10,
+        hasLoadBalancer: true,
+        sessionType: 'stateless',
+        conservativeFactor: 0.7,
+    }
+);
+
+console.log(withOtherSvc);
+console.log(onlyThisSvc);
+console.log(conservative);
+
 /*
 Output:
 {
-  estimatedMaxRPS: 88,          // 74 × 3 × 0.8 × 0.5
-  estimatedStableRPS: 62,       // 88 × 0.7
-  multiplier: 1.19,             // Faktor total
-  dbCapacity: 90,               // (1000 - 350) / 5
-  connectionCapacity: 87,       // (100 - 70) × 1.96
+  estimatedMaxRPS: 59,
+  estimatedStableRPS: 41,
+  multiplier: 1.39,
+  dbCapacity: 130,
+  connectionCapacity: 59,
+  breakdown: {
+    serverCapacity: 102,
+    dbCapacity: 130,
+    connectionCapacity: 59,
+    bottleneck: 'connection'
+  }
+}
+{
+  estimatedMaxRPS: 102,
+  estimatedStableRPS: 72,
+  multiplier: 1.39,
+  dbCapacity: 200,
+  connectionCapacity: 196,
+  breakdown: {
+    serverCapacity: 102,
+    dbCapacity: 200,
+    connectionCapacity: 196,
+    bottleneck: 'server'
+  }
+}
+{
+  estimatedMaxRPS: 59,
+  estimatedStableRPS: 41,
+  multiplier: 1.39,
+  dbCapacity: 130,
+  connectionCapacity: 59,
+  breakdown: {
+    serverCapacity: 102,
+    dbCapacity: 130,
+    connectionCapacity: 59,
+    bottleneck: 'connection'
+  }
 }
 */
 ```
@@ -738,9 +866,9 @@ Output:
 
 | Skenario | Staging | Production (Est.) | Target Aman |
 |----------|---------|-------------------|-------------|
-| Service A Only | 74 RPS | 88 RPS | 62 RPS |
-| Dengan Service Lain | 74 RPS | 70-80 RPS | 50-55 RPS |
-| Conservative | 74 RPS | 60-70 RPS | 45-50 RPS |
+| Service A Only | 74 RPS | 102 RPS | 72 RPS |
+| Dengan Service Lain | 74 RPS | 59 RPS | 41 RPS |
+| Conservative | 74 RPS | 59 RPS | 41 RPS |
 
 
 Rekomendasi Production:

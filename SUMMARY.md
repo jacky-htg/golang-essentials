@@ -54,6 +54,7 @@
 * [Unit Testing](03-build-api-framework/20-unit-testing.md)
 * [API Testing](03-build-api-framework/21-api-testing.md)
 * [Cache](03-build-api-framework/22-cache.md)
+* [Load Testing](03-build-api-framework/load-testing.md)
 <!--* [Call API Third Party](03-build-api-framework/call-api.md)
 * [Asyncron](03-build-api-framework/asyncron.md)
 * [Open Telemetry](03-build-api-framework/open-telemtry.md)
